@@ -39,10 +39,6 @@ export default class LoginOptions extends Component{
   }
 }
 
-  // Try setting `justifyContent` to `center`.
-      // Try setting `flexDirection` to `row`.
-      
-       
 const styles = StyleSheet.create({
 
   container:{

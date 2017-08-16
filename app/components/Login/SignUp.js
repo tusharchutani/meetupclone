@@ -38,6 +38,8 @@ export default class SignUp extends Component{
     );
   }
 }
+
+
 const styles = StyleSheet.create({
   container:{
     flex: 1,

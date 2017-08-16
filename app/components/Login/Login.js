@@ -14,13 +14,8 @@ import { Button } from 'react-native-elements'
 import { StackNavigator } from 'react-navigation';
 
 export default class Login extends Component{
-  static navigationOptions = {
-    title: 'Welcome',
-
-  };
   render() {
     return (
-      
       <Image style={styles.imageContainer} source = {require('../../../assets/images/aa.png')} resizeMode="stretch">
         <View style={styles.buttonContainer}>
         <TouchableOpacity>
@@ -36,13 +31,6 @@ export default class Login extends Component{
   }
 }
 
-  // Try setting `justifyContent` to `center`.
-      // Try setting `flexDirection` to `row`.
-
-const MokApp = StackNavigator({
-  LoginMain: { screen: Login }, 
-});      
-       
 
 const styles = StyleSheet.create({
 	imageContainer:{
@@ -51,7 +39,7 @@ const styles = StyleSheet.create({
     alignItems:'stretch',
     height: null,
     width: null,
-    opacity: 0.7
+    opacity: 0.9
 
 
     
@@ -62,7 +50,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around', 
     alignItems: 'center',
     flexDirection:'row',
-    opacity: 0.8,
+    opacity:1
     
   },
   textStyle: {
