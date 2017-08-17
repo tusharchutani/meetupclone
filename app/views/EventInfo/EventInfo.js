@@ -57,14 +57,13 @@ export default class EventInfo extends Component {
 
   	return (
       <ScrollView style={Constants.styles.fill}>
-      	<ProgressiveImage style={styles.eventInfoHeaderImage} 
-      	thumbnailSource={{ uri: 'http://i.imgur.com/O249H4P.png?bust' + Math.random() }}
-      	imageSource={{uri:'https://static1.squarespace.com/static/51c3cda0e4b0bea2ecf69bc4/561fc2c1e4b00e50405f46fd/57ed278a2994caa927f998af/1475159971460/shutterstock_242371765+%281%29.jpg'}}>
+      	<Image style={styles.eventInfoHeaderImage} 
+      	source={{uri:'https://static1.squarespace.com/static/51c3cda0e4b0bea2ecf69bc4/561fc2c1e4b00e50405f46fd/57ed278a2994caa927f998af/1475159971460/shutterstock_242371765+%281%29.jpg'}}>
       		<View style={[styles.eventNameInfoContainer, styles.eventInfoContainer]}>
 	      		<Text style={styles.eventInfoName}>Camping</Text> 
 	      		<Text style={styles.eventHostName}>Hosted by Tushar Chutani</Text>
 	      	</View>
-      	</ProgressiveImage>
+      	</Image>
   		{attendanceComponent}
   		<View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
   			<Icon name="event" size={Constants.small_icon_size} color={Constants.color3}/>
