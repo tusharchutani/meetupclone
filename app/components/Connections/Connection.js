@@ -18,9 +18,9 @@ var ScrollableTabView = require('react-native-scrollable-tab-view');
 export default class Connection extends Component{
   render() {
     return (
-      <ScrollableTabView style = {styles.tabView}>
-     <Following tabLable="Following" />
-     <Followers tabLable="Followers" />
+      <ScrollableTabView tabBarActiveTextColor="red" tabBarUnderlineStyle={{backgroundColor:'red'}} style = {styles.tabView}>
+       <Following tabLabel="Following" />
+       <Followers tabLabel="Followers" />
       </ScrollableTabView>
 
     );
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
 
   },
   tabView: {
-
+    paddingTop:15
   }
   
     

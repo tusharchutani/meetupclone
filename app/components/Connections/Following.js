@@ -32,7 +32,7 @@ export default class Following extends Component{
   }
   makeRemoteRequest = () => {
     const { page, seed } = this.state;
-    const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`;
+    const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`; 
     this.setState({ loading: true });
     fetch(url)
       .then(res => res.json())
@@ -73,13 +73,12 @@ render() {
       // Try setting `flexDirection` to `row`.
       
        
-
+//TODO: extract the container class in UI constant
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-
   }
     
 });
