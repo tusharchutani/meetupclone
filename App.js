@@ -1,10 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, AppRegistry } from 'react-native';
 
 
 import {MokApp} from './app/MainApp';
 
+
 export default class App extends React.Component {
+
   render() {
     return (
       <View style={styles.container}>
@@ -20,3 +22,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 });
+AppRegistry.registerComponent('App', () => App);
