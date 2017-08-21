@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SearchBar, Icon } from 'react-native-elements'
 import EventFeedItem from './EventFeedItem'
+import Constants  from '../../MokUI/UIConstants';
 
 export default class Feed extends Component {
 
@@ -69,13 +70,10 @@ const styles = StyleSheet.create({
     flex: 1,
 
   },
-  EventFeedItem:{
-    flex:1
-  },
   separator: {
     flex: 1,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#8E8E8E',
+    backgroundColor: Constants.tableDividerColor,
   }
 
 });

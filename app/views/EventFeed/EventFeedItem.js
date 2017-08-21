@@ -7,8 +7,8 @@ import {
   Image
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { Tags } from '../../../MokUI/MokUI';
-
+import { Tags } from '../../MokUI/MokUI';
+import Constants  from '../../MokUI/UIConstants';
 export default class EventFeedItem extends Component {
 
 
@@ -38,7 +38,7 @@ export default class EventFeedItem extends Component {
 	      			<Text style={styles.eventDay}>Fri</Text>
 	      		</View>
       		</View>
-      		<Icon name="bookmark-border" size={35} color="white" style={styles.bookmarkIcon} onPress={bookmarkEvent}/>
+      		<Icon name="bookmark-border" size={Constants.medium_icon_size} color={Constants.color1} style={styles.bookmarkIcon} onPress={bookmarkEvent}/>
   		</Image>
   		<View style={styles.eventInfoContainer}>
       		<Text style={styles.eventName}>{this.state.eventName}</Text>
@@ -47,12 +47,12 @@ export default class EventFeedItem extends Component {
 
   		<View style={styles.eventInfoContainer}>
 	      	<View style={styles.locationContainer}>
-	      		<Icon name="location-on" size={18} color="grey"/>
-	      		<Text style={{color:'grey'}}>{this.state.eventLocation}</Text>
+	      		<Icon name="location-on" size={Constants.small_icon_size} color={Constants.color3}/>
+	      		<Text style={{color:Constants.color3}}>{this.state.eventLocation}</Text>
 	  		</View>
 
 	      	<View style={styles.locationContainer}>
-		      		<Icon name="group" size={20} color="grey"/>
+		      		<Icon name="group" size={20} color={Constants.color3}/>
 		      		<Text style={styles.cornerInfo}>11</Text>
 	  		</View>
   		</View>
@@ -64,7 +64,7 @@ export default class EventFeedItem extends Component {
   			<Tags text="Tag 2"/>  			  		
   		</View>
 
-		<Icon name="event" size={25} color="grey" onPress={bookmarkEvent}/>
+		<Icon name="event" size={25} color={Constants.color3} onPress={bookmarkEvent}/>
 
 	</View>
       </View>
@@ -86,7 +86,7 @@ const DETAULT_IMAGE_URL="https://static1.squarespace.com/static/51c3cda0e4b0bea2
 const styles = StyleSheet.create({
   container: {
     // borderRadius:5,
-    backgroundColor:'white',
+    backgroundColor:Constants.color1,
     paddingBottom:MARGIN
   },
   eventImage:{
@@ -109,20 +109,20 @@ const styles = StyleSheet.create({
   },
   eventDate:{
   	fontSize:22,
-  	color:'white'  	
+  	color:Constants.color1
   },
   eventMonth:{
 	fontSize:15,
-  	color:'white'	
+  	color:Constants.color1
   },
   eventDay:{
 	fontSize:13,
-  	color:'white'	
+  	color:Constants.color1
   },
   eventName:{
   	fontSize: 17,
  	fontWeight: 'bold',
-  	color:'black'
+  	color:Constants.color2
   },
   locationContainer:{
   	flexDirection:'row',
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   	marginRight:MARGIN_CORNER,
   },
   cornerInfo:{
-  	color:'grey',
+  	color:Constants.color3,
   	// marginBottom:MARGIN
   },tagInfoContainer:{
   	justifyContent:'flex-start',

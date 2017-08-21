@@ -4,7 +4,8 @@ export default Constants = {
 	color2:'black',
 	color3:'grey',
 	color4:'#3FABE2',
-	medium_icon_size:30,
+	tableDividerColor:'#8E8E8E',
+	medium_icon_size:35,
 	small_icon_size:18,
 	styles:StyleSheet.create({
 		inRowComponents:{

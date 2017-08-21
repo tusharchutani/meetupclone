@@ -5,6 +5,7 @@ import {
   Text,
   View
 } from 'react-native';
+import Constants  from '../../MokUI/UIConstants';
 
 import {FeedNavigation} from './FeedNavigationController'
 export default class Feed extends Component {
@@ -20,9 +21,6 @@ export default class Feed extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // backgroundColor: '#F5FCFF',
   }
 });
 

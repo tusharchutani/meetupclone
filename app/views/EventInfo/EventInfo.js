@@ -105,12 +105,12 @@ const styles = StyleSheet.create({
   	backgroundColor:'rgba(0,0,0,0.5)',
   },
   eventInfoName:{
-  	color:'white',
+  	color:Constants.color1,
   	fontSize:20,
   	marginBottom:7
   }, 
   eventHostName:{
-  	color:'white',
+  	color:Constants.color1,
   	fontSize:17
   }, 
   attendenceContainer:{
