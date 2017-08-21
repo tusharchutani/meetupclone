@@ -12,24 +12,28 @@ import {ScrollView,
 import TestView from './views/TestView';
 import Feed from './views/EventFeed/Feed';
 import EventInfo from './views/EventInfo/EventInfo';
+import Connections from './views/Connections/Connection';
+import Settings from './views/Settings/Settings';
 import { StackNavigator, TabNavigator, DrawerNavigator,DrawerItems} from 'react-navigation';
 import { Icon } from 'react-native-elements'
-
+import Constants  from './MokUI/UIConstants';
 //TODO: remove
 import UserProfile from './views/Profile/Profile';
 
 const MainTabs = TabNavigator({
+		EventFeed: {
+			screen: Feed,
+			navigationOptions:{
+				tabBarLabel:'Event Feed',
+				tabBarIcon: ({tintColor}) => <Icon name="list" size={28} color={tintColor}/>,
+			}
+		},	
 		UserProfile: { 
 			screen: UserProfile,
 			navigationOptions:{
 				tabBarLabel:"User profile",
 				tabBarIcon: ({tintColor}) => <Icon name="person-pin" size={28} color={tintColor}/>,
 			}
-			/*will have 3 screens
-			screen1: hosting, 
-			screen2: bookmarked,
-			screen3: going
-			*/
 		},	
 		MyEvents: { 
 			screen: EventInfo,
@@ -38,13 +42,7 @@ const MainTabs = TabNavigator({
 				tabBarIcon: ({tintColor}) => <Icon name="person-pin" size={28} color={tintColor}/>,
 			}
 		},
-		EventFeed: {
-			screen: Feed,
-			navigationOptions:{
-				tabBarLabel:'Event Feed',
-				tabBarIcon: ({tintColor}) => <Icon name="list" size={28} color={tintColor}/>,
-			}
-		}, SearchEvent:{ 
+		 SearchEvent:{ 
 			//will be the tinder cards according 
 			screen: TestView,
 			navigationOptions:{
@@ -54,7 +52,7 @@ const MainTabs = TabNavigator({
 		}, 
 	},	{
 		tabBarOptions:{
-			activeTintColor: 'black',
+			activeTintColor: Constants.color2,
 		}
 	});
 
@@ -69,7 +67,7 @@ export const MokApp = DrawerNavigator({
 		}
 	}, Connections:{ 
 		//this will have follower and following
-		screen: TestView,
+		screen: Connections,
 		title: 'Connections',
 		navigationOptions:{
 			drawerIcon:({tintColor})=> (<Icon name="group" color={tintColor}/>),
@@ -83,7 +81,7 @@ export const MokApp = DrawerNavigator({
 			drawerIcon:({tintColor})=> (<Icon name="account-circle" color={tintColor}/>)
 		}		
 	}, Settings:{
-		screen: TestView,
+		screen: Settings,
 		title: 'Settings',
 		navigationOptions:{
 			drawerIcon:({tintColor})=> (<Icon name="settings" color={tintColor}/>),
