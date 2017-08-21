@@ -37,11 +37,6 @@ const MainTabs = TabNavigator({
 				tabBarLabel:null,
 				tabBarIcon: ({tintColor}) => <Icon name="person-pin" size={28} color={tintColor}/>,
 			}
-			/*will have 3 screens
-			screen1: hosting, 
-			screen2: bookmarked,
-			screen3: going
-			*/
 		},
 		EventFeed: {
 			screen: Feed,
@@ -60,10 +55,6 @@ const MainTabs = TabNavigator({
 	},	{
 		tabBarOptions:{
 			activeTintColor: 'black',
-			style:{
-				
-				// backgroundColor:'rgba(255,255,255,0.3)'
-			}
 		}
 	});
 
@@ -107,14 +98,9 @@ export const MokApp = DrawerNavigator({
 },{
 	contentComponent:props => drawerMenu({props}),
      contentOptions: {
- 		// activeBackgroundColor:'black',
-   //   	activeTintColor: 'white',
-   //   	inactiveTintColor:'black',
-     
      style: {
        flex: 1,
        paddingTop: 15,
-       // backgroundColor:'black',
       }
    	}
 
@@ -144,7 +130,6 @@ const styles = StyleSheet.create({
     	marginTop:30,
 
 	}
-
 });
 
 

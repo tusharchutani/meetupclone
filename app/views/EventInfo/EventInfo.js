@@ -8,8 +8,7 @@ import {
   ScrollView
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import Constants from '../../../MokUI/UIConstants';
-import ProgressiveImage from 'react-native-progressive-image';
+import Constants from '../../MokUI/UIConstants';
 
 export default class EventInfo extends Component {
 
@@ -104,7 +103,6 @@ const styles = StyleSheet.create({
   },
   eventNameInfoContainer:{
   	backgroundColor:'rgba(0,0,0,0.5)',
-  	
   },
   eventInfoName:{
   	color:'white',
