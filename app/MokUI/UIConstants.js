@@ -1,12 +1,23 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
+
+
 export default Constants = {
+	//COLOURS
 	color1:'white',
 	color2:'black',
 	color3:'grey',
 	color4:'#3FABE2',
+	color5:'#F5FCFF',
 	tableDividerColor:'#8E8E8E',
-	medium_icon_size:35,
+
+//SIZES
+	large_icon_size:40,
+	medium_icon_size:30,
 	small_icon_size:18,
+	screenWidth: Dimensions.get('window').width,
+	screenHeight: Dimensions.get('window').height,
+
+//Style	
 	styles:StyleSheet.create({
 		inRowComponents:{
 			flexDirection:'row'
