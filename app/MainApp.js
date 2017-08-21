@@ -34,13 +34,6 @@ const MainTabs = TabNavigator({
 				tabBarLabel:"User profile",
 				tabBarIcon: ({tintColor}) => <Icon name="person-pin" size={28} color={tintColor}/>,
 			}
-		},	
-		MyEvents: { 
-			screen: EventInfo,
-			navigationOptions:{
-				tabBarLabel:null,
-				tabBarIcon: ({tintColor}) => <Icon name="person-pin" size={28} color={tintColor}/>,
-			}
 		},
 		 SearchEvent:{ 
 			//will be the tinder cards according 
@@ -53,6 +46,7 @@ const MainTabs = TabNavigator({
 	},	{
 		tabBarOptions:{
 			activeTintColor: Constants.color2,
+			showIcon:true
 		}
 	});
 
