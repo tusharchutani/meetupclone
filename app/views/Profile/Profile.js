@@ -9,8 +9,8 @@ import {
   FlatList
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { RoundImage } from '../../../MokUI/MokUI';
-import Constants from '../../../MokUI/UIConstants';
+import { RoundImage } from '../../MokUI/MokUI';
+import Constants from '../../MokUI/UIConstants';
 
 export default class Profile extends Component {
 	renderUserPhotos(item){
