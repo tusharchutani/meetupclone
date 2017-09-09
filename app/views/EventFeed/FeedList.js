@@ -9,6 +9,7 @@ import {
 import { SearchBar, Icon } from 'react-native-elements'
 import EventFeedItem from './EventFeedItem'
 import Constants  from '../../MokUI/UIConstants';
+import {connect} from 'react-redux';
 
 export default class Feed extends Component {
 
@@ -17,7 +18,7 @@ export default class Feed extends Component {
 	    super(props);
 	    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 	    this.state = {
-	      dataSource: ds.cloneWithRows([{
+	      eventList: ds.cloneWithRows([{
           eventName: "Party", 
           eventDate: "this.props.eventDate",
           eventTime: "this.props.eventTime",
@@ -50,7 +51,7 @@ export default class Feed extends Component {
     <View style={styles.container}>
       <SearchBar lightTheme onChangeText={searchList} placeholder='Type Here...' />
       <ListView
-      dataSource={this.state.dataSource} 
+      dataSource={this.state.eventList} 
       renderRow={(data) => <EventFeedItem{...data} />}
       renderSeparator={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
       /> 
@@ -78,4 +79,10 @@ const styles = StyleSheet.create({
 
 });
 
-AppRegistry.registerComponent('Feed', () => Feed);
+var mapStateToProps = (state) =>{
+  return {
+    eventList: state.eventList
+  }
+}
+
+module.exports = connect(mapStateToProps)(Feed);

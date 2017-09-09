@@ -4,7 +4,8 @@ import {
   StyleSheet,
   Text,
   Image,
-  View
+  View,
+  TextInput
 } from 'react-native';
 
 import PropTypes from 'prop-types';
@@ -43,7 +44,30 @@ RoundImage.propTypes = {
   source:PropTypes.string.isRequired,
 }
 
+export class MultiLineTextField extends Component {
+  render() {
 
+    return (
+          <View style={{alignItems:'center'}}>
+              <View style={{backgroundColor:Constants.color1,
+                borderBottomWidth:1, 
+                borderBottomColor:Constants.color6,
+                fieldWidth:this.props.fieldWidth
+                }
+              }>
+                <TextInput 
+                {...this.props}
+                color={Constants.formTextColor}
+                fontSize={17}
+                placeholder={this.props.placeholder}
+                placeholderTextColor={Constants.color3}
+                multiline = {true}/>
+            </View>
+          </View>
+
+    );
+  }
+}
 
 const textPaddingRightLeft=10;
 const tagStyles = StyleSheet.create({
@@ -62,4 +86,4 @@ const tagStyles = StyleSheet.create({
 
 });
 
-module.exports = { Tags,RoundImage };
+module.exports = { Tags,RoundImage, MultiLineTextField };

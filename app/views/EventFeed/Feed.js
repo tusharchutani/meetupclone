@@ -9,10 +9,15 @@ import Constants  from '../../MokUI/UIConstants';
 
 import {FeedNavigation} from './FeedNavigationController'
 export default class Feed extends Component {
+
+  static navigationOptions = {
+    title:'stuff'
+  }
+
   render() {
     return (
       <View style={styles.container}>
-        <FeedNavigation/>
+        <FeedNavigation screenProps={{rootNavigation:this.props.navigation}}/>
       </View>
     );
   }
