@@ -1,38 +1,27 @@
-import React, { Component } from 'react';
-import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  ImageBackground,
-  KeyboardAvoidingView,
-  TouchableOpacity,
-  FlatList
-} from 'react-native';
+import React, { Component } from "react";
+import { View, Text, FlatList,List,ListItem } from "react-native";
 
-import {List, ListItem} from 'react-native-elements';
-
-export default class Following extends Component{
+class MyEvents extends Component {
   constructor(props) {
     super(props);
-  
+
     this.state = {
       loading: false,
       data: [],
       page: 1,
       seed: 1,
       error: null,
-      refreshing: false
+      refreshing: false,
     };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.makeRemoteRequest();
   }
+
   makeRemoteRequest = () => {
     const { page, seed } = this.state;
-    const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`; 
+    const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`;
     this.setState({ loading: true });
     fetch(url)
       .then(res => res.json())
@@ -49,8 +38,7 @@ export default class Following extends Component{
       });
   };
 
- 
-render() {
+  render() {
   return (
     <List>
       <FlatList
@@ -66,22 +54,7 @@ render() {
       />
     </List>
   );
-}
-}
-
-  // Try setting `justifyContent` to `center`.
-      // Try setting `flexDirection` to `row`.
-      
-       
-//TODO: extract the container class in UI constant
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   }
-    
-});
+}
 
-
-AppRegistry.registerComponent('Following', () => Following);
+export default MyEvents;

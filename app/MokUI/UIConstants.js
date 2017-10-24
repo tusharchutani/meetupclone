@@ -34,5 +34,7 @@ export default Constants = {
 	    	flex: 1,
     		backgroundColor: '#F5FCFF',
   		}			
-	})
+	}),
+	defaultProfilePic:"http://www.thedigitalkandy.com/wp-content/uploads/2016/01/facebook-no-profile.png",
+	locale:"en-us" 
 }

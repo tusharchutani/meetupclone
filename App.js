@@ -1,69 +1,34 @@
 import React from 'react';
-import { StyleSheet, AppRegistry } from 'react-native';
+import { StyleSheet, AppRegistry, View } from 'react-native';
 
-import MokApp from './app/MainApp';
 import {Provider} from 'react-redux';
-import {connect} from 'react-redux';
 import {configureStore} from './app/store';
 import {addNavigationHelpers, NavigationActions} from 'react-navigation';
+import MokApp from './app/MokApp';
 
+
+//debugging
+XMLHttpRequest = GLOBAL.originalXMLHttpRequest ?  
+  GLOBAL.originalXMLHttpRequest : GLOBAL.XMLHttpRequest;
+
+  
 export default class App extends React.Component {
-
-
-
-
-  _mokApp = null;
 
   render() {
     console.ignoredYellowBox = ['Remote debugger'];
     
     return (
       <Provider style={styles.container} store={configureStore()}>
-         <MokAppWithNavigation />
+         <MokApp />           
       </Provider>
     );
   }
 }
 
-/*const Mok = ({dispatch, nav}) => (
-    <MokApp navigation={addNavigationHelpers({
-      dispatch,
-      state: nav
-    })}/>
-);*/
-
-
-const Mok = ({dispatch, nav}) => (<MokApp ref={(mokApp)=> {this._mokApp = mokApp;}} navigation={addNavigationHelpers({
-        dispatch,
-        state: nav
-      })}/>);
-
-
-
-
-
-
-const mapStateToProps = state => {
-  if(state.auth.user && this._mokApp){
-
-    const navigateAction = NavigationActions.navigate({routeName: 'MainApp'});
-    // _mokApp.props.navigation.dispatch(navigateAction);
-    console.log("Map state to props function");
-    
-  }
-  return ({ nav: state.nav});
-
-}
-
-const MokAppWithNavigation = connect(mapStateToProps)(Mok)
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-});
-
-
+    backgroundColor: '#F5FCFF',
+  }});
 
 module.exports = App;

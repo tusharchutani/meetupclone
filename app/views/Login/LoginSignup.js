@@ -15,8 +15,34 @@ import { NavigationActions } from 'react-navigation';
 
 
 export default class LoginSignup extends Component{
+  _val = 0;
   static navigationOptions = {headerMode:'screen'}
+   constructor(props) {
+      super(props);
+      this.state = {
+        loginButtonDisabled:false,
+        signupButtonDisabled:false
+      }
+    }
+
   render() {
+    let onLoginButton = () => {
+    if(this._val == 0){
+      this._val++;
+      this.props.navigation.navigate('LoginScreen');
+      //temp fix later on
+      setTimeout(()=>{this._val = 0; }, 1000); }
+    }
+
+    let onSignupButton = () => {
+    if(this._val == 0){
+      this._val++;
+      this.props.navigation.navigate('SignUp');
+      //temp fix later on
+      setTimeout(()=>{this._val = 0; }, 1000); }      
+    }
+
+
     return (
       <Image style={styles.imageContainer} source = {require('../../../assets/images/aa.png')} resizeMode="stretch">
       <View style={styles.logoContainer}>
@@ -29,19 +55,17 @@ export default class LoginSignup extends Component{
       </Text>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity activeOpacity={0.93} style={styles.button} onPress={()=>{this.props.navigation.navigate('LoginScreen')
-          }}> 
+          <TouchableOpacity activeOpacity={0.93} style={styles.button} onPress={onLoginButton}> 
             <Text style={styles.buttonText}>LOG IN</Text> 
           </TouchableOpacity>
           
           <TouchableOpacity activeOpacity={0.97}
-          onPress={()=>{this.props.navigation.navigate('SignUp')}}
+          onPress={onSignupButton}
           style={[styles.button,{backgroundColor:signupButtonColor}]}> 
             <Text style={styles.buttonText}>SIGN UP</Text> 
           </TouchableOpacity>
         </View>
       </Image>
-      
     );
   }
 }

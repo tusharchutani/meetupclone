@@ -52,7 +52,6 @@ export class MultiLineTextField extends Component {
               <View style={{backgroundColor:Constants.color1,
                 borderBottomWidth:1, 
                 borderBottomColor:Constants.color6,
-                fieldWidth:this.props.fieldWidth
                 }
               }>
                 <TextInput 

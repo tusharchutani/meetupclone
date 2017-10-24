@@ -5,9 +5,12 @@ var defaultState = {
 module.exports = (state=defaultState, action)=>{
 	switch(action.type){
 		case 'AUTH_USER':
-			console.log("Auth user action");
 			return {
 				user_id:action.user_id
+			}
+		case 'WRONG_CRED':
+			return {
+				wrong_cred:true
 			}
 		case 'UNAUTH_USER':
 			return {

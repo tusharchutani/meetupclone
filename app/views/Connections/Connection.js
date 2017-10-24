@@ -1,47 +1,133 @@
 import React, { Component } from 'react';
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   View,
-  Image,
-  ImageBackground,
-  KeyboardAvoidingView,
-  TouchableOpacity
+  TouchableOpacity,
+  FlatList
 } from 'react-native';
-
-import Following from './Following'
-import Followers from './Followers'
-import Constants  from '../../MokUI/UIConstants';
-
-var ScrollableTabView = require('react-native-scrollable-tab-view');
-
+import {RoundImage} from '../../MokUI/MokUI'
+import Constants from '../../MokUI/UIConstants';
+import {connect} from 'react-redux';
+import {List, ListItem} from 'react-native-elements';
+import { SearchBar, Icon, Button } from 'react-native-elements'
+import {searchUsers, openUserProfile} from '../../actions';
 export default class Connection extends Component{
-  render() {
-    return (
-      <ScrollableTabView tabBarActiveTextColor={Constants.color4} tabBarUnderlineStyle={{backgroundColor:Constants.color4}} style = {styles.tabView}>
-       <Following tabLabel="Following" />
-       <Followers tabLabel="Followers" />
-      </ScrollableTabView>
-
-    );
+    _val = 0;
+   static navigationOptions = ({ navigation }) => {
+    var title = navigation.state.params ? navigation.state.params.title:"";
+        return {
+          title
+        }    
   }
-}
- 
-const styles = StyleSheet.create({
-	container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
 
-  },
-  tabView: {
-    paddingTop:15
-  }
+  constructor(props) {
+    super(props);
   
+    this.state = {
+      isLoadingSearch: false,
+      error: null,
+      refreshing: false
+    };
+  }
+
+  componentDidMount(){
+   this.props.navigation.setParams({
+    title: this.props.userList.title
+  })
+  }
+
+
+
+
+  searchUser(searchQuery){
+    this.setState({isLoadingSearch:true});
+    if(this.props.userList.isFindUser){
+        if(searchQuery.length != 0){
+          this.props.dispatch(searchUsers(searchQuery)).then(()=>{
+          this.setState({isLoadingSearch:false});});
+        }else{
+          this.props.dispatch(searchUsers(""))
+          this.setState({isLoadingSearch:false});
+      }
+    }
+  }
+
+  getUserProfile(_id){
+     if(this._val == 0){
+        this._val = 1;
+        this.props.dispatch(openUserProfile(_id));
+        setTimeout(()=>{this._val = 0; }, 1000);
+    }
+  }
+
+ searchBar(self){
+  return ( <SearchBar lightTheme onChangeText={(event)=>{self.searchUser(event)}} placeholder='Type Here...' 
+      showLoadingIcon={self.state.isLoadingSearch}/>)
+ }
+  render() {
+   _userList = this.props.userList.list.filter(function(n){ return n != undefined });
+  return (
+    <View style={styles.container}>
+      <FlatList
+        keyExtractor={(item, index) => index}
+        data={_userList}
+        renderItem={({ item }) => {
+          var imageUrl = (item.avatarurl != undefined && item.avatarurl != "new") ? item.avatarurl:"http://www.thedigitalkandy.com/wp-content/uploads/2016/01/facebook-no-profile.png";
+          var name = item.firstname + " " + item.lastname;
+          var email = item.email;
+          return (
+          <TouchableOpacity style={styles.itemContainer} onPress={()=>{this.getUserProfile(item._id)}}> 
+            <RoundImage size={50} style={{justifyContent:'center'}} source={imageUrl}/>
+            <View>
+              <Text style={styles.nameText}>{name}</Text>
+              <Text style={styles.emailText}>{email}</Text>
+            </View>
+          </TouchableOpacity>);
+        }}
+         ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
+         ListHeaderComponent={this.props.userList.isFindUser && this.searchBar(this)}
+      />
+    </View>
+  );
+}
+}
+
+
+const styles = StyleSheet.create({
+  container:{
+    flex:1,
+    backgroundColor:Constants.color1
+  },
+  itemContainer: {
+    flex: 1,
+    flexDirection:'row',
+    height:75,
+    justifyContent:'flex-start',
+    alignItems:'center'
+  },
+  separator: {
+    flex: 1,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor:Constants.tableDividerColor,
+  },
+  nameText:{
+    fontWeight:'bold',
+    color:Constants.color2
+  },
+  emailText:{
+    paddingLeft:10,
+    color:Constants.color3
+  }
     
 });
 
+var mapStateToProps = (state) =>{
 
-AppRegistry.registerComponent('Connection', () => Connection);
- // <View>
+  return {
+    userList:state.userSearch
+    // userList: state.events.eventList ? ds.cloneWithRows(state.events.eventList):ds.cloneWithRows([])
+  }
+}
+
+module.exports = connect(mapStateToProps)(Connection); 

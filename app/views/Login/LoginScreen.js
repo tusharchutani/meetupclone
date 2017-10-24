@@ -9,35 +9,50 @@ import {
   TextInput,
   ImageBackground,
   KeyboardAvoidingView,
-  TouchableOpacity
+  TouchableOpacity, 
+  ActivityIndicator
 } from 'react-native';
 import {reduxForm} from 'redux-form';
 import { Button, FormLabel, FormInput, SocialIcon, FormValidationMessage } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/FontAwesome';
+// import Icon from 'react-native-vector-icons/FontAwesome';
 import Constants from '../../MokUI/UIConstants';
-import {authUser} from '../../actions';
-import {NavigationActions} from 'react-navigation'
+import {loginUser} from '../../actions';
+import {NavigationActions} from 'react-navigation';
+import {connect} from 'react-redux';
 
 export default class LoginScreen extends Component{
+  
 
-  loginButtonValid(){
-  /*  const {username, password} = this.state; 
-    if(username.length == 0 || password.length == 0 ){
+  constructor(props) {
+    super(props);
+    this.state = {isLoading:false}
+  }
+
+
+  loginButtonInvalid(){
+    var {username, password} = this.props.fields;
+
+    if(username.value.length == 0 || password.value.length == 0 ){
       return true;
-    }*/
+    }
 
-    return false;
+    return this.state.isLoading;
   }
 
 
   _login(){
-    var {username, password} = this.props.fields;
-    
-    this.props.dispatch(authUser('fake id'));
-    const navigateAction = NavigationActions.navigate({
-      routeName: 'MainApp',
-    }); 
-    this.props.navigation.dispatch(navigateAction);
+    var {dispatch, fields:{username, password}} = this.props;
+    this.setState({isLoading: true});
+    dispatch(loginUser(username.value,password.value)).then((response)=>{
+      setTimeout(()=>{ this.setState({isLoading: false}); }, 1000);
+      
+    }).catch((error)=>{
+      // this.setState({isLoading: false});
+    });
+  }
+
+  componentWillUnmount(){
+    this.setState({isLoading: false});
   }
 
   render() {
@@ -47,7 +62,6 @@ export default class LoginScreen extends Component{
        if(field.touched && field.error){
         return (<FormValidationMessage>Please enter valid username and pasword</FormValidationMessage>)  
       }
-      
     }
 
 
@@ -67,9 +81,9 @@ export default class LoginScreen extends Component{
           title='Login'
           backgroundColor={Constants.color2} 
           containerViewStyle={styles.loginButton}
-          disabled={this.loginButtonValid()}
+          disabled={this.loginButtonInvalid()}
           onPress={()=>{this._login()}}/>
-
+          
 
           <TouchableOpacity style={{alignItems:'center'}}> 
             <Text>Forgot password</Text>
@@ -77,16 +91,26 @@ export default class LoginScreen extends Component{
 
 
         <View style={{justifyContent:'center', alignItems:'center',paddingTop:20}}> 
-          <Icon.Button style={{width:306,height:42}} borderRadius={0} name="facebook" backgroundColor="#3b5998" onPress={this.loginWithFacebook}>
-            Login with Facebook
-          </Icon.Button>
+
         </View>
+
+
+          <ActivityIndicator
+            animating={this.state.isLoading}
+            style={[Constants.styles.inColumnComponents, {height: 80}]}
+            size="large"
+          />
+
 
       </View>
     );
   }
 }
-
+/*
+          <Icon.Button style={{width:306,height:42}} borderRadius={0} name="facebook" backgroundColor="#3b5998" onPress={this.loginWithFacebook}>
+            Login with Facebook
+          </Icon.Button>
+*/
       
 const styles = StyleSheet.create({
 	container:{
@@ -129,6 +153,11 @@ var validate = (formProps) =>{
   }
   return errors; 
 }
+
+
+
+
+
 
 module.exports = reduxForm({
   form:'login',

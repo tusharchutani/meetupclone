@@ -5,9 +5,10 @@ import {
   Text,
   View
 } from 'react-native';
+import {connect} from 'react-redux';
 import Constants  from '../../MokUI/UIConstants';
 
-import {FeedNavigation} from './FeedNavigationController'
+import FeedNavigation from './FeedNavigationController'
 export default class Feed extends Component {
 
   static navigationOptions = {
@@ -17,7 +18,7 @@ export default class Feed extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <FeedNavigation screenProps={{rootNavigation:this.props.navigation}}/>
+        <FeedNavigation screenProps={{dispatch:this.props.dispatch}}/>
       </View>
     );
   }
@@ -29,4 +30,4 @@ const styles = StyleSheet.create({
   }
 });
 
-AppRegistry.registerComponent('Feed', () => Feed);
+module.exports = connect()(Feed);
