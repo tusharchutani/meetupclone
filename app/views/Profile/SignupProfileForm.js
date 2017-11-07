@@ -16,6 +16,7 @@ import axios from 'axios';
 import {RoundImage} from '../../MokUI/MokUI';
 import {getMyprofile} from '../../actions';
 import {connect} from 'react-redux';
+import { ImagePicker } from 'expo';
 import {CHANGE_USER_FIRST_NAME,
   CHANGE_USER_LAST_NAME,
   CHANGE_USER_MAIL,
@@ -58,6 +59,9 @@ export default class SignupProfileForm extends Component {
       apiCallArray.push(axios.put(CHANGE_USER_MAIL(user_id),
         {email:this.state.email}));
     }
+    if(this.props.avatarurl != this.state.avatarurl){
+      // apiCallArray.push(axios.post())!!!
+    }
     if(this.state.confirmPassword.length !=0 
       ||this.state.password.length !=0)
     {
@@ -76,11 +80,22 @@ export default class SignupProfileForm extends Component {
         });          
         this.setState({isLoading:false});
       }).catch((error)=>{
-        debugger
         this.setState({isLoading:false});
       });      
   
   }
+  chooseProfilePicture = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    console.log(result);
+
+    if (!result.cancelled) {
+      this.setState({ avatarurl: result.uri, avatar:result });
+    }
+  };
 
   render() {
     return (
@@ -96,7 +111,7 @@ export default class SignupProfileForm extends Component {
           </View>   
           <View style={{alignItems:'center'}}>
             <RoundImage size={75} source={this.state.avatarurl}/>
-            <TouchableOpacity><Text style={styles.choosePhotoText}>Choose photo</Text></TouchableOpacity>
+            <TouchableOpacity onPress={()=>{this.chooseProfilePicture()}}><Text style={styles.choosePhotoText}>Choose photo</Text></TouchableOpacity>
           </View>
 
           

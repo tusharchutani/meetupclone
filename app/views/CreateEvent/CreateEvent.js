@@ -201,6 +201,7 @@ export default class CreateEvent extends Component {
     }else{
       this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
         this.props.navigation.goBack();
+        setTimeout(()=>{this.props.dispatch(getEventInfo(this.props._id,this.props.userId));}, 2000);
         this.setState({loading:false});
       });
     }

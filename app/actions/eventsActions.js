@@ -73,19 +73,21 @@ export function createEvent(args){
 }
 
 
-export function getEventInfo(args){
+export function getEventInfo(id,myUserId){
 
-	return {
-		type:'GET_EVENT_INFO',
-		eventInfo:args
+
+	return function(dispatch){
+		return axios.get(GET_EVENT_INFO(id,myUserId)).then((response)=>{
+			dispatch({type:'GET_EVENT_INFO',eventInfo:response.data})
+		});
 	}
 }
 
 
-export function updateEventInfo(args){
+export function updateEventInfo(args, myUserId){
 
 	return function(dispatch){
-		return axios.get(GET_EVENT_INFO(args)).then((response)=>{
+		return axios.get(GET_EVENT_INFO(args, myUserId)).then((response)=>{
 			dispatch({type:'UPDATE_EVENT_INFO',eventInfo:response.data})
 		}).catch((error)=>{
 			dispatch(showErrorAlert(error.response.data.error))
@@ -97,6 +99,7 @@ export function updateEventInfo(args){
 export function searchEventsByTag(tags){
 	return function(dispatch){
 	 		return SecureStore.getItemAsync('user_id').then((userId)=>{
+	 			tags = tags.replace(/\s*,\s*/g, ",");
 				return axios.get(SEARCH_EVENT_BY_TAG(userId,tags)).then((response)=>{
 				dispatch(setEvents(response.data));
 				}).catch((error)=>{

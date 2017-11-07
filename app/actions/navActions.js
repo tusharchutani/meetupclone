@@ -22,3 +22,9 @@ exports.openEditEvent = () =>{
 		type:'OPEN_EDIT_EVENT'
 	}
 }
+
+exports.openUserProfile = () => {
+	return {
+		type:'OPEN_USER_PROFILE'
+	}
+}

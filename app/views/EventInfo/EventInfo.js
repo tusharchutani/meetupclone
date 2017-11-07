@@ -7,11 +7,12 @@ import {
   Image,
   ScrollView,
   FlatList,
-  ActivityIndicator
+  ActivityIndicator,
+  KeyboardAvoidingView
 } from 'react-native';
 import axios from 'axios';
 import {connect} from 'react-redux';
-import { Icon,Button } from 'react-native-elements';
+import { Icon,Button, FormInput } from 'react-native-elements';
 import Constants from '../../MokUI/UIConstants';
 import {SecureStore} from 'expo';
 import {GOING_TO_EVENT,NOT_GOING_TO_EVENT,GET_USER_PROFILE,INTRESTED_IN_EVENT} from '../../api';
@@ -37,7 +38,8 @@ export default class EventInfo extends Component {
         RSVPButtonTitle:'RSVP',
         RSVPButtonDisabled:false,
         isLoading:false,
-        hostname:""
+        hostname:"",
+        isCommentTextBoxVisible:false
       };
 	}		
 
@@ -45,87 +47,52 @@ export default class EventInfo extends Component {
     title: this.state ? this.state.eventName : "Event info"
   };
 
+  componentDidMount(){
+    if(this.state.usergoing){
+    this.setState({RSVPButtonTitle:'Going',attendanceIcon:'done'});
+    }
+  }
+  openTextBox(){
+    this.setState({isCommentTextBoxVisible:true});
+  }
 
   renderDiscussionBoard(){
     return (
-      <View style={styles.eventInfoContainer}> 
-        <Text>Discussion board: </Text>
-        <ScrollView style={{height:100,marginTop:10}}>
-           <View style={{flexDirection:'row'}}> 
-             <Text style={{fontWeight:'bold'}}>
-             Aayush:
-             </Text>
-             <Text>Lorem ipsum</Text>
-           </View>
-           <View style={{flexDirection:'row'}}> 
-             <Text style={{fontWeight:'bold'}}>
-             Aayush:
-             </Text>
-             <Text>Lorem ipsum</Text>
-           </View>
-           <View style={{flexDirection:'row'}}> 
-             <Text style={{fontWeight:'bold'}}>
-             Aayush:
-             </Text>
-             <Text>Lorem ipsum</Text>
-           </View> 
-           <View style={{flexDirection:'row'}}> 
-             <Text style={{fontWeight:'bold'}}>
-             Aayush:
-             </Text>
-             <Text>Lorem ipsum</Text>
-           </View> 
-           <View style={{flexDirection:'row'}}> 
-             <Text style={{fontWeight:'bold'}}>
-             Aayush:
-             </Text>
-             <Text>Lorem ipsum</Text>
-           </View>   
-           <View style={{flexDirection:'row'}}> 
-             <Text style={{fontWeight:'bold'}}>
-             Aayush:
-             </Text>
-             <Text>Lorem ipsum</Text>
-           </View>   
-           <View style={{flexDirection:'row'}}> 
-             <Text style={{fontWeight:'bold'}}>
-             Aayush:
-             </Text>
-             <Text>Lorem ipsum</Text>
-           </View>   
-           <View style={{flexDirection:'row'}}> 
-             <Text style={{fontWeight:'bold'}}>
-             Aayush:
-             </Text>
-             <Text>Lorem ipsum</Text>
-           </View>   
-           <View style={{flexDirection:'row'}}> 
-             <Text style={{fontWeight:'bold'}}>
-             Aayush:
-             </Text>
-             <Text>Lorem ipsum</Text>
-           </View>                                                                                        
+      <View style={[{paddingLeft:0,paddingRight:0},styles.eventInfoContainer]}> 
+        <Text style={styles.title}>Discussion board: </Text>
+
+      <View style={{flexDirection:'row'}}>
+         <FormInput inputStyle={{color:Constants.color2,flex:1}}
+          placeholderTextColor={Constants.color3}
+          placeholder="Add public event" />
+          <Button
+            small
+            buttonStyle={styles.addCommentButton}
+            icon={{name: 'send'}}
+            title='' />
+
+      </View>
+        <ScrollView style={{height:200}}> 
+          <FlatList
+            enableEmptySections={true}
+            keyExtractor={(item, index) => index}
+            data={[1,2,3,4,5,6,1,1,1,1,1,1,1]} 
+            renderItem={({ item }) => (<View style={{paddingBottom:10}}>
+              <Text style={{fontWeight:'bold', fontSize:16,marginBottom:5}}>Tushar</Text>
+              <Text>This event looks awesome</Text>
+              </View>)}
+          />          
         </ScrollView>
       </View>    );
   }
 
-  renderUsersGoing(item){
-    /*return this.props.tags ? this.props.tags.map((tag, i)=>{
-      axio.get(GET_USER_INFO).then((response)=>{
-        return (<Image source={{uri:response.data.avatarurl}}/>);
-      });
-        
-      }):null; */ 
-      return (<Image style={styles.userPhotosIcon} source={{uri:item.imageSource}}/>);
-      
-  }
 
   onGoing(){
   this.setState({RSVPButtonDisabled:true,isLoading:true});
     if(!this.state.usergoing){
       SecureStore.getItemAsync('user_id').then((userId)=>{
           axios.get(GOING_TO_EVENT(userId,this.props.eventInfo._id)).then((response)=>{
-              this.setState({RSVPButtonTitle:'Going',attendanceIcon:'stars',RSVPButtonDisabled:false,usergoing:false,isLoading:false});
+              this.setState({RSVPButtonTitle:'Going',attendanceIcon:'done',RSVPButtonDisabled:false,usergoing:true,isLoading:false});
           }).catch((error)=>{
         this.setState({RSVPButtonDisabled:false,isLoading:false});
         })
@@ -133,7 +100,7 @@ export default class EventInfo extends Component {
     }else{
       SecureStore.getItemAsync('user_id').then((userId)=>{
             axios.get(NOT_GOING_TO_EVENT(userId,this.props.eventInfo._id)).then((response)=>{
-                this.setState({RSVPButtonTitle:'RSVP',attendanceIcon:'done',usergoing:true,RSVPButtonDisabled:false, isLoading:false});
+                this.setState({RSVPButtonTitle:'RSVP',attendanceIcon:'star',usergoing:false,RSVPButtonDisabled:false, isLoading:false});
             }).catch((error)=>{
               this.setState({RSVPButtonDisabled:false,isLoading:false});  
             })
@@ -184,19 +151,22 @@ export default class EventInfo extends Component {
     
 
   	return (
-      <View style={[Constants.styles.fill, {backgroundColor:Constants.color1}]}>
+      <KeyboardAvoidingView 
+      behavior="padding" 
+      style={[{backgroundColor:Constants.color1},Constants.styles.fill]}
+       keyboardVerticalOffset={64}>
         <ActivityIndicator
           style={styles.loadingContainer}
           animating={this.state.isLoading}
           size="large"/>
           <ScrollView>
-          	<Image style={styles.eventInfoHeaderImage} 
-          	source={{uri:eventTitleImage}}>
-          		<View style={[styles.eventInfoContainer,styles.eventNameInfoContainer]}>
-    	      		<Text style={styles.eventInfoName}>{eventName}</Text> 
-    	      		<Text style={styles.eventHostName}>Hosted by {this.state.hostname}</Text>
-    	      	</View>
-          	</Image>
+            <Image style={styles.eventInfoHeaderImage} 
+            source={{uri:eventTitleImage}}>
+              <View style={[styles.eventInfoContainer,styles.eventNameInfoContainer]}>
+                <Text style={styles.eventInfoName}>{eventName}</Text> 
+                <Text style={styles.eventHostName}>Hosted by {this.state.hostname}</Text>
+              </View>
+            </Image>
             <View style={{flexDirection:'row',justifyContent:'center'}}>
            {!isMyevent  && <Button
                          small
@@ -232,32 +202,35 @@ export default class EventInfo extends Component {
                  disabled={this.state.RSVPButtonDisabled}
                  onPress={()=>{this.props.dispatch(openEditEvent())}}/>}
             </View>
-      		<View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
-      			<Icon name="event" size={Constants.small_icon_size} color={Constants.color3}/>
-      			<Text style={styles.eventDateTimeInfo}>{this.state.eventDate}</Text>
-      		</View>
-          <View style={styles.separator} />
-      		<View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
-      			<Icon name="location-on" size={Constants.small_icon_size} color={Constants.color3}/>
-      			<Text style={styles.eventDateTimeInfo}>{this.state.eventLocation}</Text>
-      		</View>  		
-        <View style={styles.separator} />
-      		<View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
-      			<Icon name="note" size={Constants.small_icon_size} color={Constants.color3}/>
-      			<Text style={styles.eventDateTimeInfo}>
-            {description}
-      			</Text>
-      		</View>
-        <View style={styles.separator} />
+          <View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
+            <Icon name="event" size={Constants.small_icon_size} color={Constants.color3}/>
+            <Text style={styles.eventDateTimeInfo}>{this.state.eventDate}</Text>
+          </View>
+          
+          <View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
+            <Icon name="location-on" size={Constants.small_icon_size} color={Constants.color3}/>
+            <Text style={styles.eventDateTimeInfo}>{this.state.eventLocation}</Text>
+          </View>     
+        <View style={styles.separator} />        
+          <View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
+          <View>
+            <Icon name="note" size={Constants.small_icon_size} color={Constants.color3}/>
+          </View> 
+            <Text style={styles.eventDateTimeInfo}>
+            This is a long descriptionLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+            </Text>
+            
+          </View>
           {this.renderDiscussionBoard()}
 
             <View style={{margin:25, marginRight:0}}>
-              <Text style={{fontWeight:'bold',marginBottom:10}}>{goingPeople.length} are going to the event</Text>
+              <Text style={{fontWeight:'bold',marginBottom:10}}>{goingCount} person(s) are going to the event</Text>
             </View>
 
 
           </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
+
     );
   }
 }
@@ -282,13 +255,20 @@ const styles = StyleSheet.create({
   	backgroundColor:'rgba(0,0,0,0.7)',
   },eventButton:{
     height:30
+  },title:{
+    color:Constants.color2,
+    fontSize:17,
+    fontWeight:'bold'
   },
   eventInfoName:{
   	color:Constants.color1,
   	fontSize:20,
   	marginBottom:7,
     fontWeight:'bold'
-  }, 
+  },postCommentButton:{
+      height:30,
+      width:30
+  },
   eventHostName:{
   	color:Constants.color1,
   	fontSize:17,
@@ -301,7 +281,8 @@ const styles = StyleSheet.create({
   },
   eventDateTimeInfo:{
   	marginLeft:10,
-  	color:Constants.color3
+    fontSize:15,
+  	color:Constants.color2
   },
   userPhotosIcon:{
     height:70,
@@ -311,8 +292,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: StyleSheet.hairlineWidth,
     backgroundColor: Constants.tableDividerColor,
-  },
-    loadingContainer:{
+    marginTop:12
+  },addCommentButton:{
+    height:20,
+    marginTop:5
+  },loadingContainer:{
       backgroundColor:'transparent',
       flex:1,
       width:Constants.screenWidth,

@@ -16,6 +16,6 @@ exports.configureStore = (initialState=defaultState) => {
   		 compose(applyMiddleware(thunk/*, logger*/),
   		 	autoRehydrate()
   		 	));
-  persistStore(store, {storage: AsyncStorage, blacklist:[/*'events',*/'form']}).purge();
+  persistStore(store, {storage: AsyncStorage, blacklist:['events','form']}).purge();
   return store;
 }

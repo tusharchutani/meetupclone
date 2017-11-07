@@ -15,20 +15,23 @@ import { RoundImage } from '../../MokUI/MokUI';
 import Constants from '../../MokUI/UIConstants';
 import {List, ListItem, Icon, Button} from 'react-native-elements';
 import EventFeedItem from './EventFeedItem';
-import {setUserConnections,getUserConnections, openEditProfile} from '../../actions'
-import {GET_EVENT_INFO} from '../../api'
+import {setUserConnections,getUserConnections, openEditProfile, getMyprofile,setUserProfile} from '../../actions'
+import {GET_EVENT_INFO,FOLLOW_USER,UNFOLLOW_USER} from '../../api'
 
 export default class UserInfoFeed extends Component {
   _val = 0; 
   _isDataCollected = false;
+  _isFollowing = false;
+
   constructor(props) {
     super(props);
     this.renderHeader = this.renderHeader.bind(this);
     this.state = {
       idOfEventsHostedByUser:this.props.eventsHostedByUser,
       eventsHostedByUser:[],
-      loading: false,
-      refreshing:false
+      refreshing:false,
+      isLoading:false
+
     };
 
   }
@@ -47,6 +50,30 @@ export default class UserInfoFeed extends Component {
       }
   }
 
+
+  follow(){
+    this.setState({isLoading:true});
+
+    if(!this._isFollowing){
+      axios.post(FOLLOW_USER(this.props.userId,this.props._id)).then((response)=>{
+        this.setState({isLoading:false,followButtonText:'following',followButtonColor:Constants.color4});
+        this._isFollowing = true;
+      }).catch(()=>{
+        this.setState({isLoading:false});
+      })
+    }else{
+      axios.post(UNFOLLOW_USER(this.props.userId,this.props._id)).then((response)=>{
+        this.setState({isLoading:false,followButtonText:'follow',followButtonColor:Constants.color2});
+        this._isFollowing = false;
+      }).catch(()=>{
+        this.setState({isLoading:false});
+      })      
+    }
+
+  }
+
+
+
   renderHeader(self) {
 
     const {props} = self;
@@ -56,8 +83,9 @@ export default class UserInfoFeed extends Component {
     let followersNumber = props.followers ? props.followers.length : 0;
     let numberOfEvents = props.eventsHostedByUser ? props.eventsHostedByUser.length : 0;
     let userProfilePic = (props.avatarurl != undefined && props.avatarurl != "new") ? props.avatarurl:"http://www.thedigitalkandy.com/wp-content/uploads/2016/01/facebook-no-profile.png";
-
+    userProfilePic += '?random_number='+ new Date().getTime();
     return (
+      <View>
           <View style={{flexDirection:'row',alignItems: 'stretch', paddingBottom:10}}>
 
 
@@ -97,6 +125,7 @@ export default class UserInfoFeed extends Component {
               backgroundColor={Constants.color2}
               buttonStyle={styles.messageButton}
               title='Edit profile' />}
+
               <View style={{paddingTop:5}}>
                 <ActivityIndicator
                 animating={this.state.isLoading}
@@ -112,26 +141,56 @@ export default class UserInfoFeed extends Component {
               title='Message' /> &&
               <Button
               small
-              icon={{name: this.state.followIcon}}
-              backgroundColor={Constants.color2}
+              backgroundColor={this.state.followButtonColor}
               buttonStyle={styles.followButton}
               onPress={this.handelFollow}
-              title="Follow" />}
+              title={this.state.followButtonText}
+              onPress={()=>{this.follow()} } />}
 
           </View>
-
+          
+        </View>
+        <View style={[styles.separator,{flex:1}]} /> 
       </View>);
   }
 
+  setFollowing(){
+
+    if(!this.props.followers){
+      this._isFollowing = false;
+      this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
+    }else{
+      if(this.props.followers.includes(this.props.userId)){
+        this._isFollowing = true;
+        this.setState({followButtonText:'following',followButtonColor:Constants.color4});
+      }else{
+        this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
+      }
+      
+    }
+  }   
+
   componentDidMount(){
     if(this.props.eventsHostedByUser&&(this.props.eventsHostedByUser.length == 0)){
-        this.setState({refreshing:false});
+        this.setState({isLoading:false});
     }else{
-        this.setState({refreshing:true});
+        this.setState({isLoading:true});
+    }
+
+
+    if(this.props.userId != this.props._id){
+      this.setFollowing();
+      if(this._isFollowing){
+        this.setState({followButtonText:'following',followButtonColor:Constants.color4});
+      }else{
+        this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
+      }
     }
   }
 
-  loadUserProfile(){
+
+
+  getUserEventsInfo(){
     var lenghtOfEventsByUser = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.length:0;
     var lenghtofEventsId = this.state.eventsHostedByUser ? this.state.eventsHostedByUser.length : 0;
     
@@ -139,7 +198,7 @@ export default class UserInfoFeed extends Component {
         this._isDataCollected=true;
         
         let getEvents = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.map((eventId, index)=>{    
-          return axios.get(GET_EVENT_INFO(eventId));
+          return axios.get(GET_EVENT_INFO(eventId, this.props.userId));
         }): [];
         if(getEvents.length == 0){
           this.setState({refreshing:false});
@@ -156,35 +215,54 @@ export default class UserInfoFeed extends Component {
         console.log("User info feed error "+error);
         this.setState({eventsHostedByUser:temp,isLoading:false});
         });
+    }
   }
 
+  reloadProfile(){
+    this.setState({refreshing:true});
+    
+    if(this.props.isMyProfile){
+      this.props.dispatch(getMyprofile()).then(()=>{
+        this.setState({refreshing:false});
+        this._isDataCollected = false;
+        this.getUserEventsInfo();
+      }).catch(err => {console.log("There was an error updating my profile "+err);})
+    }else{
+      this.props.dispatch(setUserProfile(this.props._id)).then(()=>{
+        this.setState({refreshing:false});
+        this.getUserEventsInfo()
+      }).catch(err => {console.log("There was an error updating other profile "+err);})
+    }
   }
 
   render() {
-    this.loadUserProfile();
+  var lenghtOfEventsByUser = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.length:0;
+  
+  if(lenghtOfEventsByUser != 0){
+    this.getUserEventsInfo();
+  }
+
    return(
-        <List>
+        <View style={styles.container}>
             <FlatList
              data={this.state.eventsHostedByUser}
              // extraData={this.state} 
-             ItemSeparatorComponent
              keyExtractor={(item, index) => index}
              renderItem={({item, index})=>(<EventFeedItem key={`entry-${index}`} {...item}/>)}
              ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
              ListHeaderComponent={this.renderHeader(this)}
-            onRefresh={()=>{this.loadUserProfile()}}
-            refreshing={this.state.loading}             
+            onRefresh={()=>{this.reloadProfile()}}
+            refreshing={this.state.refreshing}           
            />
-        </List>);
+        </View>);
   }
-
-
 
 }
 const MARGIN = 20
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height:Constants.screenHeight,
     backgroundColor: Constants.color1,
     paddingBottom: 10
   },
@@ -236,5 +314,11 @@ const styles = StyleSheet.create({
 
 });
 
+var mapStateToProps = (state) =>{
+    return {
+      userId: state.auth.user_id
+  }
+}
 
-module.exports = connect()(UserInfoFeed);
+
+module.exports = connect(mapStateToProps)(UserInfoFeed);

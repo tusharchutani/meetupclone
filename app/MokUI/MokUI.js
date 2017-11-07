@@ -24,7 +24,6 @@ export class Tags extends Component {
 
 export class RoundImage extends Component {
   render() {
-
     return (
         <Image style={{
           width: this.props.size, 
@@ -34,7 +33,9 @@ export class RoundImage extends Component {
           borderWidth:2,
           alignItems: 'center',
           justifyContent:'center'}}  
-        source={{uri: this.props.source}}/>
+          key={{uri:this.props.source}}
+          source={{uri: this.props.source}}
+          />
     );
   }
 }

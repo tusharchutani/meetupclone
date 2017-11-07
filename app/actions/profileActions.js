@@ -61,15 +61,14 @@ exports.searchUsers = (searchQuerry) => {
 	};
 }
 
-
-exports.openUserProfile = (userId) => {
-
-	return function(dispatch){
-		return axios.get(GET_USER_PROFILE(userId)).then((response)=>{
-			dispatch({type:'OPEN_USER_PROFILE',other_user_profile:response.data});
-		}).catch((error)=>{
-			dispatch(showErrorAlert(error.response.data.error));
-		});		
+exports.setUserProfile = (userId) => {
+		return function(dispatch){
+			return axios.get(GET_USER_PROFILE(userId)).then((response)=>{
+				dispatch({type:'SET_USER_PROFILE',other_user_profile:response.data});
+			}).catch((error)=>{
+				dispatch(showErrorAlert(error.response.data.error));
+			});		
 	};
 }
+
 

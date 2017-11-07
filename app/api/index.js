@@ -11,7 +11,7 @@ exports.GOING_TO_EVENT = (user_id,event_id) => `${API_URL}/goingInEvent/${user_i
 exports.INTRESTED_IN_EVENT = (user_id,event_id) => `${API_URL}/interestedInEvent/${user_id}/${event_id}`;
 exports.NOT_GOING_TO_EVENT = (user_id,event_id) => `${API_URL}/notattending/${user_id}/${event_id}`;
 exports.SEARCH_EVENT_BY_TAG = (user_id, tags) => `${API_URL}/getEventsByTags/${user_id}/${tags}`;
-exports.GET_EVENT_INFO = (event_id) => `${API_URL}/getEventById/${event_id}`;
+exports.GET_EVENT_INFO = (event_id,user_id) => `${API_URL}/getEventById/${event_id}/${user_id}`;
 exports.GET_FOLLOWERS = (user_id) => `${API_URL}/getfollowers/${user_id}/followers/`;
 exports.GET_FOLLOWING = (user_id) => `${API_URL}/getfollowing/${user_id}/following/`;
 exports.CHANGE_USER_FIRST_NAME = (user_id) => `${API_URL}/useredits/${user_id}/firstname`;

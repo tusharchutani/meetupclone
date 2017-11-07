@@ -11,7 +11,7 @@ import Constants from '../../MokUI/UIConstants';
 import {connect} from 'react-redux';
 import {List, ListItem} from 'react-native-elements';
 import { SearchBar, Icon, Button } from 'react-native-elements'
-import {searchUsers, openUserProfile} from '../../actions';
+import {searchUsers, openUserProfile, setUserProfile} from '../../actions';
 export default class Connection extends Component{
     _val = 0;
    static navigationOptions = ({ navigation }) => {
@@ -56,7 +56,10 @@ export default class Connection extends Component{
   getUserProfile(_id){
      if(this._val == 0){
         this._val = 1;
-        this.props.dispatch(openUserProfile(_id));
+        this.props.dispatch(setUserProfile(_id)).then(()=>{
+          this.props.dispatch(openUserProfile());  
+        });
+        
         setTimeout(()=>{this._val = 0; }, 1000);
     }
   }

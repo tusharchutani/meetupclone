@@ -6,25 +6,13 @@ import {TouchableOpacity, SectionList, Text, StyleSheet,View } from 'react-nativ
 const sections = [
   {
     id: 0,
-    title: 'My Account',
-    data: [
-      {id: 0, text: 'Name',info:'Tushar Chutani'},
-      {id: 1, text: 'UserName'},
-      {id: 2, text: 'Birthday'},
-      {id: 3, text: 'Mobile Number'},
-      {id: 4, text: 'Email'},
-      {id: 5, text: 'Update Password'},
-    ]
-  },
-  {
-    id: 1,
     title: 'Additional Services',
     data: [
       {id: 6, text: 'Manage Preferences'}
     ]
   },
   {
-    id: 4,
+    id: 2,
     title: 'More Information',
     data: [
       {id: 11, text: 'Support'},
@@ -77,19 +65,6 @@ export default class App extends Component {
   render() {
     return (
       <View style={{flex:1}}>
-          <Prompt
-        title="Edit"
-        placeholder="Start typing"
-        defaultValue={this.state.promptValue}
-        visible={ this.state.promptVisible }
-        onCancel={ () => this.setState({
-          promptVisible: false,
-          message: "You cancelled"
-        }) }
-        onSubmit={ (value) => this.setState({
-          promptVisible: false,
-          message: `You said "${value}"`
-        }) }/>
          <SectionList
         style={styles.container}
         sections={sections}
@@ -126,8 +101,8 @@ const styles = StyleSheet.create({
   header: {
     padding: 7,
     marginBottom: 5,
-    backgroundColor: Constants.color3,
-    color: Constants.color2,
+    backgroundColor: Constants.color2,
+    color: Constants.color1,
     fontWeight: 'bold'
     //opacity: 0.7
   },

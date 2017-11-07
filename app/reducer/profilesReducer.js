@@ -10,7 +10,7 @@ module.exports = (state=defaultState, action)=>{
 				...state,
 				myProfile:action.myProfile
 			}
-		case 'OPEN_USER_PROFILE':
+		case 'SET_USER_PROFILE':
 			return {
 				...state,
 				other_user_profile:action.other_user_profile

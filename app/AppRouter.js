@@ -121,8 +121,7 @@ const MokAppRouter = new StackNavigator({
 		screen:EditProfile,
 		navigationOptions:{header:null}
 	},UserProfile:{
-		screen:OtherUserProfile,
-		navigationOptions:{header:null}
+		screen:OtherUserProfile
 	}
 	});
 

@@ -35,7 +35,7 @@ export default class EventFeedItem extends Component {
   onMoreInfo(){
     if(this._val == 0){
       this._val = 1;
-      this.props.dispatch(getEventInfo(this.props));
+      this.props.dispatch(getEventInfo(this.props._id,this.props.userId));
       setTimeout(()=>{this._val = 0; }, 1000); 
     }
   }
@@ -167,5 +167,11 @@ const styles = StyleSheet.create({
 
   
 });
+var mapStateToProps = (state) =>{
 
-module.exports = connect()(EventFeedItem);
+  return {
+    userId: state.auth.user_id
+  }
+}
+
+module.exports = connect(mapStateToProps)(EventFeedItem);

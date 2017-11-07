@@ -27,7 +27,7 @@ export default class CarouselView extends Component {
   onMoreInfo(){
     if(this._val == 0){
        this._val++;
-       setTimeout(()=>{this.props.dispatch(getEventInfo(this.props)); }, 1000); }
+       setTimeout(()=>{this.props.dispatch(getEventInfo(this.props, this.props.userId)); }, 1000); }
     
   }
   render() {
@@ -118,4 +118,10 @@ const styles = StyleSheet.create({
   
 });
 
-module.exports = connect()(CarouselView);
+var mapStateToProps = (state) => {
+  return {
+    userId: state.auth.user_id
+  }
+}
+
+module.exports = connect(mapStateToProps)(CarouselView);

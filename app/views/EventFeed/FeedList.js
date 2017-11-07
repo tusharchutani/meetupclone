@@ -76,7 +76,7 @@ export default class FeedList extends Component {
   }
 
   moreInfo(data) {
-    this.props.dispatch(getEventInfo(data));
+    this.props.dispatch(getEventInfo(data, this.props.userId));
   }
 
   searchList(event){
@@ -122,13 +122,6 @@ const styles = StyleSheet.create({
     flex: 1,
     height: StyleSheet.hairlineWidth,
     backgroundColor: Constants.tableDividerColor,
-  }, loadingContainer:{
-      // flexDirection:'row',
-      width:Constants.screenWidth,
-      position:'absolute',
-      justifyContent: 'center',
-      alignItems:'center',
-      marginTop:Constants.screenHeight*0.4
   }
 
 });
@@ -136,7 +129,8 @@ const styles = StyleSheet.create({
 var mapStateToProps = (state) =>{
 
   return {
-    eventList: state.events.eventList ? state.events.eventList:[]
+    eventList: state.events.eventList ? state.events.eventList:[],
+    userId: state.auth.user_id
   }
 }
 

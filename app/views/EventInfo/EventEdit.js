@@ -231,7 +231,7 @@ GET_ALL_HOSTS_EVENTS
 this.setState({isLoading:true});
 axios.all(editEventsRequestArray).then(()=>{
   this.props.navigation.goBack();
-  this.props.dispatch(updateEventInfo(eventId)).then(()=>{
+  this.props.dispatch(updateEventInfo(eventId, this.props.userId)).then(()=>{
       this.setState({isLoading:false});
       this.props.dispatch(getMyprofile());
   })
@@ -394,7 +394,8 @@ const MULTILINE_TEXT_FIELD_HEIGHT=335;
 
 var mapStateToProps = (state) => {
   return {
-    eventInfo:state.events.eventInfo
+    eventInfo:state.events.eventInfo,
+    userId:state.auth.user_id
   }
 }
 

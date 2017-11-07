@@ -28,8 +28,6 @@ constructor(props) {
 
 
   render() {
-    // return (
-    //   <View style={{flex:1}}><Text>Hello this is a test</Text></View>)
    return(<UserInfoFeed isMyProfile={true} {...this.props.profileData}/>);
   }
 
