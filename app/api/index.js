@@ -1,4 +1,4 @@
-var API_URL = 'https://pure-island-32874.herokuapp.com/v1';//'http://localhost:3001/v1'; https://pure-island-32874.herokuapp.com
+var API_URL = 'http://128.189.93.86:3001/v1';//'http://localhost:3001/v1'; https://pure-island-32874.herokuapp.com
 
 //TODO: add the tags fields, latitude and lognitude 
 exports.EVENT_FEED = (lon, lat, userId) =>`${API_URL}/geteventsbylocation/${lon}/${lat}/${userId}`;
@@ -18,9 +18,15 @@ exports.CHANGE_USER_FIRST_NAME = (user_id) => `${API_URL}/useredits/${user_id}/f
 exports.CHANGE_USER_LAST_NAME = (user_id) => `${API_URL}/useredits/${user_id}/lastname`;
 exports.CHANGE_USER_MAIL = (user_id) => `${API_URL}/useredits/${user_id}/email`;
 exports.CHANGE_PASSWORD = (user_id) => `${API_URL}/useredits/${user_id}/password`;
+exports.CHANGE_USER_AVATAR = (user_id) => `${API_URL}/uploadAvatar/${user_id}`;
 exports.FIND_PEOPLE = (user_id, paramter) => `${API_URL}/findpeople/${user_id}/${paramter}`;
 exports.GET_ALL_HOSTS_EVENTS = (user_id) => `${API_URL}/getMyEvents/${user_id}`;
 exports.EVENT_EDIT_TITLE = (event_id) => `${API_URL}/eventedits/${event_id}/title`;
 exports.EVENT_EDIT_DESCRIPTION = (event_id) => `${API_URL}/eventedits/${event_id}/description`;
 exports.EVENT_EDIT_TAG = (event_id) => `${API_URL}/eventedits/${event_id}/addtags`;
+exports.EVENT_EDIT_DATE = (event_id) => `${API_URL}/eventedits/${event_id}/editdate`;
+exports.FOLLOW_USER = (myId, userId) => `${API_URL}/connect/${myId}/${userId}/follow`;
+exports.UNFOLLOW_USER = (myId, userId) => `${API_URL}/unconnect/${myId}/${userId}/unfollow`;
+exports.POSTCOMMENT = (myId,eventId) => `${API_URL}/postcomment/${myId}/${eventId}`;
+exports.GET_COMMENTS = (eventId) => `${API_URL}/getComments/${eventId}`
 // GET_USER_PROFILE

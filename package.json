@@ -7,12 +7,15 @@
   "main": "node_modules/expo/AppEntry.js",
   "dependencies": {
     "axios": "^0.16.2",
-    "expo": "^21.0.0",
+    "expo": "*",
+    "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "react": "16.0.0-alpha.12",
     "react-native": "https://github.com/expo/react-native/archive/sdk-21.0.2.tar.gz",
     "react-native-action-sheet": "^1.0.0",
+    "react-native-aws3": "0.0.8",
     "react-native-elements": "*",
+    "react-native-keyboard-aware-scroll-view": "^0.4.1",
     "react-native-keychain": "^1.2.1",
     "react-native-lazyload": "^1.1.0",
     "react-native-modal-datetime-picker": "^4.11.0",
@@ -27,9 +30,11 @@
     "redux-form": "^5.3.2",
     "redux-persist": "^4.9.1",
     "redux-persist-transform-filter": "0.0.15",
-    "redux-thunk": "^2.2.0"
+    "redux-thunk": "^2.2.0",
+    "shallow-compare": "^1.2.2"
   },
   "devDependencies": {
+    "@expo/vector-icons": "^6.2.0",
     "reactotron-react-js": "^1.12.2",
     "redux-logger": "^3.0.6"
   }

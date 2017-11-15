@@ -4,15 +4,16 @@ import MokAppRouter from '../AppRouter';
 const initialState = MokAppRouter.router.getStateForAction(NavigationActions.init());
 
 module.exports = (state = initialState, action) => {
+    
 
 	let nextState = MokAppRouter.router.getStateForAction(action,state);
 	switch(action.type){
-		case 'AUTH_USER':
+		case 'OPEN_MAIN_APP':
 			nextState = MokAppRouter.router.getStateForAction(
 				NavigationActions.navigate({ routeName: 'MainApp' }),
 				state);
 				break;
-		case 'GET_EVENT_INFO':
+		case 'NAVIGATE_TO_EVENT_INFO':
 			nextState = MokAppRouter.router.getStateForAction(
 				NavigationActions.navigate({ routeName: 'EventInfo' }),
 				state);

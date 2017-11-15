@@ -9,3 +9,9 @@ exports.hideActivityIndicator = () => {
 		type:'HIDE_ACTIVITY_INDICATOR'
 	}
 }
+
+exports.autoRehydrationComplete = () => {
+	return {
+		type: 'REHYDERATION_COMPLETE'
+	}
+}

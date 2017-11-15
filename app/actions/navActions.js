@@ -17,6 +17,12 @@ exports.openFindFriends = () =>{
 	}
 }
 
+exports.openMainApp = () =>{
+	return {
+		type:'OPEN_MAIN_APP'
+	}
+}
+
 exports.openEditEvent = () =>{
 	return {
 		type:'OPEN_EDIT_EVENT'

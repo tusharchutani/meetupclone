@@ -54,7 +54,7 @@ export default class MyEvents extends Component{
 
   makeRemoteRequest = () => {
     this.setState({loading:true});
-   axios.get(GET_ALL_HOSTS_EVENTS(this.props.userId)).then((response)=>{
+   axios.get(GET_ALL_HOSTS_EVENTS(this.props.userId),{timeout:5000}).then((response)=>{
     var goingEvents = response.data.filter((event)=>(event.currentUserGoing == true));
     var intrestedEvents = response.data.filter((event)=>(event.currentUserInterested == true));
 

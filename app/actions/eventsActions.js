@@ -77,9 +77,16 @@ export function getEventInfo(id,myUserId){
 
 
 	return function(dispatch){
-		return axios.get(GET_EVENT_INFO(id,myUserId)).then((response)=>{
-			dispatch({type:'GET_EVENT_INFO',eventInfo:response.data})
+		return axios.get(GET_EVENT_INFO(id,myUserId),{timeout:10000}).then((response)=>{
+			dispatch({type:'SET_EVENT_INFO',eventInfo:response.data})
 		});
+	}
+}
+
+
+export function navigateToEventInfo(){
+	return {
+		type:'NAVIGATE_TO_EVENT_INFO'
 	}
 }
 

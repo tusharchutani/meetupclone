@@ -19,7 +19,7 @@ import {connect} from 'react-redux';
 import axios from 'axios';
 import {GOOGLE_MAP_API} from '../../api';
 import { Icon } from 'react-native-elements';
-
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 export default class CreateEvent extends Component {
 
   static navigationOptions = ({ navigation }) => {
@@ -201,7 +201,7 @@ export default class CreateEvent extends Component {
     }else{
       this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
         this.props.navigation.goBack();
-        setTimeout(()=>{this.props.dispatch(getEventInfo(this.props._id,this.props.userId));}, 2000);
+        // setTimeout(()=>{this.props.dispatch(getEventInfo(this.props._id,this.props.userId));}, 2000);
         this.setState({loading:false});
       });
     }
@@ -211,7 +211,7 @@ export default class CreateEvent extends Component {
   render() {
     return (
 
-       <View style={styles.container}>
+       <KeyboardAwareScrollView style={styles.container}>
           <View style={styles.titleBar}> 
             <Icon name="clear" style={{paddingRight:10}} size={Constants.medium_icon_size} color={Constants.color2} onPress={()=> {this.props.navigation.goBack()}}/>
             <Text style={styles.title}>Create event</Text>
@@ -279,7 +279,7 @@ export default class CreateEvent extends Component {
                 onPress={()=>{this._createEvent()}}/>
             </View>
         </ScrollView>      
-      </View>
+      </KeyboardAwareScrollView>
 
     );
   }

@@ -8,7 +8,8 @@ import {
   ScrollView,
   FlatList,
   ActivityIndicator,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  TouchableOpacity
 } from 'react-native';
 import axios from 'axios';
 import {connect} from 'react-redux';
@@ -17,43 +18,71 @@ import Constants from '../../MokUI/UIConstants';
 import {SecureStore} from 'expo';
 import {GOING_TO_EVENT,NOT_GOING_TO_EVENT,GET_USER_PROFILE,INTRESTED_IN_EVENT} from '../../api';
 import {openEditEvent} from '../../actions';
-
+import {POSTCOMMENT,GET_COMMENTS} from '../../api'
 export default class EventInfo extends Component {
   
 
  constructor(props) {
 	    super(props);
-
       this.state = {
+        id:this.props.eventInfo._id,
         eventTitleImage: this.props.eventInfo.eventTitleImage ? this.props.eventInfo.eventTitleImage : DETAULT_IMAGE_URL, //TODO: set to default if not given find this default
         eventName: this.props.eventInfo.title, 
         eventDate: this.props.eventInfo.startDate ? new Date(this.props.eventInfo.startDate).toString() : null,
         eventTags: this.props.eventInfo.tags,
         eventLocation: this.props.eventInfo.streetname, //TODO: change this to address
         userGoing: this.props.eventInfo.usergoing,
-        goingPeople:this.props.going ? this.props.going : [],
+        userInterested:this.props.eventInfo.userInterested,
+        goingPeople:this.props.eventInfo.going ? this.props.eventInfo.going : [],
         description: this.props.eventInfo.description,
-        host: this.props.eventInfo.host,
-        attendanceIcon:'stars',
-        RSVPButtonTitle:'RSVP',
+        host: this.props.eventInfo.host ? this.props.eventInfo.host : null,
         RSVPButtonDisabled:false,
         isLoading:false,
         hostname:"",
-        isCommentTextBoxVisible:false
+        isCommentTextBoxVisible:false,
+        comment:"",
+        isPostingComment:false,
+        gotHostName:false,
+        comments:[],
+        gotComments:false
       };
-	}		
 
+	}		
+  _val = 0;
   static navigationOptions = {
     title: this.state ? this.state.eventName : "Event info"
   };
 
-  componentDidMount(){
-    if(this.state.usergoing){
-    this.setState({RSVPButtonTitle:'Going',attendanceIcon:'done'});
+
+
+
+  getComments(){
+    if(this.props.eventinfo){
+       axios.get(GET_COMMENTS(this.state.id)).then((response)=>{
+        this.setState({comments:response.data.posts,gotComments:true});
+      }).catch((error)=>{
+        console.log("There was an error getting the data from the server. "+error);
+      });
     }
   }
-  openTextBox(){
-    this.setState({isCommentTextBoxVisible:true});
+
+  componentDidMount(){
+    if(!this.state.gotComments){
+      this.getComments();
+    }
+  }
+
+  postComment(){
+    this.setState({isPostingComment:true});
+    axios.post(POSTCOMMENT(this.props.userId,this.state.id),{comment:this.state.comment}).then(()=>{
+
+      let comments = this.state.comments;
+      comments.push([{firstname:"You",lastname:"",usercomment:this.state.comment}]);
+      this.setState({comment:"",isPostingComment:false, comments});
+
+    }).catch((error)=>{
+      this.setState({isPostingComment:false});
+    });
   }
 
   renderDiscussionBoard(){
@@ -62,24 +91,28 @@ export default class EventInfo extends Component {
         <Text style={styles.title}>Discussion board: </Text>
 
       <View style={{flexDirection:'row'}}>
-         <FormInput inputStyle={{color:Constants.color2,flex:1}}
+                <ActivityIndicator
+            animating={this.state.isPostingComment}
+          size="small"/>
+         <FormInput inputStyle={{color:Constants.color2,flex:1, width:260}}
+          onChangeText={(event)=>{this.setState({comment:event});}}
           placeholderTextColor={Constants.color3}
+          value={this.state.comment}
           placeholder="Add public event" />
-          <Button
-            small
-            buttonStyle={styles.addCommentButton}
-            icon={{name: 'send'}}
-            title='' />
+          <Icon
+            name="send" 
+            onPress={()=>{this.postComment()}}/>
+
 
       </View>
         <ScrollView style={{height:200}}> 
           <FlatList
             enableEmptySections={true}
             keyExtractor={(item, index) => index}
-            data={[1,2,3,4,5,6,1,1,1,1,1,1,1]} 
+            data={this.state.comments} 
             renderItem={({ item }) => (<View style={{paddingBottom:10}}>
-              <Text style={{fontWeight:'bold', fontSize:16,marginBottom:5}}>Tushar</Text>
-              <Text>This event looks awesome</Text>
+              <Text style={{fontWeight:'bold', fontSize:16,marginBottom:5}}>{item.firstname + " "+ item.lastname}</Text>
+              <Text>{item.usercomment}</Text>
               </View>)}
           />          
         </ScrollView>
@@ -90,44 +123,100 @@ export default class EventInfo extends Component {
   onGoing(){
   this.setState({RSVPButtonDisabled:true,isLoading:true});
     if(!this.state.usergoing){
-      SecureStore.getItemAsync('user_id').then((userId)=>{
-          axios.get(GOING_TO_EVENT(userId,this.props.eventInfo._id)).then((response)=>{
-              this.setState({RSVPButtonTitle:'Going',attendanceIcon:'done',RSVPButtonDisabled:false,usergoing:true,isLoading:false});
-          }).catch((error)=>{
-        this.setState({RSVPButtonDisabled:false,isLoading:false});
+      axios.get(GOING_TO_EVENT(this.props.userId,this.state.id)).then((response)=>{
+          this.setState({RSVPButtonTitle:'Going',
+            RSVPButtonDisabled:false,
+            InterestedButtonColor:Constants.color2,
+            usergoing:true,isLoading:false,RSVPButtonColor:Constants.color4});
+      }).catch((error)=>{
+      this.setState({RSVPButtonDisabled:false,isLoading:false});
+      })
+    }else{
+        axios.get(NOT_GOING_TO_EVENT(this.props.userId,this.state.id)).then((response)=>{
+            this.setState({RSVPButtonTitle:'RSVP',
+              attendanceIcon:'star',usergoing:false,
+              RSVPButtonDisabled:false, isLoading:false,
+              RSVPButtonColor:Constants.color2
+        }).catch((error)=>{
+          this.setState({RSVPButtonDisabled:false,isLoading:false});  
         })
       });
-    }else{
-      SecureStore.getItemAsync('user_id').then((userId)=>{
-            axios.get(NOT_GOING_TO_EVENT(userId,this.props.eventInfo._id)).then((response)=>{
-                this.setState({RSVPButtonTitle:'RSVP',attendanceIcon:'star',usergoing:false,RSVPButtonDisabled:false, isLoading:false});
-            }).catch((error)=>{
-              this.setState({RSVPButtonDisabled:false,isLoading:false});  
-            })
-        });
-    }
-
   }
+}
+
+  
 
   onIntrested(){
     this.setState({RSVPButtonDisabled:true,isLoading:true});
-    axios.get(INTRESTED_IN_EVENT(this.props.userId, this.props.eventInfo._id)).then(()=>{
-      this.setState({RSVPButtonDisabled:false,isLoading:false});
-    }).catch((error)=>
-    {
-      console.log("There is an error "+error);
-    });
-
-
+    if(!this.state.userInterested){
+      axios.get(INTRESTED_IN_EVENT(this.props.userId, this.state.id)).then(()=>{
+        this.setState({
+                  RSVPButtonDisabled:false,
+                    isLoading:false,
+                    attendanceIcon:'star',
+                    usergoing:false,
+                    userInterested:true,
+                    RSVPButtonDisabled:false,
+                    RSVPButtonColor:Constants.color2,
+                    InterestedButtonColor: Constants.color4
+                    })}).catch((error)=>
+      {
+        console.log("There is an error "+error);
+      });
+    }else{
+      axios.get(NOT_GOING_TO_EVENT(this.props.userId, this.state.id)).then(()=>{
+        this.setState({
+                    RSVPButtonDisabled:false,
+                    isLoading:false,
+                    usergoing:false,
+                    userInterested:false,
+                    RSVPButtonDisabled:false, 
+                    isLoading:false,
+                    RSVPButtonColor:Constants.color2,
+                    InterestedButtonColor: Constants.color2})}).catch((error)=>
+      {
+        console.log("There is an error "+error);
+      });
+    }
   }
 
+  componentWillReceiveProps(nextProps){
+    if(nextProps.eventInfo != null){
+      this.setState({
+        id:nextProps.eventInfo._id,
+        eventTitleImage: nextProps.eventInfo.eventTitleImage ? nextProps.eventInfo.eventTitleImage : DETAULT_IMAGE_URL, //TODO: set to default if not given find this default
+        eventName: nextProps.eventInfo.title, 
+        eventDate: nextProps.eventInfo.startDate ? new Date(nextProps.eventInfo.startDate).toString() : null,
+        eventTags: nextProps.eventInfo.tags,
+        eventLocation: nextProps.eventInfo.streetname, //TODO: change this to address
+        userGoing: nextProps.eventInfo.usergoing,
+        userInterested:nextProps.eventInfo.userInterested,
+        goingPeople:nextProps.eventInfo.going ? nextProps.eventInfo.going : [],
+        description: nextProps.eventInfo.description,
+        host: nextProps.eventInfo.host ? nextProps.eventInfo.host : null
+      });
+    
+      if(nextProps.eventInfo.currentUserGoing){
+        this.setState({RSVPButtonColor:Constants.color4});
+      }else{
+        this.setState({RSVPButtonColor:Constants.color2});
+      }
 
+      if(nextProps.eventInfo.currentUserInterested){
+        this.setState({InterestedButtonColor:Constants.color4});
+      }else{
+        this.setState({InterestedButtonColor:Constants.color2});
+      } 
+    }      
+  }
   render() {
 
-    if(this.state.hostname == ""){
-      axios.get(GET_USER_PROFILE(this.state.host)).then((response)=>{
+    if(!this.state.gotHostName && this.state.host != null){
+      axios.get(GET_USER_PROFILE(this.state.host),{timeout:1000}).then((response)=>{
         var hostname = response.data.firstname + " " + response.data.lastname;
-        this.setState({hostname});
+        this.setState({hostname, gotHostName:true});
+      }).catch(()=>{
+        this.setState({gotHostName:true});
       });      
     }
 
@@ -137,72 +226,72 @@ export default class EventInfo extends Component {
       isMyevent = true;
     }
 
-        var goingCount = this.props.eventInfo.going ? this.props.eventInfo.going.length:0;
-        var interestedGoing = this.props.eventInfo.interested ? this.props.eventInfo.interested.length:0;
-        var eventTitleImage = this.props.eventInfo.eventTitleImage ? this.props.eventInfo.eventTitleImage : DETAULT_IMAGE_URL;
-        var eventName = this.props.eventInfo.title;
-        var eventDate =  this.props.eventInfo.startDate ? new Date(this.props.eventInfo.startDate).toString() : null;
-        var eventTags =  this.props.eventInfo.tags;
-        var totalAttendance =  goingCount+interestedGoing;
-        var eventLocation =  this.props.eventInfo.streetname; //TODO: change this to address
-        var userGoing =  this.props.eventInfo.usergoing;
-        var goingPeople = this.props.going ? this.props.going : [];
-        var description =  this.props.eventInfo.description;
-    
-
   	return (
       <KeyboardAvoidingView 
       behavior="padding" 
-      style={[{backgroundColor:Constants.color1},Constants.styles.fill]}
-       keyboardVerticalOffset={64}>
+      style={[{backgroundColor:'transparent'},Constants.styles.fill]}
+       keyboardVerticalOffset={80}>
         <ActivityIndicator
           style={styles.loadingContainer}
           animating={this.state.isLoading}
           size="large"/>
           <ScrollView>
-            <Image style={styles.eventInfoHeaderImage} 
-            source={{uri:eventTitleImage}}>
+              <Image style={styles.eventInfoHeaderImage} 
+              source={{uri:this.state.eventTitleImage}}>
               <View style={[styles.eventInfoContainer,styles.eventNameInfoContainer]}>
-                <Text style={styles.eventInfoName}>{eventName}</Text> 
+                <Text style={styles.eventInfoName}>{this.state.eventName}</Text> 
                 <Text style={styles.eventHostName}>Hosted by {this.state.hostname}</Text>
               </View>
             </Image>
-            <View style={{flexDirection:'row',justifyContent:'center'}}>
-           {!isMyevent  && <Button
-                         small
-                         raised
-                         borderRadius={5}
-                         buttonStyle={styles.eventButton}
-                         title={this.state.RSVPButtonTitle}
-                         icon={{name: this.state.attendanceIcon}}
-                         backgroundColor={Constants.color2}
-                         disabled={this.state.RSVPButtonDisabled}
-                         onPress={()=>{this.onGoing();}}/>}
+             <View style={{flexDirection:'row',justifyContent:'center'}}>
+            {!isMyevent  && 
+              <TouchableOpacity style={{padding:10, paddingBottom:5}} onPress={()=>{this.onGoing();}} disabled={this.state.RSVPButtonDisabled}>
+                <Icon
+                  name='done'
+                  color={this.state.RSVPButtonColor}
+                  size={40}
+                  containerStyle={{backgroundColor:'transparent'}}
+                   />
+                   <Text style={{fontSize:12, color:this.state.RSVPButtonColor}}>Going</Text>
+                  </TouchableOpacity> }
 
-             {!isMyevent  &&  <Button
-                small
-                raised
-                borderRadius={5}
-                buttonStyle={styles.eventButton}
-                title="Intrested"
-                icon={{name: "star"}}
-                backgroundColor={Constants.color2}
-                disabled={this.state.RSVPButtonDisabled}
-                onPress={()=>{this.onIntrested();}}/>}
+             {!isMyevent  &&  
+              <TouchableOpacity style={{padding:10,paddingBottom:5}} onPress={()=>{this.onIntrested();}} disabled={this.state.RSVPButtonDisabled}>
+                <Icon
+                  name='star'
+                  color={this.state.InterestedButtonColor}
+                  size={40}
+                  containerStyle={{backgroundColor:'transparent'}}
+                   />
+                   <Text style={{fontSize:12, color:this.state.InterestedButtonColor}}>Interested</Text>
+                </TouchableOpacity>
+                  }
 
-             {isMyevent 
-              && <Button
-                 small
-                 raised
-                 borderRadius={5}
-                 buttonStyle={styles.eventButton}
-                 title="Edit"
-                 icon={{name:"mode-edit"}}
-                 backgroundColor={Constants.color2}
-                 disabled={this.state.RSVPButtonDisabled}
-                 onPress={()=>{this.props.dispatch(openEditEvent())}}/>}
+            {isMyevent 
+              && 
+               <TouchableOpacity style={{padding:10,paddingBottom:5}} 
+               onPress={()=>{
+                      if(this._val == 0){
+                        this._val++;
+                        this.props.dispatch(openEditEvent());
+                        setTimeout(()=>{this._val = 0; }, 1000);
+                      }
+                    }
+                  }
+                 disabled={this.state.RSVPButtonDisabled}>
+                <Icon
+                  name='mode-edit'
+                  color={this.state.InterestedButtonColor}
+                  size={40}
+                  containerStyle={{backgroundColor:'transparent'}}
+                   />
+                   <Text style={{fontSize:12, color:this.state.InterestedButtonColor}}>Edit</Text>
+                </TouchableOpacity>
+            }
+
             </View>
-          <View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
+          <View style={styles.separator} />        
+          <View style={[Constants.styles.inRowComponents,styles.eventInfoContainer,{paddingTop:0}]}> 
             <Icon name="event" size={Constants.small_icon_size} color={Constants.color3}/>
             <Text style={styles.eventDateTimeInfo}>{this.state.eventDate}</Text>
           </View>
@@ -211,7 +300,6 @@ export default class EventInfo extends Component {
             <Icon name="location-on" size={Constants.small_icon_size} color={Constants.color3}/>
             <Text style={styles.eventDateTimeInfo}>{this.state.eventLocation}</Text>
           </View>     
-        <View style={styles.separator} />        
           <View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
           <View>
             <Icon name="note" size={Constants.small_icon_size} color={Constants.color3}/>
@@ -224,7 +312,7 @@ export default class EventInfo extends Component {
           {this.renderDiscussionBoard()}
 
             <View style={{margin:25, marginRight:0}}>
-              <Text style={{fontWeight:'bold',marginBottom:10}}>{goingCount} person(s) are going to the event</Text>
+              <Text style={{fontWeight:'bold',marginBottom:10}}>{this.state.goingPeople.length} person(s) are going to the event</Text>
             </View>
 
 
@@ -291,8 +379,7 @@ const styles = StyleSheet.create({
   },separator: {
     flex: 1,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: Constants.tableDividerColor,
-    marginTop:12
+    backgroundColor: Constants.tableDividerColor
   },addCommentButton:{
     height:20,
     marginTop:5

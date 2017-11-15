@@ -20,8 +20,14 @@ import { ImagePicker } from 'expo';
 import {CHANGE_USER_FIRST_NAME,
   CHANGE_USER_LAST_NAME,
   CHANGE_USER_MAIL,
-  CHANGE_PASSWORD
+  CHANGE_PASSWORD,
+  CHANGE_USER_AVATAR
 } from '../../api';
+
+import { RNS3 } from 'react-native-aws3';
+
+
+
 
 import {FormLabel, FormInput, Button, Icon } from 'react-native-elements';
 
@@ -59,20 +65,40 @@ export default class SignupProfileForm extends Component {
       apiCallArray.push(axios.put(CHANGE_USER_MAIL(user_id),
         {email:this.state.email}));
     }
+
     if(this.props.avatarurl != this.state.avatarurl){
-      // apiCallArray.push(axios.post())!!!
+      var imageName = this.state.avatarurl.split("/");
+      imageName = imageName[imageName.length-1];
+      this.state.avatar.name = imageName;
+      this.state.avatar.type = "image/jpg";
+    const options = {
+      keyPrefix: "uploads/",
+      bucket: "uploadsformok",
+      region: "us-east-1",
+      accessKey: "AKIAI3LSLN3KT4SV4MNA",
+      secretKey: "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",
+      successActionStatus: 201
+      };
+      RNS3.put(this.state.avatar, options).then(response => {
+        if (response.status !== 201){
+                throw new Error("Failed to upload image to S3")
+
+              }
+              axios.post(CHANGE_USER_AVATAR(user_id),{url:response.body.location});
+            }
+      );
     }
     if(this.state.confirmPassword.length !=0 
       ||this.state.password.length !=0)
-    {
-      if(this.state.confirmPassword == this.state.password){
-       apiCallArray.push(axios.put(CHANGE_PASSWORD(user_id),
-        {"password":this.state.password}));
-      }else{
-      this.setState({passwordError:true});
-        return;
+      {
+        if(this.state.confirmPassword == this.state.password){
+         apiCallArray.push(axios.put(CHANGE_PASSWORD(user_id),
+          {"password":this.state.password}));
+        }else{
+        this.setState({passwordError:true});
+          return;
+        }
       }
-    }
       this.setState({isLoading:true});
       axios.all(apiCallArray).then(()=>{
         dispatch(getMyprofile()).then(()=>{
@@ -93,7 +119,7 @@ export default class SignupProfileForm extends Component {
     console.log(result);
 
     if (!result.cancelled) {
-      this.setState({ avatarurl: result.uri, avatar:result });
+      this.setState({avatarurl: result.uri, avatar:result });
     }
   };
 
@@ -111,7 +137,8 @@ export default class SignupProfileForm extends Component {
           </View>   
           <View style={{alignItems:'center'}}>
             <RoundImage size={75} source={this.state.avatarurl}/>
-            <TouchableOpacity onPress={()=>{this.chooseProfilePicture()}}><Text style={styles.choosePhotoText}>Choose photo</Text></TouchableOpacity>
+            <TouchableOpacity onPress={()=>{
+              this.chooseProfilePicture()}}><Text style={styles.choosePhotoText}>Choose photo</Text></TouchableOpacity>
           </View>
 
           

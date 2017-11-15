@@ -6,6 +6,8 @@ import profilesReducer from './profilesReducer';
 import nav from './nav.js';
 import alerts from './alerts.js';
 import userSearch from './userSearch';
+import rehyderation from './rehyderation';
+import notifications from './notifications';
 // import activityReducer from './activityReducer.js';
 export default combineReducers({
 	form:formReducer,
@@ -14,6 +16,8 @@ export default combineReducers({
 	profiles:profilesReducer,
 	nav,
 	alerts,
-	userSearch:userSearch
+	notifications,
+	userSearch:userSearch,
+	rehyderation,
 	// activity:activityIndicator
 });

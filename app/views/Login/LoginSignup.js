@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity
 } from 'react-native';
+import {connect} from 'react-redux';
+import {authUserPublic} from '../../actions'
 import Constants from '../../MokUI/UIConstants';
 import { NavigationActions } from 'react-navigation';
 
@@ -42,9 +44,9 @@ export default class LoginSignup extends Component{
       setTimeout(()=>{this._val = 0; }, 1000); }      
     }
 
-
+//source = {require('../../../assets/images/aa.png')}
     return (
-      <Image style={styles.imageContainer} source = {require('../../../assets/images/aa.png')} resizeMode="stretch">
+      <Image style={styles.imageContainer} resizeMode="stretch"> 
       <View style={styles.logoContainer}>
         <Image source={require('../../../assets/images/logo.png')}/>
       </View>
@@ -79,6 +81,7 @@ const styles = StyleSheet.create({
     alignItems:'center',
     height: null,
     width: null,
+    backgroundColor:Constants.color4
   },logoContainer:{
     paddingTop:70,
     alignItems:'center'
@@ -104,6 +107,10 @@ const styles = StyleSheet.create({
   }
 });
 
+var mapStateToProps = (state) =>{
+    return ({userId: state.auth.user_id});
+}
 
-AppRegistry.registerComponent('LoginSignup', () => LoginSignup);
+module.exports = connect(mapStateToProps)(LoginSignup);
         
+  

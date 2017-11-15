@@ -28,7 +28,6 @@ import SignUp from './views/Login/SignUp';
 import EditProfile from './views/Profile/EditProfile';
 import EventEdit from './views/EventInfo/EventEdit';
 
-import {unauthUser} from './actions';
 import { StackNavigator, 
 	TabNavigator, 
 	DrawerNavigator,
@@ -82,7 +81,7 @@ const MainTabs = TabNavigator({
 		}		
 },	{
 		tabBarOptions:{
-			activeTintColor: Constants.color2,
+			activeTintColor:Constants.color2 ,
 			showIcon:true
 		},
 /*		navigationOptions:{

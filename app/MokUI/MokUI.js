@@ -57,7 +57,7 @@ export class MultiLineTextField extends Component {
               }>
                 <TextInput 
                 {...this.props}
-                color={Constants.formTextColor}
+                color={Constants.color2}
                 fontSize={17}
                 placeholder={this.props.placeholder}
                 placeholderTextColor={Constants.color3}

@@ -44,7 +44,8 @@ export default class LoginScreen extends Component{
     var {dispatch, fields:{username, password}} = this.props;
     this.setState({isLoading: true});
     dispatch(loginUser(username.value,password.value)).then((response)=>{
-      setTimeout(()=>{ this.setState({isLoading: false}); }, 1000);
+      setTimeout(()=>{ 
+        this.setState({isLoading: false}); }, 1000);
       
     }).catch((error)=>{
       // this.setState({isLoading: false});

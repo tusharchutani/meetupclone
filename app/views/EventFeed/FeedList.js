@@ -12,6 +12,7 @@ import EventFeedItem from './EventFeedItem'
 import Constants  from '../../MokUI/UIConstants';
 import {connect} from 'react-redux';
 import {Permissions, Location, Expo} from 'expo';
+import shallowCompare from 'shallow-compare'
 import {getEventsNearMe, getEventInfo, openCreateEvent, searchEventsByTag, openFindFriends} from '../../actions'
 
 export default class FeedList extends Component {
@@ -44,27 +45,36 @@ export default class FeedList extends Component {
   }
 
   _getCurrentLocation = async () => {
-    console.log("Getting current location");
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status !== 'granted') {
-      console.log("Location access not granted");
-      this.setState({
-        errorMessage: 'Permission to access location was denied',
-      });
-    }
 
-    let location = await Location.getCurrentPositionAsync({});
-    location = { 
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-    };  
-    this.setState({location});
+    
+      let { status } = await Permissions.askAsync(Permissions.LOCATION);
+      if (status !== 'granted') {
+        console.log("Location access not granted");
+        this.setState({
+          errorMessage: 'Permission to access location was denied',
+        });
+      }
 
+      let location = await Location.getCurrentPositionAsync({});
+      location = { 
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };  
+      this.setState({location});
   };
+
+  
+  shouldComponentUpdate(nextProps, nextState) {
+    if(nextProps.eventList.length == this.props.eventList.length){
+      return false
+    }
+    return shallowCompare(this, nextProps, nextState);
+  }
+
 
   loadEventsNearMe(){
         this._getCurrentLocation().then(()=>{
-        this.setState({loading:true});
+        this.setState({hasLoaded:false});
         this.props.dispatch(getEventsNearMe(this.state.location.latitude,
           this.state.location.longitude)).then(()=>{
             this.setState({loading:false});
@@ -72,12 +82,14 @@ export default class FeedList extends Component {
       });
   }
   componentWillMount(){
+    this.setState({isLoading:true});
     this.loadEventsNearMe();
   }
 
   moreInfo(data) {
     this.props.dispatch(getEventInfo(data, this.props.userId));
   }
+
 
   searchList(event){
     if(event.length == 0){
@@ -91,6 +103,10 @@ export default class FeedList extends Component {
 
   }
 
+
+
+
+
   render() {
   return (
     <View style={styles.container}> 
@@ -99,7 +115,7 @@ export default class FeedList extends Component {
         <FlatList
           enableEmptySections={true}
           keyExtractor={(item, index) => index}
-          data={this.props.eventList} 
+          data={this.props.eventList}
           renderItem={({ item }) => (<EventFeedItem {...item}/>)}
           ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
           onRefresh={()=>{this.loadEventsNearMe()}}

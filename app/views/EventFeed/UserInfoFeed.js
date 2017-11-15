@@ -203,7 +203,7 @@ export default class UserInfoFeed extends Component {
         if(getEvents.length == 0){
           this.setState({refreshing:false});
         }
-        axios.all(getEvents).then(responses => {
+          axios.all(getEvents).then(responses => {
           let temp = responses.map((response) =>{
             if(response.data != null){
               return response.data;
@@ -211,9 +211,9 @@ export default class UserInfoFeed extends Component {
             return {};
           })
           this.setState({eventsHostedByUser:temp,isLoading:false});
-      }).catch((error)=>{
+        }).catch((error)=>{
         console.log("User info feed error "+error);
-        this.setState({eventsHostedByUser:temp,isLoading:false});
+        this.setState({isLoading:false});
         });
     }
   }

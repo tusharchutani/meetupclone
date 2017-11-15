@@ -15,12 +15,14 @@ import {connect} from 'react-redux';
 import Constants from '../../MokUI/UIConstants';
 import axios from 'axios';
 import {RoundImage} from '../../MokUI/MokUI';
-import {signUpUser} from '../../actions';
-
+import { ImagePicker } from 'expo';
+import {signUpUser,openMainApp} from '../../actions';
+import { RNS3 } from 'react-native-aws3';
 import {CHANGE_USER_FIRST_NAME,
   CHANGE_USER_LAST_NAME,
   CHANGE_USER_MAIL,
-  CHANGE_PASSWORD
+  CHANGE_PASSWORD,
+  CHANGE_USER_AVATAR
 } from '../../api';
 
 import {FormLabel, FormInput, Button, Icon,FormValidationMessage } from 'react-native-elements';
@@ -39,10 +41,47 @@ export default class SignUp extends Component {
       avatarurl: Constants.defaultProfilePic,
       notFilledError:false,
       passwordError:false,
-      isButtonDisabled:false
+      isButtonDisabled:false,
+      avatar:{
+        name:"",
+        type:""
+      }
     };
   }
-
+  uploadPhotoToS3(){
+    if(this.state.avatarurl != Constants.defaultProfilePic){ 
+       var imageName = this.state.avatarurl.split("/");
+          imageName = imageName[imageName.length-1];
+          this.state.avatar.name = imageName;
+          this.state.avatar.type = "image/jpg";
+        const options = {
+          keyPrefix: "uploads/",
+          bucket: "uploadsformok",
+          region: "us-east-1",
+          accessKey: "AKIAI3LSLN3KT4SV4MNA",
+          secretKey: "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",
+          successActionStatus: 201
+          };
+        RNS3.put(this.state.avatar, options).then(response => {
+            if (response.status !== 201){
+                    throw new Error("Failed to upload image to S3")
+    
+                  }
+                  let photoLocation = response.body.location; 
+                  SecureStore.getItemAsync('user_id').then((user_id)=>{
+                    console.log("Location is");
+                    axios.post(CHANGE_USER_AVATAR(user_id),{url:photoLocation}).then(()=>{
+                      this.props.dispatch(openMainApp());
+                      this.setState({isDisabled:false,isLoading:false});
+                    });
+                  });              
+                }
+          );  
+      }else{
+        this.props.dispatch(openMainApp());
+        this.setState({isDisabled:false,isLoading:false});
+      }
+  }
   _onSignup(){
 
     this.setState({isLoading:true});
@@ -71,11 +110,22 @@ export default class SignUp extends Component {
   };
   this.setState({isDisabled:true,notFilledError:false,passwordError:false});
   this.props.dispatch(signUpUser(payload)).then(()=>{
-    this.setState({isDisabled:false,isLoading:false});
-  }); 
+    this.uploadPhotoToS3();
+  });
   }
    
-  
+  chooseProfilePicture = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    if (!result.cancelled) {
+      this.setState({avatarurl: result.uri, avatar:result });
+    }
+  };
+
+
 
   render() {
     return (
@@ -87,7 +137,7 @@ export default class SignUp extends Component {
         <View>
           <View style={{alignItems:'center'}}>
             <RoundImage size={75} source={this.state.avatarurl}/>
-            <TouchableOpacity><Text style={styles.choosePhotoText}>Choose photo</Text></TouchableOpacity>
+            <TouchableOpacity onPress={()=>{this.chooseProfilePicture()}}><Text style={styles.choosePhotoText}>Choose photo</Text></TouchableOpacity>
           </View>
 
           
@@ -189,7 +239,11 @@ const styles = StyleSheet.create({
   }
 });
 
+var mapStateToProps = (state) => {
+  return {
+    userId:state.auth.user_id
+  }
+}
 
 
-
-module.exports =  connect()(SignUp)
+module.exports =  connect(mapStateToProps)(SignUp)

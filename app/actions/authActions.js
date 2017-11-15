@@ -40,12 +40,19 @@ exports.signUpUser = (payload) => {
 }
 
 
+exports.authUserPublic = (user_id) => {
+	return authUser(user_id);
+}
+
+
 authUser = (user_id) =>{
 	return {
 		type: 'AUTH_USER',
 		user_id
 	}
 }
+
+
 
 
 showErrorAlert = (error) => {

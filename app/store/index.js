@@ -3,6 +3,7 @@ import {AsyncStorage} from 'react-native';
 import thunk from 'redux-thunk';
 import {persistStore, autoRehydrate, purge} from 'redux-persist';
 import reducer from '../reducer';
+import {autoRehydrationComplete} from '../actions';
 import {createBlacklistFilter} from 'redux-persist-transform-filter';
 
 //REMOVE
@@ -13,9 +14,11 @@ var defaultState = {};
 
 exports.configureStore = (initialState=defaultState) => {
   var store = createStore(reducer, initialState,
-  		 compose(applyMiddleware(thunk/*, logger*/),
+  		 compose(applyMiddleware(thunk, logger),
   		 	autoRehydrate()
   		 	));
-  persistStore(store, {storage: AsyncStorage, blacklist:['events','form']}).purge();
+  persistStore(store, {storage: AsyncStorage, blacklist:['events','form','nav']},()=>{
+  	store.dispatch(autoRehydrationComplete());
+  });
   return store;
 }
