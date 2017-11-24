@@ -163,10 +163,11 @@ uploadAndCreate() {
                     if (response.status !== 201){throw new Error("Failed to upload image to S3")}
                     let photoLocation = response.body.postResponse.location;
                     let eventInfo = this.state.eventInfo;
-                    eventInfo.eventImage = photoLocation;
+                    eventInfo.eventimage = photoLocation;
                     this.setState({eventInfo:eventInfo});
 
                     this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
+                      debugger
                       this.props.navigation.goBack();
                       // setTimeout(()=>{this.props.dispatch(getEventInfo(this.props._id,this.props.userId));}, 2000);
                       this.setState({loading:false});
@@ -225,6 +226,7 @@ uploadAndCreate() {
       this.setState({loading:false});
     }else{
       let eventInfo = this.state.eventInfo;
+      this.setState({isCreateButtonDisabled:true}); 
        this.uploadAndCreate();
      }
  }

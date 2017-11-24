@@ -21,7 +21,7 @@ export default class EventFeedItem extends Component {
     let interestedGoing = this.props.interested ? this.props.interested.length:0;
     let DETAULT_IMAGE_URL="http://data.whicdn.com/images/108454974/large.jpg";
     this.state = {
-      eventTitleImage: this.props.eventTitleImage ? this.props.eventTitleImage : DETAULT_IMAGE_URL, //TODO: set to default if not given find this default
+      eventTitleImage: this.props.backgroundimage ? this.props.backgroundimage : DETAULT_IMAGE_URL, //TODO: set to default if not given find this default
       eventName: this.props.title, 
       eventDate: this.props.startDate ? new Date(this.props.startDate) : null,
       eventTags: this.props.tags,

@@ -27,7 +27,7 @@ export default class EventInfo extends Component {
 	    super(props);
       this.state = {
         id:this.props.eventInfo._id ? this.props.eventInfo._id : "",
-        eventTitleImage: this.props.eventInfo.eventTitleImage ? this.props.eventInfo.eventTitleImage : DETAULT_IMAGE_URL, //TODO: set to default if not given find this default
+        eventTitleImage: this.props.eventInfo.backgroundimage ? this.props.eventInfo.backgroundimage : DETAULT_IMAGE_URL, //TODO: set to default if not given find this default
         eventName: this.props.eventInfo.title ? this.props.eventInfo.title : "", 
         eventDate: this.props.eventInfo.startDate ? new Date(this.props.eventInfo.startDate).toString() : null,
         eventTags: this.props.eventInfo.tags,
@@ -184,7 +184,7 @@ export default class EventInfo extends Component {
     if(nextProps.eventInfo != null){
       this.setState({
         id:nextProps.eventInfo._id,
-        eventTitleImage: nextProps.eventInfo.eventTitleImage ? nextProps.eventInfo.eventTitleImage : DETAULT_IMAGE_URL, //TODO: set to default if not given find this default
+        eventTitleImage: nextProps.eventInfo.backgroundimage ? nextProps.eventInfo.backgroundimage : DETAULT_IMAGE_URL, //TODO: set to default if not given find this default
         eventName: nextProps.eventInfo.title, 
         eventDate: nextProps.eventInfo.startDate ? new Date(nextProps.eventInfo.startDate).toString() : null,
         eventTags: nextProps.eventInfo.tags,

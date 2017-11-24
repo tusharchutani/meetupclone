@@ -1,8 +1,8 @@
 {
-  "expoServerPort": 19001,
-  "packagerPort": 19003,
-  "packagerPid": 20899,
+  "expoServerPort": 19000,
+  "packagerPort": 19001,
+  "packagerPid": 50044,
   "expoServerNgrokUrl": "https://wr-xt6.tusharchutani.mok-app.exp.direct",
   "packagerNgrokUrl": "https://packager.wr-xt6.tusharchutani.mok-app.exp.direct",
-  "ngrokPid": 20919
+  "ngrokPid": 50077
 }
