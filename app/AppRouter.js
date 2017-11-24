@@ -15,6 +15,7 @@ import MapEvents from './views/MapView/MapEvents';
 import FeedNavigationController from './views/EventFeed/FeedNavigationController';
 	import FeedList from './views/EventFeed/FeedList';
 import EventInfo from './views/EventInfo/EventInfo';
+import PeopeInfo from './views/EventInfo/PeopeInfo';
 import MyProfile from './views/EventFeed/Profile/MyProfile';
 import OtherUserProfile from './views/EventFeed/Profile/OtherUserProfile';
 import MyEvents from './views/EventFeed/MyEvents';
@@ -24,9 +25,12 @@ import Settings from './views/Settings/Settings';
 import CreateEvent from './views/CreateEvent/CreateEvent';
 import LoginSignup from './views/Login/LoginSignup';
 import LoginScreen from './views/Login/LoginScreen'
+import ForgotPassword from './views/Login/ForgotPassword'
 import SignUp from './views/Login/SignUp';
 import EditProfile from './views/Profile/EditProfile';
 import EventEdit from './views/EventInfo/EventEdit';
+import NotificationCenter from './views/Notifications/NotificationCenter';
+
 
 import { StackNavigator, 
 	TabNavigator, 
@@ -63,6 +67,13 @@ const MainTabs = TabNavigator({
 				 tabBarIcon: ({tintColor}) => <Icon name="done" size={28} color={tintColor}/>,
 			}
 		},
+		NotificationCenter:{
+			screen: NotificationCenter,
+			navigationOptions:{
+				tabBarLabel:"",
+				tabBarIcon: ({tintColor}) => <Icon name="notifications" size={28} color={tintColor}/>,
+			}			
+		},		
 		UserInfoFeed: { 
 			screen: MyProfile,
 			navigationOptions:{
@@ -74,7 +85,7 @@ const MainTabs = TabNavigator({
 		Settings: { 
 			screen: Settings,
 			navigationOptions:{
-				tabBarLabel:"Settings",
+				// tabBarLabel:"Settings",
 				tabBarIcon: ({tintColor}) => <Icon name="settings" size={28} color={tintColor}/>,
 				header:null
 			}
@@ -82,7 +93,8 @@ const MainTabs = TabNavigator({
 },	{
 		tabBarOptions:{
 			activeTintColor:Constants.color2 ,
-			showIcon:true
+			showIcon:true,
+			showLabel: false
 		},
 /*		navigationOptions:{
 			headerMode:'screen'
@@ -97,7 +109,10 @@ const MokAppRouter = new StackNavigator({
 	}, LoginScreen:{
 		screen:LoginScreen,
 		navigationOptions:{title:'Log in'}
-	},SignUp:{
+	},ForgotPassword:{
+		screen:ForgotPassword,
+		navigationOptions:{title:'Forgot password'}
+	}, SignUp:{
 		screen:SignUp,
 		navigationOptions:{title:'Sign up'}
 	},EventEdit:{
@@ -112,7 +127,9 @@ const MokAppRouter = new StackNavigator({
   	EventInfo: {
   		screen: EventInfo,
 		// navigationOptions:{header:{visible:true}}
-  	},CreateEvent:{
+  	},PeopeInfo:{
+  		screen: PeopeInfo
+  	}, CreateEvent:{
 		screen: CreateEvent
 	},Connections:{
 		screen:Connections
@@ -121,7 +138,7 @@ const MokAppRouter = new StackNavigator({
 		navigationOptions:{header:null}
 	},UserProfile:{
 		screen:OtherUserProfile
-	}
+		}
 	});
 
 

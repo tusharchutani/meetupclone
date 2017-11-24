@@ -9,7 +9,8 @@ import {
   FlatList,
   ActivityIndicator,
   KeyboardAvoidingView,
-  TouchableOpacity
+  TouchableOpacity,
+  RefreshControl
 } from 'react-native';
 import axios from 'axios';
 import {connect} from 'react-redux';
@@ -17,7 +18,7 @@ import { Icon,Button, FormInput } from 'react-native-elements';
 import Constants from '../../MokUI/UIConstants';
 import {SecureStore} from 'expo';
 import {GOING_TO_EVENT,NOT_GOING_TO_EVENT,GET_USER_PROFILE,INTRESTED_IN_EVENT} from '../../api';
-import {openEditEvent} from '../../actions';
+import {openEditEvent, showErrorAlert,OPEN_PEOPLE_INFO,getEventInfo} from '../../actions';
 import {POSTCOMMENT,GET_COMMENTS} from '../../api'
 export default class EventInfo extends Component {
   
@@ -25,14 +26,14 @@ export default class EventInfo extends Component {
  constructor(props) {
 	    super(props);
       this.state = {
-        id:this.props.eventInfo._id,
+        id:this.props.eventInfo._id ? this.props.eventInfo._id : "",
         eventTitleImage: this.props.eventInfo.eventTitleImage ? this.props.eventInfo.eventTitleImage : DETAULT_IMAGE_URL, //TODO: set to default if not given find this default
-        eventName: this.props.eventInfo.title, 
+        eventName: this.props.eventInfo.title ? this.props.eventInfo.title : "", 
         eventDate: this.props.eventInfo.startDate ? new Date(this.props.eventInfo.startDate).toString() : null,
         eventTags: this.props.eventInfo.tags,
         eventLocation: this.props.eventInfo.streetname, //TODO: change this to address
-        userGoing: this.props.eventInfo.usergoing,
-        userInterested:this.props.eventInfo.userInterested,
+        userGoing: this.props.eventInfo.currentUserGoing,
+        userInterested:this.props.eventInfo.currentUserInterested,
         goingPeople:this.props.eventInfo.going ? this.props.eventInfo.going : [],
         description: this.props.eventInfo.description,
         host: this.props.eventInfo.host ? this.props.eventInfo.host : null,
@@ -44,41 +45,39 @@ export default class EventInfo extends Component {
         isPostingComment:false,
         gotHostName:false,
         comments:[],
-        gotComments:false
+        gotComments:false,
+        loading:false
       };
 
 	}		
+
+
   _val = 0;
-  static navigationOptions = {
-    title: this.state ? this.state.eventName : "Event info"
-  };
-
-
-
-
-  getComments(){
-    if(this.props.eventinfo){
-       axios.get(GET_COMMENTS(this.state.id)).then((response)=>{
-        this.setState({comments:response.data.posts,gotComments:true});
-      }).catch((error)=>{
-        console.log("There was an error getting the data from the server. "+error);
-      });
-    }
+  static navigationOptions = ({navigation}) => {
+   return {title: this.state ? this.state.eventName : "Event info"}  
   }
 
-  componentDidMount(){
-    if(!this.state.gotComments){
-      this.getComments();
-    }
+
+
+
+  getComments(id){
+    console.log("Getting comments");
+     axios.get(GET_COMMENTS(id)).then((response)=>{
+      this.setState({comments:response.data.posts,gotComments:true});
+    }).catch((error)=>{
+      console.log("There was an error getting the data from the server. "+error);
+    });
+    
   }
 
   postComment(){
     this.setState({isPostingComment:true});
     axios.post(POSTCOMMENT(this.props.userId,this.state.id),{comment:this.state.comment}).then(()=>{
+      this.getComments(this.state.id);
+      // let comments = this.state.comments;
+      // comments.push({firstname:"You",lastname:"",usercomment:this.state.comment});
+      this.setState({comment:"",isPostingComment:false});
 
-      let comments = this.state.comments;
-      comments.push([{firstname:"You",lastname:"",usercomment:this.state.comment}]);
-      this.setState({comment:"",isPostingComment:false, comments});
 
     }).catch((error)=>{
       this.setState({isPostingComment:false});
@@ -88,7 +87,7 @@ export default class EventInfo extends Component {
   renderDiscussionBoard(){
     return (
       <View style={[{paddingLeft:0,paddingRight:0},styles.eventInfoContainer]}> 
-        <Text style={styles.title}>Discussion board: </Text>
+      <Text style={styles.title}>Discussion board: </Text>
 
       <View style={{flexDirection:'row'}}>
                 <ActivityIndicator
@@ -105,42 +104,43 @@ export default class EventInfo extends Component {
 
 
       </View>
-        <ScrollView style={{height:200}}> 
+        
           <FlatList
-            enableEmptySections={true}
             keyExtractor={(item, index) => index}
             data={this.state.comments} 
-            renderItem={({ item }) => (<View style={{paddingBottom:10}}>
+            renderItem={({ item }) =>{
+              return (<View style={{paddingBottom:10}}>
               <Text style={{fontWeight:'bold', fontSize:16,marginBottom:5}}>{item.firstname + " "+ item.lastname}</Text>
               <Text>{item.usercomment}</Text>
-              </View>)}
-          />          
-        </ScrollView>
+              </View>);
+            }}
+          />    
       </View>    );
   }
 
 
   onGoing(){
   this.setState({RSVPButtonDisabled:true,isLoading:true});
-    if(!this.state.usergoing){
+    if(!this.state.userGoing){
       axios.get(GOING_TO_EVENT(this.props.userId,this.state.id)).then((response)=>{
           this.setState({RSVPButtonTitle:'Going',
             RSVPButtonDisabled:false,
             InterestedButtonColor:Constants.color2,
-            usergoing:true,isLoading:false,RSVPButtonColor:Constants.color4});
+            userGoing:true,isLoading:false,RSVPButtonColor:Constants.color4});
       }).catch((error)=>{
       this.setState({RSVPButtonDisabled:false,isLoading:false});
       })
     }else{
         axios.get(NOT_GOING_TO_EVENT(this.props.userId,this.state.id)).then((response)=>{
             this.setState({RSVPButtonTitle:'RSVP',
-              attendanceIcon:'star',usergoing:false,
+              attendanceIcon:'star',userGoing:false,
               RSVPButtonDisabled:false, isLoading:false,
-              RSVPButtonColor:Constants.color2
-        }).catch((error)=>{
+              RSVPButtonColor:Constants.color2})
+          }).catch((error)=>{
+          dispatch(showErrorAlert(error));
           this.setState({RSVPButtonDisabled:false,isLoading:false});  
         })
-      });
+      
   }
 }
 
@@ -154,7 +154,7 @@ export default class EventInfo extends Component {
                   RSVPButtonDisabled:false,
                     isLoading:false,
                     attendanceIcon:'star',
-                    usergoing:false,
+                    userGoing:false,
                     userInterested:true,
                     RSVPButtonDisabled:false,
                     RSVPButtonColor:Constants.color2,
@@ -189,8 +189,8 @@ export default class EventInfo extends Component {
         eventDate: nextProps.eventInfo.startDate ? new Date(nextProps.eventInfo.startDate).toString() : null,
         eventTags: nextProps.eventInfo.tags,
         eventLocation: nextProps.eventInfo.streetname, //TODO: change this to address
-        userGoing: nextProps.eventInfo.usergoing,
-        userInterested:nextProps.eventInfo.userInterested,
+        userGoing: nextProps.eventInfo.currentUserGoing,
+        userInterested:nextProps.eventInfo.currentUserInterested,
         goingPeople:nextProps.eventInfo.going ? nextProps.eventInfo.going : [],
         description: nextProps.eventInfo.description,
         host: nextProps.eventInfo.host ? nextProps.eventInfo.host : null
@@ -207,8 +207,31 @@ export default class EventInfo extends Component {
       }else{
         this.setState({InterestedButtonColor:Constants.color2});
       } 
-    }      
+ 
+      this.getComments(nextProps.eventInfo._id);
+      
+    }    
   }
+
+  openPeopleInfo(){
+      this.props.dispatch(OPEN_PEOPLE_INFO());
+    }
+
+  reloadEventInfo(){
+    this.setState({loading:true});
+    if(this.props.eventInfo._id){
+        this.props.dispatch(getEventInfo(this.props.eventInfo._id,this.props.userId)).then(()=>{
+          this.setState({loading:false});
+        }).catch((error)=>{
+          this.setState({loading:false});
+          this.props.dispatch(showErrorAlert(error.message));
+        });
+    }else{
+      this.setState({loading:false});
+    }
+
+  }
+      
   render() {
 
     if(!this.state.gotHostName && this.state.host != null){
@@ -235,7 +258,13 @@ export default class EventInfo extends Component {
           style={styles.loadingContainer}
           animating={this.state.isLoading}
           size="large"/>
-          <ScrollView>
+          <ScrollView 
+              refreshControl={
+                <RefreshControl
+                  refreshing={this.state.loading}
+                  onRefresh={()=>{this.reloadEventInfo()}}
+                />}
+            >
               <Image style={styles.eventInfoHeaderImage} 
               source={{uri:this.state.eventTitleImage}}>
               <View style={[styles.eventInfoContainer,styles.eventNameInfoContainer]}>
@@ -305,14 +334,16 @@ export default class EventInfo extends Component {
             <Icon name="note" size={Constants.small_icon_size} color={Constants.color3}/>
           </View> 
             <Text style={styles.eventDateTimeInfo}>
-            This is a long descriptionLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+            {this.state.description}
             </Text>
             
           </View>
           {this.renderDiscussionBoard()}
 
             <View style={{margin:25, marginRight:0}}>
-              <Text style={{fontWeight:'bold',marginBottom:10}}>{this.state.goingPeople.length} person(s) are going to the event</Text>
+              <TouchableOpacity onPress={()=>{this.openPeopleInfo()}}>
+                <Text style={{fontWeight:'bold',marginBottom:10}}>{this.state.goingPeople.length} person(s) are going to the event</Text>
+              </TouchableOpacity>
             </View>
 
 
@@ -353,9 +384,6 @@ const styles = StyleSheet.create({
   	fontSize:20,
   	marginBottom:7,
     fontWeight:'bold'
-  },postCommentButton:{
-      height:30,
-      width:30
   },
   eventHostName:{
   	color:Constants.color1,

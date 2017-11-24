@@ -13,11 +13,16 @@
       "icon": "./assets/icons/loading-icon.png",
       "hideExponentText": false
     },
+    "facebookScheme":"fb300866317096349",
     "packagerOpts": {
       "assetExts": ["ttf", "mp4"]
     },
     "ios": {
-      "supportsTablet": true
-    }
+      "supportsTablet": false,
+      "bundleIdentifier": "com.mok.spot"
+    },
+    "android": {
+      "package": "com.mok.spot"
+    }    
   }
 }

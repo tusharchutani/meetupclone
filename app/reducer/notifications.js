@@ -1,5 +1,5 @@
 var defaultState = {
-	notifications:[]
+	notificationList:[]
 }
 
 module.exports = (state=defaultState, action)=>{

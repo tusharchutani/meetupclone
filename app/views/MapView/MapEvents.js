@@ -12,7 +12,7 @@ import {connect} from 'react-redux';
 import Constants from '../../MokUI/UIConstants';
 import Carousel from 'react-native-snap-carousel';
 import CarouselView from './CarouselView'
-import {getEventsNearMe} from '../../actions'
+import {getEventsNearMe, showErrorAlert} from '../../actions'
 import {Button} from 'react-native-elements';
 export default class MapEvents extends Component {
 
@@ -94,7 +94,10 @@ export default class MapEvents extends Component {
       this.props.dispatch(getEventsNearMe(this._region.latitude,
             this._region.longitude)).then(()=>{
         this.setState({isDisabled:false})
-      });      
+      }).catch((error)=>{
+        this.setState({isDisabled:false});
+        this.props.dispatch(showErrorAlert(error));
+      });
     }
   }
 
@@ -104,14 +107,18 @@ export default class MapEvents extends Component {
     const slides = this.props.mapEvents ? this.props.mapEvents.map((entry, index) => {
           return (
                   <View key={`entry-${index}`} style={styles.slide}>
-                      <CarouselView {...entry} onPress={()=>{console.log("Pressed");}}/>
+                      <CarouselView {...entry}/>
                   </View>
           );
       }):null;
 
       const eventMarkers = this.props.mapEvents ? this.props.mapEvents.map((entry, index) => {
+        const {_carousel} = this;
           return (
-            <MapView.Marker key={`marker-${index}`} coordinate={{latitude:entry.location[1], longitude:entry.location[0]}}/>
+            <MapView.Marker key={`marker-${index}`}
+            onPress={()=>{
+              _carousel.snapToItem(index)
+            }} coordinate={{latitude:entry.location[1], longitude:entry.location[0]}}/>
           );
       }):null;
 

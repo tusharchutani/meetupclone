@@ -41,6 +41,17 @@ export default class EventFeedItem extends Component {
       }).catch((err)=>{this._val = 0});
     }
   }
+
+
+  getUserProfile(_id){
+     if(this._val == 0){
+        this._val = 1;
+        this.props.dispatch(openUserProfile());
+        this.props.dispatch(setUserProfile(_id));
+        
+        setTimeout(()=>{this._val = 0; }, 1000);
+    }
+  }  
   
   render() {
     let tagView = () => {

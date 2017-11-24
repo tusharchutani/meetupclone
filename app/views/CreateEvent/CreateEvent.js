@@ -7,18 +7,22 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  FlatList,
+  Image
 } from 'react-native';
 import moment from 'moment'
-import {FormLabel, FormInput, Button } from 'react-native-elements'
+import {FormLabel, FormInput, Button, ListItem } from 'react-native-elements'
 import Constants  from '../../MokUI/UIConstants';
 import {MultiLineTextField} from '../../MokUI/MokUI';
 import DateTimePicker from 'react-native-modal-datetime-picker';
-import {createEvent, showAlert} from '../../actions';
+import {createEvent, showErrorAlert} from '../../actions';
 import {connect} from 'react-redux';
 import axios from 'axios';
 import {GOOGLE_MAP_API} from '../../api';
 import { Icon } from 'react-native-elements';
+import { ImagePicker } from 'expo';
+import { RNS3 } from 'react-native-aws3';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 export default class CreateEvent extends Component {
 
@@ -26,16 +30,6 @@ export default class CreateEvent extends Component {
 
     return {
       header:null
-       /*   title:'Create events',
-          headerLeft: (<Icon name="clear" style={{marginLeft:20}} 
-                      underlayColor="grey" 
-                      onPress={()=>{navigation.goBack()}}/>),
-          headerRight: (<ActivityIndicator
-                        animating={navigation.state.loading}
-                        style={{paddingRight:25}}
-                        size="small"
-                      /> )
-          }*/
   }};
 
   constructor(props) {
@@ -55,6 +49,7 @@ export default class CreateEvent extends Component {
                 city:"",
                 location:[]
               },
+        locationSuggestion:[],
         isInvalid:{
           eventTitle:true,
           startDate:true,
@@ -62,13 +57,18 @@ export default class CreateEvent extends Component {
           address:true,
           eventDescription:true,
           tags:true
+        },
+        eventImageURi:'',
+        eventImage:{
+          name:"",
+          type:""
         }
       }
     }
 
   validateForm(){
-    const {title, startDate, tags, street} = this.state.eventInfo;
-    if(title.length == 0 || tags.length == 0 || street.length == 0 || startDate <= moment()){
+    const {title, startDate, tags, location} = this.state.eventInfo;
+    if(title.length == 0 || tags.length == 0 || location.length == 0 || startDate <= moment()){
       this.setState({isCreateButtonDisabled:true});
     }else{
       this.setState({isCreateButtonDisabled:false});
@@ -144,6 +144,49 @@ export default class CreateEvent extends Component {
     eventInfo.description = event;
     this.setState({eventInfo});
   }
+
+uploadAndCreate() { 
+    if(this.state.eventImageURi.length != 0){
+             var imageName = this.state.eventImageURi.split("/");
+                imageName = imageName[imageName.length-1];
+                this.state.eventImage.name = imageName;
+                this.state.eventImage.type = "image/jpg";
+              const options = {
+                keyPrefix: "uploads/",
+                bucket: "uploadsformok",
+                region: "us-east-1",
+                accessKey: "AKIAI3LSLN3KT4SV4MNA",
+                secretKey: "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",
+                successActionStatus: 201
+                };
+              RNS3.put(this.state.eventImage, options).then(response => {
+                    if (response.status !== 201){throw new Error("Failed to upload image to S3")}
+                    let photoLocation = response.body.postResponse.location;
+                    let eventInfo = this.state.eventInfo;
+                    eventInfo.eventImage = photoLocation;
+                    this.setState({eventInfo:eventInfo});
+
+                    this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
+                      this.props.navigation.goBack();
+                      // setTimeout(()=>{this.props.dispatch(getEventInfo(this.props._id,this.props.userId));}, 2000);
+                      this.setState({loading:false});
+                      }).catch((error)=>{
+                       this.props.dispatch(showErrorAlert(error));
+                      });
+                    this.setState({isCreateButtonDisabled:false});        
+                      });
+      }else{
+       
+        this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
+          this.props.navigation.goBack();
+          // setTimeout(()=>{this.props.dispatch(getEventInfo(this.props._id,this.props.userId));}, 2000);
+          this.setState({loading:false});
+          }).catch((error)=>{
+           this.props.dispatch(showErrorAlert(error));
+          });
+        this.setState({isCreateButtonDisabled:false});        
+      }
+  }
   _eventTagChange(event){
     const {isInvalid,eventInfo} = this.state; 
 
@@ -159,30 +202,12 @@ export default class CreateEvent extends Component {
 
   _eventAddressChange(event){
     const {isInvalid, eventInfo} = this.state; 
+    if(event.length == 0){
+      this.setState({locationSuggestion:[]})
+      return
+    }
     axios.get(GOOGLE_MAP_API(event)).then((response)=>{
-
-      if(response.data.results.length != 1){
-         isInvalid.address = true;
-        this.setState({isInvalid});
-
-      }else{
-
-        isInvalid.address = false;
-        eventInfo.street = event;
-        let {lat, lng} = response.data.results[0].geometry.location;
-        //city or not TODO
-
-      /*  let cityArray = response.data.results[0].filter(function(e){
-          console.log("e is "+e.type);
-          return true;
-        });*/
-        // console.log(cityArray[0].long_name);
-        // eventInfo.city = cityArray[0].long_name;
-
-        
-        eventInfo.location = [lng,lat];
-        this.setState({eventInfo, isInvalid});
-      }
+      this.setState({locationSuggestion:response.data.results});
     }).catch(()=>{
          isInvalid.address = true;
           this.setState({isInvalid});
@@ -196,17 +221,40 @@ export default class CreateEvent extends Component {
     
 
     if(eventTitle || startDate || address || tags){
-      this.props.dispatch(showAlert("Error","Please fill out all required information")); //!!!
+      this.props.dispatch(showErrorAlert("Error","Please fill out all required information")); //!!!
       this.setState({loading:false});
     }else{
-      this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
-        this.props.navigation.goBack();
-        // setTimeout(()=>{this.props.dispatch(getEventInfo(this.props._id,this.props.userId));}, 2000);
-        this.setState({loading:false});
-      });
-    }
-    this.setState({isCreateButtonDisabled:false});
+      let eventInfo = this.state.eventInfo;
+       this.uploadAndCreate();
+     }
  }
+  selectLocation(item){
+    cityName = item.address_components.filter(function(component){
+      return (component.types.includes("political") &&
+        component.types.includes("locality"));
+    })[0].long_name;
+    this.setState({location:item.formatted_address,locationSuggestion:[]});
+    let {lat, lng} = item.geometry.location;
+
+    const {isInvalid, eventInfo} = this.state; 
+    isInvalid.address = false;
+    eventInfo.street = item.formatted_address;
+    eventInfo.location = [lng,lat];
+    eventInfo.city = cityName;
+    this.setState({isInvalid,eventInfo});    
+    this.validateForm();
+  }
+
+  chooseEventImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    if (!result.cancelled) {
+      this.setState({ eventImageURi:result.uri,eventImage:result });
+    }
+  };
 
   render() {
     return (
@@ -220,6 +268,25 @@ export default class CreateEvent extends Component {
                               size="small"/>           
           </View>           
         <ScrollView>
+            <Image style={{
+              // width: Constants.screenWidth, 
+              height: 160, 
+              borderColor:Constants.color1,
+              margin:15,
+              borderWidth:2,
+              alignItems: 'center',
+              justifyContent:'center'}} 
+              source={{uri: this.state.eventImageURi.length != 0 ? this.state.eventImageURi : Constants.defaultEventImage}}
+              />
+            {this.state.eventImageURi.length == 0 && 
+              <TouchableOpacity onPress={()=>{
+                this.chooseEventImage()}}>
+                <Text style={styles.imageButtonText}>Choose photo</Text>
+            </TouchableOpacity>}
+            {this.state.eventImageURi.length != 0 && 
+              <TouchableOpacity onPress={()=>{this.setState({eventImageURi:""});}}>
+                <Text style={styles.imageButtonText}>Remove picture</Text>
+            </TouchableOpacity>}
             <View>
               <FormLabel>Event Title</FormLabel>
               <FormInput inputStyle={styles.formInput} placeholderTextColor={Constants.color3} placeholder="Event title" 
@@ -231,12 +298,31 @@ export default class CreateEvent extends Component {
 
               <FormLabel>Event address</FormLabel>
               <FormInput inputStyle={styles.formInput} 
-              placeholderTextColor={Constants.color3} 
+              placeholderTextColor={Constants.color3}
+              value={this.state.location}             
               placeholder="Event address" 
               onChangeText={(event)=>{
+                const {isInvalid, eventInfo} = this.state; 
+                isInvalid.address = true;
+                this.setState({isInvalid});    
+                this.setState({location:event});
                 this._eventAddressChange(event);
               }
             }/>
+            {this.state.locationSuggestion.length != 0 &&
+              <View style={{height:150, marginRight:29, marginLeft:29}}>
+            <FlatList
+              keyExtractor={(item, index) => index}
+              data={this.state.locationSuggestion}
+              renderItem={({ item }) => {
+                return (
+                <TouchableOpacity style={{flex:1,height:48}} onPress={()=>{this.selectLocation(item)}}> 
+                    <Text style={styles.locationSuggestionText}>{item.formatted_address}</Text>
+                </TouchableOpacity>);
+              }}
+               ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
+            />
+            </View>}
             {this.state.isInvalid.address && <FormLabel FormLabel labelStyle={styles.formWarning}>The address is not valid</FormLabel>}
 
 
@@ -315,6 +401,18 @@ const styles = StyleSheet.create({
     color:Constants.color2
   },formWarning:{
   fontSize:10
+  },
+  separator: {
+    flex: 1,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor:Constants.tableDividerColor,
+  },  
+  locationSuggestionText:{
+    fontSize:17
+  },imageButtonText:{
+    color:Constants.color4,
+    fontWeight:'bold',
+    paddingLeft:15
   },
   createButton:{
     padding:20

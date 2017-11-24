@@ -54,7 +54,10 @@ export default class MyEvents extends Component{
 
   makeRemoteRequest = () => {
     this.setState({loading:true});
-   axios.get(GET_ALL_HOSTS_EVENTS(this.props.userId),{timeout:5000}).then((response)=>{
+  if(this.props.userId == null){
+    return;
+  }
+   axios.get(GET_ALL_HOSTS_EVENTS(this.props.userId),{timeout:10000}).then((response)=>{
     var goingEvents = response.data.filter((event)=>(event.currentUserGoing == true));
     var intrestedEvents = response.data.filter((event)=>(event.currentUserInterested == true));
 
@@ -92,8 +95,10 @@ renderHeader(self){
           ListHeaderComponent={this.renderHeader(this)}
           onRefresh={this.makeRemoteRequest}
           refreshing={this.state.loading}
+          ListEmptyComponent={()=>{
+            return (<View style={{alignItems:'center',justifyContent:'space-around'}}><Text style={styles.noEventsText}>There are no events to show</Text></View>)}}
+          
         />
-        {this.state.eventList.length == 0 &&<Text style={[styles.loadingContainer, {alignItems:'center'}]}>No events to show</Text>}
       </View>
     );
   }
@@ -103,15 +108,11 @@ renderHeader(self){
       // Try setting `flexDirection` to `row`.
       
 const styles = StyleSheet.create({
-
-  loadingContainer:{
-      backgroundColor:'transparent',
-      flex:1,
-      width:Constants.screenWidth,
-      position:'absolute',
-      justifyContent: 'center',
-      alignItems:'center',
-      marginTop:Constants.screenHeight*0.4
+  noEventsText:{
+    paddingTop:Constants.screenHeight*0.25, 
+    fontWeight:'bold',
+    fontSize:15,
+    color:Constants.color3
   }
 });
 

@@ -17,7 +17,7 @@ const FeedNavigation = StackNavigator({
       }
   },{  		
   	navigationOptions: ({ screenProps }) => ({
-			title:'Event Feed',
+  			title:'Event Feed - changing',
 	  		headerRight: <Icon name="add" style={{paddingRight:10}} size={Constants.medium_icon_size} color={Constants.color2} onPress={() => {
           this.props.dispatch(openCreateEvent());
         }}/>,

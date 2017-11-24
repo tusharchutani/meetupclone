@@ -11,7 +11,7 @@ import { Icon } from 'react-native-elements';
 import { Tags } from '../../MokUI/MokUI';
 import Constants  from '../../MokUI/UIConstants';
 import {connect} from 'react-redux';
-import {getEventInfo} from '../../actions';
+import {getEventInfo,navigateToEventInfo} from '../../actions';
 export default class CarouselView extends Component {
   _val = 0;
 
@@ -26,8 +26,12 @@ export default class CarouselView extends Component {
 
   onMoreInfo(){
     if(this._val == 0){
-       this._val++;
-       setTimeout(()=>{this.props.dispatch(getEventInfo(this.props, this.props.userId)); }, 1000); }
+      this._val = 1;
+      this.props.dispatch(navigateToEventInfo());
+      this.props.dispatch(getEventInfo(this.props._id,this.props.userId)).then(()=>{
+        setTimeout(()=>{this._val = 0; }, 1000); 
+      }).catch((err)=>{this._val = 0});
+    }
     
   }
   render() {

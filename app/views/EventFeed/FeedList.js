@@ -13,7 +13,7 @@ import Constants  from '../../MokUI/UIConstants';
 import {connect} from 'react-redux';
 import {Permissions, Location, Expo} from 'expo';
 import shallowCompare from 'shallow-compare'
-import {getEventsNearMe, getEventInfo, openCreateEvent, searchEventsByTag, openFindFriends} from '../../actions'
+import {getEventsNearMe, getEventInfo, showErrorAlert, openCreateEvent, searchEventsByTag, openFindFriends} from '../../actions'
 
 export default class FeedList extends Component {
 
@@ -63,26 +63,32 @@ export default class FeedList extends Component {
       this.setState({location});
   };
 
-  
-  shouldComponentUpdate(nextProps, nextState) {
+  /*shouldComponentUpdate(nextProps, nextState) {
     if(nextProps.eventList.length == this.props.eventList.length){
       return false
     }
     return shallowCompare(this, nextProps, nextState);
-  }
+  }*/
 
 
   loadEventsNearMe(){
+      this.setState({loading:true});
         this._getCurrentLocation().then(()=>{
         this.setState({hasLoaded:false});
         this.props.dispatch(getEventsNearMe(this.state.location.latitude,
           this.state.location.longitude)).then(()=>{
             this.setState({loading:false});
+        }).catch((error)=>{
+            this.setState({loading:false});
+            this.props.dispatch(showErrorAlert(error));
         });
+      }).catch((error)=>{
+        this.setState({loading:false});
+        this.props.dispatch(showErrorAlert("testing stuff "));
       });
   }
+  
   componentWillMount(){
-    this.setState({isLoading:true});
     this.loadEventsNearMe();
   }
 
@@ -98,7 +104,10 @@ export default class FeedList extends Component {
       this.setState({isLoadingSearch:true});
       this.props.dispatch(searchEventsByTag(event)).then(()=>{
         this.setState({isLoadingSearch:false});
-      });      
+      }).catch((error)=>{
+        this.setState({isLoadingSearch:false});
+        this.props.dispatch(showErrorAlert(error));
+      });  
     }
 
   }
@@ -120,6 +129,17 @@ export default class FeedList extends Component {
           ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
           onRefresh={()=>{this.loadEventsNearMe()}}
           refreshing={this.state.loading}
+          ListEmptyComponent={()=>{
+            return (
+              <View style={styles.loadingContainer}>
+                {this.state.loading && 
+                  <View style={Constants.styles.inRowComponents}> 
+                  <ActivityIndicator animating={true}
+                               style={{paddingRight: 10}}
+                                  size="small"/> 
+                  <Text style={styles.noEvents}>Loading...</Text></View>}
+                {!this.state.loading && <Text style={styles.noEvents}>There are no events near you</Text>}
+              </View>)}}             
         /> 
 
     </View>
@@ -131,15 +151,21 @@ export default class FeedList extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-
+    flex: 1
   },
   separator: {
     flex: 1,
     height: StyleSheet.hairlineWidth,
     backgroundColor: Constants.tableDividerColor,
+  }, noEvents:{
+    fontWeight:'bold',
+    fontSize:15,
+    color:Constants.color3
+  },loadingContainer:{
+    alignItems:'center',
+    justifyContent:'space-around',
+  paddingTop:Constants.screenHeight*0.25, 
   }
-
 });
 
 var mapStateToProps = (state) =>{

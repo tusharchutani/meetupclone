@@ -18,11 +18,10 @@ exports.loginUser = (email, password) => {
 						dispatch(authUser(user_id)); });
 			});
 		}).catch((error)=>{
-			dispatch(showErrorAlert("Unable to login. Try again"));
+			throw "Unable to login. Try again";
 		});
 	}
 }
-
 
 exports.signUpUser = (payload) => {
 	return function(dispatch){
@@ -34,7 +33,7 @@ exports.signUpUser = (payload) => {
 				})
 			});	
 		}).catch((error)=>{
-			dispatch(showErrorAlert(error.response.data.error));
+			throw error.response.data.error;
 		})
 	}
 }
@@ -54,21 +53,7 @@ authUser = (user_id) =>{
 
 
 
-
-showErrorAlert = (error) => {
-
-	if(!error){
-		error = "Unknown error";
-	}
-	console.log("Error is "+error);
-	return {
-		type:'SHOW_ALERT',
-		alert_title:"Oops",
-		alert_msg: error
-	}
-}
-
- exports.unauthUser = {
+exports.unauthUser = {
 		type: 'UNAUTH_USER',
 		user_id:undefined
 }

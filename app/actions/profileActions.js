@@ -1,6 +1,6 @@
 import {SecureStore} from 'expo';
 import axios from 'axios';
-
+import {showErrorAlert} from './alertActions.js';
 
 
 import {GET_USER_PROFILE,GET_FOLLOWERS,GET_FOLLOWING,FIND_PEOPLE} from '../api';

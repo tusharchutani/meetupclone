@@ -7,7 +7,6 @@ import {
   View,
   ActivityIndicator,
   TouchableOpacity,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard
 } from 'react-native';
@@ -16,7 +15,7 @@ import Constants from '../../MokUI/UIConstants';
 import axios from 'axios';
 import {RoundImage} from '../../MokUI/MokUI';
 import { ImagePicker } from 'expo';
-import {signUpUser,openMainApp} from '../../actions';
+import {signUpUser,openMainApp,showErrorAlert} from '../../actions';
 import { RNS3 } from 'react-native-aws3';
 import {CHANGE_USER_FIRST_NAME,
   CHANGE_USER_LAST_NAME,
@@ -24,8 +23,13 @@ import {CHANGE_USER_FIRST_NAME,
   CHANGE_PASSWORD,
   CHANGE_USER_AVATAR
 } from '../../api';
-
-import {FormLabel, FormInput, Button, Icon,FormValidationMessage } from 'react-native-elements';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import {FormLabel, 
+  FormInput, 
+  Button, 
+  Icon,
+  SocialIcon,
+  FormValidationMessage } from 'react-native-elements';
 
 export default class SignUp extends Component {
 
@@ -49,34 +53,47 @@ export default class SignUp extends Component {
     };
   }
   uploadPhotoToS3(){
-    if(this.state.avatarurl != Constants.defaultProfilePic){ 
-       var imageName = this.state.avatarurl.split("/");
-          imageName = imageName[imageName.length-1];
-          this.state.avatar.name = imageName;
-          this.state.avatar.type = "image/jpg";
-        const options = {
-          keyPrefix: "uploads/",
-          bucket: "uploadsformok",
-          region: "us-east-1",
-          accessKey: "AKIAI3LSLN3KT4SV4MNA",
-          secretKey: "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",
-          successActionStatus: 201
-          };
-        RNS3.put(this.state.avatar, options).then(response => {
-            if (response.status !== 201){
-                    throw new Error("Failed to upload image to S3")
     
-                  }
-                  let photoLocation = response.body.location; 
-                  SecureStore.getItemAsync('user_id').then((user_id)=>{
-                    console.log("Location is");
-                    axios.post(CHANGE_USER_AVATAR(user_id),{url:photoLocation}).then(()=>{
-                      this.props.dispatch(openMainApp());
-                      this.setState({isDisabled:false,isLoading:false});
-                    });
-                  });              
-                }
-          );  
+    if(this.state.avatarurl != Constants.defaultProfilePic){ 
+      if(this.state.avatarurl.substring(0,4) == "http"){
+          SecureStore.getItemAsync('user_id').then((user_id)=>{
+            axios.post(
+              CHANGE_USER_AVATAR(user_id),
+              {url:this.state.avatarurl}).then(()=>{
+              this.props.dispatch(openMainApp());
+              this.setState({isDisabled:false,isLoading:false});
+            });
+          });        
+      }else{
+             var imageName = this.state.avatarurl.split("/");
+                imageName = imageName[imageName.length-1];
+                this.state.avatar.name = imageName;
+                this.state.avatar.type = "image/jpg";
+              const options = {
+                keyPrefix: "uploads/",
+                bucket: "uploadsformok",
+                region: "us-east-1",
+                accessKey: "AKIAI3LSLN3KT4SV4MNA",
+                secretKey: "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",
+                successActionStatus: 201
+                };
+              RNS3.put(this.state.avatar, options).then(response => {
+                  if (response.status !== 201){
+                          throw new Error("Failed to upload image to S3")
+          
+                        }
+                        let photoLocation = response.body.postResponse.location; 
+                        SecureStore.getItemAsync('user_id').then((user_id)=>{
+                          axios.post(
+                            CHANGE_USER_AVATAR(user_id),
+                            {url:photoLocation}).then(()=>{
+                            this.props.dispatch(openMainApp());
+                            this.setState({isDisabled:false,isLoading:false});
+                          });
+                        });              
+                      }
+                );
+            }  
       }else{
         this.props.dispatch(openMainApp());
         this.setState({isDisabled:false,isLoading:false});
@@ -85,33 +102,35 @@ export default class SignUp extends Component {
   _onSignup(){
 
     this.setState({isLoading:true});
-    //work around for now
+    //check to see if it is empty
+      if((this.state.firstname.length == 0)
+      ||(this.state.lastname.length == 0)
+      ||(this.state.email.length == 0)
+      ||(this.state.password.length == 0)
+      ||(this.state.password.length == 0)){
 
-  //check to see if it is empty
-   if((this.state.firstname.length == 0)
-    ||(this.state.lastname.length == 0)
-    ||(this.state.email.length == 0)
-    ||(this.state.password.length == 0)
-    ||(this.state.password.length == 0)){
+        this.setState({notFilledError:true,isLoading:false});
+        return;
+     }
+    //check to see if passwords are correct 
+    if(this.state.password != this.state.confirmPassword){
+      this.setState({passwordError:true,isLoading:false});
+      return;
+    }
+    var payload = {
+      firstname:this.state.firstname,
+      lastname:this.state.lastname,
+      password:this.state.password,
+      email:this.state.email
+    };
+    this.setState({isDisabled:true,notFilledError:false,passwordError:false});
+    this.props.dispatch(signUpUser(payload)).then(()=>{
+      this.uploadPhotoToS3();
+    }).catch((response)=>{
 
-    this.setState({notFilledError:true,isLoading:false});
-    return;
-  }
-  //check to see if passwords are correct 
-  if(this.state.password != this.state.confirmPassword){
-    this.setState({passwordError:true,isLoading:false});
-    return;
-  }
-  var payload = {
-    firstname:this.state.firstname,
-    lastname:this.state.lastname,
-    password:this.state.password,
-    email:this.state.email
-  };
-  this.setState({isDisabled:true,notFilledError:false,passwordError:false});
-  this.props.dispatch(signUpUser(payload)).then(()=>{
-    this.uploadPhotoToS3();
-  });
+      this.props.dispatch(showErrorAlert(JSON.stringify(response)));
+      this.setState({isDisabled:false,isLoading:false});
+    });
   }
    
   chooseProfilePicture = async () => {
@@ -125,14 +144,35 @@ export default class SignUp extends Component {
     }
   };
 
+  async logInFB() {
+    const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync('300866317096349', {
+        permissions: ['public_profile','email'],
+      });
+    if (type === 'success') {
+      // Get the user's name using Facebook's Graph API
+      const response = await fetch(
+        `https://graph.facebook.com/me?fields=email,first_name,last_name,picture&access_token=${token}`);
+      let resp = (await response.json());
+      this.setState({
+        email:resp.email,
+        firstname:resp.first_name,
+        lastname:resp.last_name,
+        avatarurl:resp.picture.data.url
 
+      });
+    }
+  }
 
   render() {
     return (
-      <KeyboardAvoidingView 
-      behavior='position'
-      style={styles.container}
-      keyboardVerticalOffset={-64}>
+      <KeyboardAwareScrollView>
+      <SocialIcon
+        title='Sign In With Facebook'
+        button
+        onPress={this.logInFB.bind(this)}
+        type='facebook'
+        style={{paddingBottom:20}}
+      />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View>
           <View style={{alignItems:'center'}}>
@@ -142,20 +182,18 @@ export default class SignUp extends Component {
 
           
           <FormLabel>First name</FormLabel>
-          <FormInput 
+          <FormInput
           defaultValue={this.state.firstname} 
-          autoCapitalize="none"
           onChangeText={(event)=>{
             this.setState({firstname:event});}}
           placeholderTextColor={Constants.color3} 
-          style={styles.formInput}
+          inputStyle={styles.formInput}
           placeholder="First name" />
 
       
           <FormLabel>Last name</FormLabel>
           <FormInput defaultValue={this.state.lastname}  
-          style={styles.formInput} 
-          autoCapitalize="none" 
+          inputStyle={styles.formInput} 
           placeholderTextColor={Constants.color3} 
           onChangeText={(event)=>{
             this.setState({lastname:event});}}            
@@ -165,7 +203,7 @@ export default class SignUp extends Component {
       
           <FormLabel>Email</FormLabel>
           <FormInput defaultValue={this.state.email} 
-          style={styles.formInput} 
+          inputStyle={styles.formInput}
           autoCapitalize="none" 
           placeholderTextColor={Constants.color3}
           onChangeText={(event)=>{
@@ -177,7 +215,7 @@ export default class SignUp extends Component {
           <FormLabel>Password</FormLabel>
           <FormInput 
           secureTextEntry={true}
-          style={styles.formInput} 
+          inputStyle={styles.formInput}
           autoCapitalize="none" 
           placeholderTextColor={Constants.color3}
           onChangeText={(event)=>{
@@ -189,7 +227,7 @@ export default class SignUp extends Component {
           <FormLabel>Confirm password</FormLabel>
           <FormInput
           secureTextEntry={true}
-          style={styles.formInput} 
+          inputStyle={styles.formInput}
           autoCapitalize="none" 
           placeholderTextColor={Constants.color3}
           onChangeText={(event)=>{
@@ -210,7 +248,7 @@ export default class SignUp extends Component {
                               size="large"/>
                               </View>   
         </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
 
     );
   }
@@ -227,7 +265,7 @@ const styles = StyleSheet.create({
     fontWeight:'bold'
   },formInput:{
     color:Constants.color2,
-    paddingTop:10
+    // paddingTop:10
   },formWarning:{
     fontSize:10
   },

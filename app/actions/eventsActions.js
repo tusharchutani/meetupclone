@@ -2,6 +2,7 @@
 
 import {SecureStore} from 'expo';
 import axios from 'axios';
+import {showErrorAlert} from './alertActions.js';
 import {EVENT_FEED, CREATE_EVENT,SEARCH_EVENT_BY_TAG,GET_EVENT_INFO} from '../api';
 
 
@@ -9,11 +10,11 @@ import {EVENT_FEED, CREATE_EVENT,SEARCH_EVENT_BY_TAG,GET_EVENT_INFO} from '../ap
 exports.getEventsNearMe = (latitude,longitude) => {
 		return function(dispatch){
 	 		return SecureStore.getItemAsync('user_id').then((userId)=>{
-				return axios.get(EVENT_FEED(longitude,latitude,userId)).then((response)=>{
+				return axios.get(EVENT_FEED(longitude,latitude,userId),{timeout:10000}).then((response)=>{
 				dispatch(setEvents(response.data));
 				}).catch((error)=>{
 					console.log("There is an error "+error);
-					dispatch(showErrorAlert(error.response.data.error));
+					throw error.message
 				});	 			
 	 		});
 	}
@@ -40,7 +41,7 @@ exports.createEvent = (newEvent) =>{
 		return SecureStore.getItemAsync('token').then((token)=>{
 	 		SecureStore.getValueWithKeyAsync('user_id').then((user_id)=>{
 				return axios.post(CREATE_EVENT(user_id),newEvent,{headers: {'Authorization': token}}).then((response)=>{
-					
+
 				}).catch((error)=>
 				{	
 					console.log("error "+error);
@@ -94,7 +95,7 @@ export function navigateToEventInfo(){
 export function updateEventInfo(args, myUserId){
 
 	return function(dispatch){
-		return axios.get(GET_EVENT_INFO(args, myUserId)).then((response)=>{
+		return axios.get(GET_EVENT_INFO(args, myUserId),{timeout:10000}).then((response)=>{
 			dispatch({type:'UPDATE_EVENT_INFO',eventInfo:response.data})
 		}).catch((error)=>{
 			dispatch(showErrorAlert(error.response.data.error))
@@ -110,11 +111,12 @@ export function searchEventsByTag(tags){
 				return axios.get(SEARCH_EVENT_BY_TAG(userId,tags)).then((response)=>{
 				dispatch(setEvents(response.data));
 				}).catch((error)=>{
-					console.log("There is an error "+error);
-					dispatch(showErrorAlert(error.message));
+					throw error.message
 				});	 			
 	 		});
 
 	}
 }
+
+
 

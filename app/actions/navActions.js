@@ -17,12 +17,24 @@ exports.openFindFriends = () =>{
 	}
 }
 
+exports.navigateToForgetPassword = () =>{
+	return {
+		type: 'OPEN_FORGET_PASSWORD'
+	}
+}
+
 exports.openMainApp = () =>{
 	return {
 		type:'OPEN_MAIN_APP'
 	}
 }
 
+
+exports.OPEN_PEOPLE_INFO = () => {
+	return {
+		type:'OPEN_PEOPLE_INFO'
+	}
+}
 exports.openEditEvent = () =>{
 	return {
 		type:'OPEN_EDIT_EVENT'

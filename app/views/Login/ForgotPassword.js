@@ -16,11 +16,13 @@ import {reduxForm} from 'redux-form';
 import { Button, FormLabel, FormInput, SocialIcon, FormValidationMessage } from 'react-native-elements';
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import Constants from '../../MokUI/UIConstants';
-import {loginUser,openMainApp,showErrorAlert,navigateToForgetPassword} from '../../actions';
+import {loginUser,openMainApp,showErrorAlert,showAlert, forgotPassword} from '../../actions';
+import {FORGOT_PASSWORD} from '../../api';
 import {NavigationActions} from 'react-navigation';
 import {connect} from 'react-redux';
+import axios from 'axios';
 
-export default class LoginScreen extends Component{
+export default class ForgotPassword extends Component{
   
 
   constructor(props) {
@@ -29,10 +31,10 @@ export default class LoginScreen extends Component{
   }
 
 
-  loginButtonInvalid(){
+  forgotPasswordButton(){
     var {username, password} = this.props.fields;
 
-    if(username.value.length == 0 || password.value.length == 0 ){
+    if(username.value.length == 0){
       return true;
     }
 
@@ -40,17 +42,21 @@ export default class LoginScreen extends Component{
   }
 
 
-  _login(){
-    var {dispatch, fields:{username, password}} = this.props;
+  _forgotPassword(){
+    var {dispatch, fields:{username}} = this.props;
     this.setState({isLoading: true});
-    dispatch(loginUser(username.value,password.value)).then((response)=>{
-      dispatch(openMainApp());
-      setTimeout(()=>{ 
-        this.setState({isLoading: false}); }, 1000);
-      
+    axios.post(FORGOT_PASSWORD,{email:username.value},).then(()=>{
+      this.props.navigation.goBack();
+      this.props.dispatch(showAlert("Password reset","The password has been reset. Please check your email for the temprory password"));
+      this.setState({isLoading:false});
     }).catch((error)=>{
-      dispatch(showErrorAlert(error));
-      this.setState({isLoading: false});
+        this.setState({isLoading:false});
+        if(error.response.data){
+          this.props.dispatch(showErrorAlert(error.response.data.message));
+        }else{
+          this.props.dispatch(showErrorAlert(error.message));
+        }
+        
     });
   }
 
@@ -61,13 +67,6 @@ export default class LoginScreen extends Component{
   render() {
     var {fields:{username,password}} = this.props;
 
-    var errorMessage = (field) => {
-       if(field.touched && field.error){
-        return (<FormValidationMessage>Please enter valid username and pasword</FormValidationMessage>)  
-      }
-    }
-
-
     return (
       <View style = {styles.container}> 
         <View> 
@@ -75,26 +74,16 @@ export default class LoginScreen extends Component{
             <FormInput {...username} 
             inputStyle={styles.formInput}
             autoCapitalize="none" placeholderTextColor={Constants.color3} placeholder="Email" />
-
-            <FormLabel>Password</FormLabel>
-            <FormInput
-            inputStyle={styles.formInput}
-            {...password} autoCapitalize="none" secureTextEntry={true} inputStyle={styles.formInput} placeholderTextColor={Constants.color3} placeholder="Password" />
-            {errorMessage(username)}
+            
         </View>
 
         <Button
           small
-          title='Login'
+          title='Send email'
           backgroundColor={Constants.color2} 
-          containerViewStyle={styles.loginButton}
-          disabled={this.loginButtonInvalid()}
-          onPress={()=>{this._login()}}/>
-          
-
-          <TouchableOpacity style={{alignItems:'center'}} onPress={()=>{this.props.dispatch(navigateToForgetPassword());}}> 
-            <Text>Forgot password</Text>
-          </TouchableOpacity>
+          containerViewStyle={styles.forgetPasswordButton}
+          disabled={this.forgotPasswordButton()}
+          onPress={()=>{this._forgotPassword()}}/>
 
 
         <View style={{justifyContent:'center', alignItems:'center',paddingTop:20}}> 
@@ -107,18 +96,11 @@ export default class LoginScreen extends Component{
             style={[Constants.styles.inColumnComponents, {height: 80}]}
             size="large"
           />
-
-
       </View>
     );
   }
 }
-/*
-          <Icon.Button style={{width:306,height:42}} borderRadius={0} name="facebook" backgroundColor="#3b5998" onPress={this.loginWithFacebook}>
-            Login with Facebook
-          </Icon.Button>
-*/
-      
+
 const styles = StyleSheet.create({
 	container:{
     flex: 1,
@@ -127,15 +109,7 @@ const styles = StyleSheet.create({
   },
   checkboxStyle: {
     padding: 25
-  },
-  LoginButton: {
-    backgroundColor: 'grey',
-    padding: 15,
-    marginLeft: 20,
-    marginRight: 20,
-    alignItems: 'center',
-    opacity: 0.7
-  },loginButton:{
+  },forgetPasswordButton:{
     padding:20
   },formInput:{
     color:Constants.color2
@@ -157,21 +131,18 @@ const styles = StyleSheet.create({
 
 var validate = (formProps) =>{
   var errors = {};
-  if(!formProps.username || !formProps.password){
+  if(!formProps.username){
     errors.username = "Please enter username";
   }
   return errors; 
 }
 
-
-
-
-
-
 module.exports = reduxForm({
   form:'login',
-  fields:['username','password'],
+  fields:['username'],
   validate: validate
-}, null, null )(LoginScreen);
-// AppRegistry.registerComponent('LoginScreen', () => LoginScreen);
+}, null, null )(ForgotPassword)
+
+
+// AppRegistry.registerComponent('ForgotPassword', () => ForgotPassword);
 

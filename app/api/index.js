@@ -1,4 +1,4 @@
-var API_URL = 'http://128.189.93.86:3001/v1';//'http://localhost:3001/v1'; https://pure-island-32874.herokuapp.com
+var API_URL = 'http://128.189.93.90:3001/v1';//'http://localhost:3001/v1'; https://pure-island-32874.herokuapp.com
 
 //TODO: add the tags fields, latitude and lognitude 
 exports.EVENT_FEED = (lon, lat, userId) =>`${API_URL}/geteventsbylocation/${lon}/${lat}/${userId}`;
@@ -29,4 +29,7 @@ exports.FOLLOW_USER = (myId, userId) => `${API_URL}/connect/${myId}/${userId}/fo
 exports.UNFOLLOW_USER = (myId, userId) => `${API_URL}/unconnect/${myId}/${userId}/unfollow`;
 exports.POSTCOMMENT = (myId,eventId) => `${API_URL}/postcomment/${myId}/${eventId}`;
 exports.GET_COMMENTS = (eventId) => `${API_URL}/getComments/${eventId}`
+exports.GET_USER_NOTIFICATION = (userId) => `${API_URL}/getnotifications/${userId}`
+exports.GET_EVENT_USER_GOING = (eventId) => `${API_URL}/geteventusers/${eventId}`
+exports.FORGOT_PASSWORD = `${API_URL}/forgotpassword`;
 // GET_USER_PROFILE

@@ -83,7 +83,11 @@ export default class UserInfoFeed extends Component {
     let followersNumber = props.followers ? props.followers.length : 0;
     let numberOfEvents = props.eventsHostedByUser ? props.eventsHostedByUser.length : 0;
     let userProfilePic = (props.avatarurl != undefined && props.avatarurl != "new") ? props.avatarurl:"http://www.thedigitalkandy.com/wp-content/uploads/2016/01/facebook-no-profile.png";
-    userProfilePic += '?random_number='+ new Date().getTime();
+    //check to see if FB image
+    if(userProfilePic.indexOf("fbcdn.net") == -1){
+      userProfilePic += '?random_number='+ new Date().getTime();  
+    }
+    
     return (
       <View>
           <View style={{flexDirection:'row',alignItems: 'stretch', paddingBottom:10}}>
@@ -169,16 +173,15 @@ export default class UserInfoFeed extends Component {
       
     }
   }   
-
-  componentDidMount(){
-    if(this.props.eventsHostedByUser&&(this.props.eventsHostedByUser.length == 0)){
+  componentWillReceiveProps(nextProps){
+    if(nextProps.eventsHostedByUser&&(nextProps.eventsHostedByUser.length == 0)){
         this.setState({isLoading:false});
     }else{
         this.setState({isLoading:true});
     }
 
 
-    if(this.props.userId != this.props._id){
+    if(nextProps.userId != nextProps._id){
       this.setFollowing();
       if(this._isFollowing){
         this.setState({followButtonText:'following',followButtonColor:Constants.color4});
@@ -186,8 +189,8 @@ export default class UserInfoFeed extends Component {
         this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
       }
     }
-  }
 
+  }
 
 
   getUserEventsInfo(){
@@ -198,7 +201,7 @@ export default class UserInfoFeed extends Component {
         this._isDataCollected=true;
         
         let getEvents = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.map((eventId, index)=>{    
-          return axios.get(GET_EVENT_INFO(eventId, this.props.userId));
+          return axios.get(GET_EVENT_INFO(eventId, this.props.userId),{timeout:10000});
         }): [];
         if(getEvents.length == 0){
           this.setState({refreshing:false});
@@ -223,13 +226,13 @@ export default class UserInfoFeed extends Component {
     
     if(this.props.isMyProfile){
       this.props.dispatch(getMyprofile()).then(()=>{
-        this.setState({refreshing:false});
+        this.setState({refreshing:false,isLoading:false});
         this._isDataCollected = false;
         this.getUserEventsInfo();
       }).catch(err => {console.log("There was an error updating my profile "+err);})
     }else{
       this.props.dispatch(setUserProfile(this.props._id)).then(()=>{
-        this.setState({refreshing:false});
+        this.setState({refreshing:false,isLoading:false});
         this.getUserEventsInfo()
       }).catch(err => {console.log("There was an error updating other profile "+err);})
     }
@@ -240,7 +243,7 @@ export default class UserInfoFeed extends Component {
   
   if(lenghtOfEventsByUser != 0){
     this.getUserEventsInfo();
-  }
+  } 
 
    return(
         <View style={styles.container}>
@@ -277,7 +280,8 @@ const styles = StyleSheet.create({
   },name:{
   	fontSize:15,
   	fontWeight:'bold',
-  	marginBottom:5
+  	marginBottom:5,
+    width:130
   },infoContainer:{
   	margin:MARGIN, 
   	marginRight:0

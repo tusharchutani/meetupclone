@@ -84,7 +84,8 @@ export default class SignupProfileForm extends Component {
                 throw new Error("Failed to upload image to S3")
 
               }
-              axios.post(CHANGE_USER_AVATAR(user_id),{url:response.body.location});
+              axios.post(CHANGE_USER_AVATAR(user_id),{url:response.body.postResponse.location});
+              this.props.dispatch(getMyprofile())              
             }
       );
     }
@@ -145,18 +146,16 @@ export default class SignupProfileForm extends Component {
           <FormLabel>First name</FormLabel>
           <FormInput 
           defaultValue={this.state.firstname} 
-          autoCapitalize="none"
           onChangeText={(event)=>{
             this.setState({firstname:event});}}
           placeholderTextColor={Constants.color3} 
-          style={styles.formInput}
+          inputStyle={styles.formInput}
           placeholder="First name" />
 
       
           <FormLabel>Last name</FormLabel>
           <FormInput defaultValue={this.state.lastname}  
-          style={styles.formInput} 
-          autoCapitalize="none" 
+          inputStyle={styles.formInput}
           placeholderTextColor={Constants.color3} 
           onChangeText={(event)=>{
             this.setState({lastname:event});}}            
@@ -166,7 +165,7 @@ export default class SignupProfileForm extends Component {
       
           <FormLabel>Email</FormLabel>
           <FormInput defaultValue={this.state.email} 
-          style={styles.formInput} 
+          inputStyle={styles.formInput}
           autoCapitalize="none" 
           placeholderTextColor={Constants.color3}
           onChangeText={(event)=>{
@@ -178,7 +177,7 @@ export default class SignupProfileForm extends Component {
           <FormLabel>Password</FormLabel>
           <FormInput 
           secureTextEntry={true}
-          style={styles.formInput} 
+          inputStyle={styles.formInput}
           autoCapitalize="none" 
           placeholderTextColor={Constants.color3}
           onChangeText={(event)=>{
@@ -190,7 +189,7 @@ export default class SignupProfileForm extends Component {
           <FormLabel>Confirm password</FormLabel>
           <FormInput
           secureTextEntry={true}
-          style={styles.formInput} 
+          inputStyle={styles.formInput}
           autoCapitalize="none" 
           placeholderTextColor={Constants.color3}
           onChangeText={(event)=>{
