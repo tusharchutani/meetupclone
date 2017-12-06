@@ -1,8 +1,8 @@
 {
+  "packagerPort": 19003,
+  "packagerPid": 17716,
   "expoServerPort": 19000,
-  "packagerPort": 19001,
-  "packagerPid": 50044,
-  "expoServerNgrokUrl": "https://wr-xt6.tusharchutani.mok-app.exp.direct",
-  "packagerNgrokUrl": "https://packager.wr-xt6.tusharchutani.mok-app.exp.direct",
-  "ngrokPid": 50077
+  "expoServerNgrokUrl": "https://gd-tcj.aayush94.mok-app.exp.direct",
+  "packagerNgrokUrl": "https://packager.gd-tcj.aayush94.mok-app.exp.direct",
+  "ngrokPid": 17736
 }

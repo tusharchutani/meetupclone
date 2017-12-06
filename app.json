@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "mok-app",
-    "description": "An empty new project",
+    "name": "Spot",
+    "description": "Never Get Bored",
     "slug": "mok-app",
     "privacy": "public",
     "sdkVersion": "21.0.0",
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
-    "icon": "./assets/icons/app-icon.png",
+    "icon": "./assets/icons/new_logo.png",
     "loading": {
       "icon": "./assets/icons/loading-icon.png",
       "hideExponentText": false

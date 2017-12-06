@@ -44,18 +44,12 @@ export default class LoginSignup extends Component{
       setTimeout(()=>{this._val = 0; }, 1000); }      
     }
 
-//source = {require('../../../assets/images/aa.png')}
+//
     return (
-      <Image style={styles.imageContainer} resizeMode="stretch"> 
+      <Image source = {require('../../../assets/images/front.png')} style={styles.imageContainer} resizeMode="stretch"> 
       <View style={styles.logoContainer}>
-        <Image source={require('../../../assets/images/logo.png')}/>
+      
       </View>
-      <Text style={styles.introText}> 
-
-      Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-
-      </Text>
-
         <View style={styles.buttonContainer}>
           <TouchableOpacity activeOpacity={0.93} style={styles.button} onPress={onLoginButton}> 
             <Text style={styles.buttonText}>LOG IN</Text> 
@@ -81,7 +75,7 @@ const styles = StyleSheet.create({
     alignItems:'center',
     height: null,
     width: null,
-    backgroundColor:Constants.color4
+    backgroundColor:'black'
   },logoContainer:{
     paddingTop:70,
     alignItems:'center'
@@ -98,12 +92,6 @@ const styles = StyleSheet.create({
       backgroundColor:Constants.color2, 
       alignItems:'center',
       justifyContent:'center'
-  },introText:{
-      color:Constants.color2,
-      fontWeight:'bold',
-      fontSize:16,
-      backgroundColor:'transparent',
-      padding:introTextPadding
   }
 });
 
