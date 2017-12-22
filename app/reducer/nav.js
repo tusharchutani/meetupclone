@@ -58,7 +58,12 @@ module.exports = (state = initialState, action) => {
 			nextState = MokAppRouter.router.getStateForAction(
 				NavigationActions.navigate({ routeName: 'Connections' }),
 				state);
-			break;				
+			break;	
+		case 'OPEN_EVENT_LOCATION':
+			nextState = MokAppRouter.router.getStateForAction(
+				NavigationActions.navigate({ routeName: 'EventMap' }),
+				state);
+			break;
 		case 'UNAUTH_USER':
 			nextState = MokAppRouter.router.getStateForAction(
 				NavigationActions.navigate({ routeName: 'LoginSignup' }),

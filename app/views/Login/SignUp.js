@@ -8,7 +8,10 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform
 } from 'react-native';
 import {connect} from 'react-redux';
 import Constants from '../../MokUI/UIConstants';
@@ -164,9 +167,9 @@ export default class SignUp extends Component {
   }
 
   render() {
-    return (
-      <KeyboardAwareScrollView>
-      <SocialIcon
+    const mainView = (
+      <ScrollView style={styles.container}>
+            <SocialIcon
         title='Sign In With Facebook'
         button
         onPress={this.logInFB.bind(this)}
@@ -221,9 +224,6 @@ export default class SignUp extends Component {
           onChangeText={(event)=>{
             this.setState({password:event});}}
           placeholder="Password" />
-
-
-      
           <FormLabel>Confirm password</FormLabel>
           <FormInput
           secureTextEntry={true}
@@ -240,17 +240,29 @@ export default class SignUp extends Component {
             title='Sign up'
             backgroundColor={Constants.color2} 
             containerViewStyle={styles.saveButton}
+            disabled={this.state.isLoading}
             onPress={()=>{
                   Keyboard.dismiss();
                   this._onSignup()}}/>
-            <ActivityIndicator animating={this.state.isLoading}
+            {this.state.isLoading && <ActivityIndicator animating={true}
                               style={{paddingTop: 30}}
-                              size="large"/>
+                              size="large"/>}
                               </View>   
         </TouchableWithoutFeedback>
-      </KeyboardAwareScrollView>
+    </ScrollView>)
 
-    );
+    if (Platform.OS === 'ios'){
+      return (<KeyboardAwareScrollView style={styles.container}> 
+        {mainView}
+        </KeyboardAwareScrollView>);
+    }else{
+        return (
+           <KeyboardAvoidingView keyboardVerticalOffset={20} style={styles.container} behavior="padding">
+           {mainView}
+          </KeyboardAvoidingView>
+          
+        );
+    }
   }
 }
 

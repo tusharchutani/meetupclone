@@ -83,6 +83,7 @@ export default class UserInfoFeed extends Component {
     let followersNumber = props.followers ? props.followers.length : 0;
     let numberOfEvents = props.eventsHostedByUser ? props.eventsHostedByUser.length : 0;
     let userProfilePic = (props.avatarurl != undefined && props.avatarurl != "new") ? props.avatarurl:"http://www.thedigitalkandy.com/wp-content/uploads/2016/01/facebook-no-profile.png";
+    let email = props.email ? props.email : "undfinedemail@gmail.com";
     //check to see if FB image
     if(userProfilePic.indexOf("fbcdn.net") == -1){
       userProfilePic += '?random_number='+ new Date().getTime();  
@@ -130,24 +131,22 @@ export default class UserInfoFeed extends Component {
               buttonStyle={styles.messageButton}
               title='Edit profile' />}
 
-              <View style={{paddingTop:5}}>
-                <ActivityIndicator
-                animating={this.state.isLoading}
-                size="small"/>
-              </View>
 
-            {!this.props.isMyProfile && <Button
+
+            {!this.props.isMyProfile && 
+              <Button
               small
               icon={{name: 'message'}}
-              onPress={()=>{Linking.openURL("mailto:tushar_chuatni@gmail.com").catch(err => console.log('An error occurred', err));}}
+              onPress={()=>{Linking.openURL("mailto:"+email).catch(err => console.log('An error occurred', err));}}
               backgroundColor={Constants.color2}
               buttonStyle={styles.messageButton}
-              title='Message' /> &&
+              title='Message' />}
+              {!this.props.isMyProfile &&
               <Button
               small
               backgroundColor={this.state.followButtonColor}
               buttonStyle={styles.followButton}
-              onPress={this.handelFollow}
+              disabled={this.state.isLoading}
               title={this.state.followButtonText}
               onPress={()=>{this.follow()} } />}
 
@@ -274,14 +273,13 @@ const styles = StyleSheet.create({
   	alignItems:'flex-end',
   	height:150
   },profileInfo:{
-  	alignItems:'flex-start',
+  	alignItems:'center',
   	marginTop:20,
     marginLeft:15
   },name:{
   	fontSize:15,
   	fontWeight:'bold',
   	marginBottom:5,
-    width:130
   },infoContainer:{
   	margin:MARGIN, 
   	marginRight:0

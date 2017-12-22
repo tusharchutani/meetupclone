@@ -9,7 +9,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
-  Image
+  KeyboardAvoidingView,
+  Image,
+  Platform
 } from 'react-native';
 import moment from 'moment'
 import {FormLabel, FormInput, Button, ListItem } from 'react-native-elements'
@@ -167,9 +169,7 @@ uploadAndCreate() {
                     this.setState({eventInfo:eventInfo});
 
                     this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
-                      debugger
                       this.props.navigation.goBack();
-                      // setTimeout(()=>{this.props.dispatch(getEventInfo(this.props._id,this.props.userId));}, 2000);
                       this.setState({loading:false});
                       }).catch((error)=>{
                        this.props.dispatch(showErrorAlert(error));
@@ -196,7 +196,7 @@ uploadAndCreate() {
     }else{
       isInvalid.tags = false;
     }
-    eventInfo.tags = event.replace(/\s+/, "").split(",");
+    eventInfo.tags = event.replace(/\s+/g, "").split(",");
     this.setState({eventInfo, isInvalid});
     this.validateForm();
   }
@@ -259,9 +259,8 @@ uploadAndCreate() {
   };
 
   render() {
-    return (
 
-       <KeyboardAwareScrollView style={styles.container}>
+    const mainView = (<ScrollView>
           <View style={styles.titleBar}> 
             <Icon name="clear" style={{paddingRight:10}} size={Constants.medium_icon_size} color={Constants.color2} onPress={()=> {this.props.navigation.goBack()}}/>
             <Text style={styles.title}>Create event</Text>
@@ -269,7 +268,6 @@ uploadAndCreate() {
                               style={{paddingRight: 30}}
                               size="small"/>           
           </View>           
-        <ScrollView>
             <Image style={{
               // width: Constants.screenWidth, 
               height: 160, 
@@ -280,22 +278,21 @@ uploadAndCreate() {
               justifyContent:'center'}} 
               source={{uri: this.state.eventImageURi.length != 0 ? this.state.eventImageURi : Constants.defaultEventImage}}
               />
-            {this.state.eventImageURi.length == 0 && 
-              <TouchableOpacity onPress={()=>{
-                this.chooseEventImage()}}>
-                <Text style={styles.imageButtonText}>Choose photo</Text>
-            </TouchableOpacity>}
-            {this.state.eventImageURi.length != 0 && 
-              <TouchableOpacity onPress={()=>{this.setState({eventImageURi:""});}}>
-                <Text style={styles.imageButtonText}>Remove picture</Text>
-            </TouchableOpacity>}
+              {this.state.eventImageURi.length == 0 && 
+                <TouchableOpacity onPress={()=>{
+                  this.chooseEventImage()}}>
+                  <Text style={styles.imageButtonText}>Choose photo</Text>
+                </TouchableOpacity>}
+              {this.state.eventImageURi.length != 0 && 
+                <TouchableOpacity onPress={()=>{this.setState({eventImageURi:""});}}>
+                  <Text style={styles.imageButtonText}>Remove picture</Text>
+                </TouchableOpacity>}
             <View>
               <FormLabel>Event Title</FormLabel>
               <FormInput inputStyle={styles.formInput} placeholderTextColor={Constants.color3} placeholder="Event title" 
               onChangeText={(event)=>{
                this._eventTitleChange(event);
-              }
-            }/>
+               }}/>
               {this.state.isInvalid.eventTitle && <FormLabel labelStyle={styles.formWarning}>The event name should be at least 5 characters long</FormLabel>}
 
               <FormLabel>Event address</FormLabel>
@@ -309,23 +306,22 @@ uploadAndCreate() {
                 this.setState({isInvalid});    
                 this.setState({location:event});
                 this._eventAddressChange(event);
-              }
-            }/>
-            {this.state.locationSuggestion.length != 0 &&
-              <View style={{height:150, marginRight:29, marginLeft:29}}>
-            <FlatList
-              keyExtractor={(item, index) => index}
-              data={this.state.locationSuggestion}
-              renderItem={({ item }) => {
-                return (
-                <TouchableOpacity style={{flex:1,height:48}} onPress={()=>{this.selectLocation(item)}}> 
-                    <Text style={styles.locationSuggestionText}>{item.formatted_address}</Text>
-                </TouchableOpacity>);
-              }}
-               ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
-            />
-            </View>}
-            {this.state.isInvalid.address && <FormLabel FormLabel labelStyle={styles.formWarning}>The address is not valid</FormLabel>}
+                }}/>
+              {this.state.locationSuggestion.length != 0 &&
+                <View style={{height:150, marginRight:29, marginLeft:29}}>
+                  <FlatList
+                    keyExtractor={(item, index) => index}
+                    data={this.state.locationSuggestion}
+                    renderItem={({ item }) => {
+                      return (
+                      <TouchableOpacity style={{flex:1,height:48}} onPress={()=>{this.selectLocation(item)}}> 
+                          <Text style={styles.locationSuggestionText}>{item.formatted_address}</Text>
+                      </TouchableOpacity>);
+                    }}
+                     ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
+                  />
+              </View>}
+              {this.state.isInvalid.address && <FormLabel FormLabel labelStyle={styles.formWarning}>The address is not valid</FormLabel>}
 
 
 
@@ -333,32 +329,42 @@ uploadAndCreate() {
               {this.evetDateTimeView()}
 
               <FormLabel>Event Description</FormLabel>
-              <MultiLineTextField
-              maxLength={40}
-              numberOfLines={4}
+
+              <FormInput
+              multiline
+              value={this.state.eventInfo.description}
+              maxLength={400}
               height={100}
               width={MULTILINE_TEXT_FIELD_HEIGHT}
+              style={styles.formInput} 
+              fontSize={18}
               placeholder="Event description"
+              inputStyle={styles.formInput} 
               onChangeText={(event)=>{this._eventDescriptionChange(event);
               }}            
-              />
+              />              
 
 
               <FormLabel>Event Tags (seperated by commas)</FormLabel>
 
-            <MultiLineTextField
-              maxLength={200}
-              numberOfLines={4}
-              height={50}
-              width={MULTILINE_TEXT_FIELD_HEIGHT}
-              placeholder="Event Tags"
-              onChangeText={(event)=>{this._eventTagChange(event);
-              }}            
-              />
+                <FormInput
+                multiline
+                defaultValue={this.state.eventInfo.tags}
+                maxLength={200}
+                numberOfLines={4}
+                fontSize={18}
+                height={100}
+                width={MULTILINE_TEXT_FIELD_HEIGHT}
+                style={styles.formInput} 
+                placeholder="Event Tags"
+                inputStyle={styles.formInput} 
+                onChangeText={(event)=>{this._eventTagChange(event);
+                }}            
+                />
 
-              {this.state.isInvalid.tags && <FormLabel labelStyle={styles.formWarning}>Please enter event tags (should be at least 3 character long)</FormLabel>}
+                {this.state.isInvalid.tags && <FormLabel labelStyle={styles.formWarning}>Please enter event tags (should be at least 3 character long)</FormLabel>}
 
-              <Button
+                <Button
                 medium
                 title='Create'
                 backgroundColor={Constants.color2} 
@@ -366,10 +372,19 @@ uploadAndCreate() {
                 disabled={this.state.isCreateButtonDisabled}
                 onPress={()=>{this._createEvent()}}/>
             </View>
-        </ScrollView>      
-      </KeyboardAwareScrollView>
-
-    );
+            </ScrollView>);
+    
+    if (Platform.OS === 'ios'){
+      return (<KeyboardAwareScrollView style={styles.container}> 
+        {mainView}
+        </KeyboardAwareScrollView>);
+    }else{
+        return (
+           <KeyboardAvoidingView keyboardVerticalOffset={80} style={styles.container} behavior="padding">
+           {mainView}
+          </KeyboardAvoidingView>
+        );
+    }
   }
 }
 

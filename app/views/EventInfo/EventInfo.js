@@ -18,7 +18,7 @@ import { Icon,Button, FormInput } from 'react-native-elements';
 import Constants from '../../MokUI/UIConstants';
 import {SecureStore} from 'expo';
 import {GOING_TO_EVENT,NOT_GOING_TO_EVENT,GET_USER_PROFILE,INTRESTED_IN_EVENT} from '../../api';
-import {openEditEvent, showErrorAlert,OPEN_PEOPLE_INFO,getEventInfo} from '../../actions';
+import {openEditEvent, openEventLoaction, showErrorAlert,OPEN_PEOPLE_INFO,getEventInfo} from '../../actions';
 import {POSTCOMMENT,GET_COMMENTS} from '../../api'
 export default class EventInfo extends Component {
   
@@ -32,6 +32,7 @@ export default class EventInfo extends Component {
         eventDate: this.props.eventInfo.startDate ? new Date(this.props.eventInfo.startDate).toString() : null,
         eventTags: this.props.eventInfo.tags,
         eventLocation: this.props.eventInfo.streetname, //TODO: change this to address
+        location:this.props.eventInfo.location,
         userGoing: this.props.eventInfo.currentUserGoing,
         userInterested:this.props.eventInfo.currentUserInterested,
         goingPeople:this.props.eventInfo.going ? this.props.eventInfo.going : [],
@@ -90,15 +91,16 @@ export default class EventInfo extends Component {
       <Text style={styles.title}>Discussion board: </Text>
 
       <View style={{flexDirection:'row'}}>
-                <ActivityIndicator
-            animating={this.state.isPostingComment}
-          size="small"/>
+          {this.state.isPostingComment && <ActivityIndicator
+            animating={true}
+          size="small"/>}
          <FormInput inputStyle={{color:Constants.color2,flex:1, width:260}}
           onChangeText={(event)=>{this.setState({comment:event});}}
           placeholderTextColor={Constants.color3}
           value={this.state.comment}
           placeholder="Add public event" />
           <Icon
+            disabled={this.state.isPostingComment}
             name="send" 
             onPress={()=>{this.postComment()}}/>
 
@@ -188,6 +190,7 @@ export default class EventInfo extends Component {
         eventName: nextProps.eventInfo.title, 
         eventDate: nextProps.eventInfo.startDate ? new Date(nextProps.eventInfo.startDate).toString() : null,
         eventTags: nextProps.eventInfo.tags,
+        location: nextProps.eventInfo.location,
         eventLocation: nextProps.eventInfo.streetname, //TODO: change this to address
         userGoing: nextProps.eventInfo.currentUserGoing,
         userInterested:nextProps.eventInfo.currentUserInterested,
@@ -325,10 +328,16 @@ export default class EventInfo extends Component {
             <Text style={styles.eventDateTimeInfo}>{this.state.eventDate}</Text>
           </View>
           
-          <View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
+          <TouchableOpacity onPress={()=>{
+                      if(this._val == 0){
+                        this._val++;
+                        this.props.dispatch(openEventLoaction(this.state.location[1],this.state.location[0]));
+                        setTimeout(()=>{this._val = 0; }, 1000);
+                      }
+                    }} style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
             <Icon name="location-on" size={Constants.small_icon_size} color={Constants.color3}/>
             <Text style={styles.eventDateTimeInfo}>{this.state.eventLocation}</Text>
-          </View>     
+          </TouchableOpacity>     
           <View style={[Constants.styles.inRowComponents,styles.eventInfoContainer]}> 
           <View>
             <Icon name="note" size={Constants.small_icon_size} color={Constants.color3}/>

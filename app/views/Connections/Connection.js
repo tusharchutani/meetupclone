@@ -27,7 +27,8 @@ export default class Connection extends Component{
     this.state = {
       isLoadingSearch: false,
       error: null,
-      refreshing: false
+      refreshing: false,
+      searchBarValue:""
     };
   }
 
@@ -41,7 +42,7 @@ export default class Connection extends Component{
 
 
   searchUser(searchQuery){
-    this.setState({isLoadingSearch:true});
+    this.setState({isLoadingSearch:true,searchBarValue:searchQuery});
     if(this.props.userList.isFindUser){
         if(searchQuery.length != 0){
           this.props.dispatch(searchUsers(searchQuery)).then(()=>{
@@ -64,7 +65,7 @@ export default class Connection extends Component{
   }
 
  searchBar(self){
-  return ( <SearchBar lightTheme onChangeText={(event)=>{self.searchUser(event)}} placeholder='Type Here...' 
+  return ( <SearchBar lightTheme value={this.state.searchBarValue} onChangeText={(event)=>{self.searchUser(event)}} placeholder='Type Here...' 
       showLoadingIcon={self.state.isLoadingSearch}/>)
  }
   render() {

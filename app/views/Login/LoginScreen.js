@@ -25,25 +25,31 @@ export default class LoginScreen extends Component{
 
   constructor(props) {
     super(props);
-    this.state = {isLoading:false}
+    this.state = {
+      isLoading:false,
+      username:"",
+      password:"",
+      validationError:false
+    }
   }
 
 
   loginButtonInvalid(){
-    var {username, password} = this.props.fields;
-
-    if(username.value.length == 0 || password.value.length == 0 ){
-      return true;
-    }
-
-    return this.state.isLoading;
+    return this.state.isLoading || this.state.validationError;
   }
 
 
   _login(){
-    var {dispatch, fields:{username, password}} = this.props;
+    
+    
+    var {dispatch} = this.props;
+    var {username,password} = this.state;
+    if(username.length == 0 || password.length == 0){
+      this.setState({validationError:true});
+      return;
+    }
     this.setState({isLoading: true});
-    dispatch(loginUser(username.value,password.value)).then((response)=>{
+    dispatch(loginUser(username,password)).then((response)=>{
       dispatch(openMainApp());
       setTimeout(()=>{ 
         this.setState({isLoading: false}); }, 1000);
@@ -59,28 +65,33 @@ export default class LoginScreen extends Component{
   }
 
   render() {
-    var {fields:{username,password}} = this.props;
+    var {username,password} = this.state;
 
-    var errorMessage = (field) => {
-       if(field.touched && field.error){
-        return (<FormValidationMessage>Please enter valid username and pasword</FormValidationMessage>)  
-      }
-    }
 
 
     return (
       <View style = {styles.container}> 
         <View> 
             <FormLabel>Email</FormLabel>
-            <FormInput {...username} 
+            <FormInput
+            onChangeText={(event)=>{
+              this.setState({username:event});
+              (event.length == 0 && this.state.password.length == 0) ? this.setState({validationError:true}):this.setState({validationError:false})}}
             inputStyle={styles.formInput}
             autoCapitalize="none" placeholderTextColor={Constants.color3} placeholder="Email" />
 
             <FormLabel>Password</FormLabel>
             <FormInput
-            inputStyle={styles.formInput}
-            {...password} autoCapitalize="none" secureTextEntry={true} inputStyle={styles.formInput} placeholderTextColor={Constants.color3} placeholder="Password" />
-            {errorMessage(username)}
+              inputStyle={styles.formInput}
+              onChangeText={(event)=>{
+                this.setState({password:event});
+                (event.length == 0 && this.state.username.length == 0) ? this.setState({validationError:true}): this.setState({validationError:false})}}
+              autoCapitalize="none" 
+              secureTextEntry={true} 
+              inputStyle={styles.formInput}
+              placeholderTextColor={Constants.color3} 
+              placeholder="Password" />
+            {this.state.validationError && <FormValidationMessage>Please enter valid username and pasword</FormValidationMessage>}
         </View>
 
         <Button
@@ -103,8 +114,8 @@ export default class LoginScreen extends Component{
 
 
           <ActivityIndicator
-            animating={this.state.isLoading}
-            style={[Constants.styles.inColumnComponents, {height: 80}]}
+            animating={true}
+            style={{opacity: this.state.isLoading ? 1.0 : 0.0}}
             size="large"
           />
 
@@ -163,15 +174,5 @@ var validate = (formProps) =>{
   return errors; 
 }
 
-
-
-
-
-
-module.exports = reduxForm({
-  form:'login',
-  fields:['username','password'],
-  validate: validate
-}, null, null )(LoginScreen);
-// AppRegistry.registerComponent('LoginScreen', () => LoginScreen);
+module.exports = connect()(LoginScreen);
 

@@ -9,7 +9,9 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Platform,
+  ScrollView
 } from 'react-native';
 import Constants from '../../MokUI/UIConstants';
 import axios from 'axios';
@@ -23,7 +25,7 @@ import {CHANGE_USER_FIRST_NAME,
   CHANGE_PASSWORD,
   CHANGE_USER_AVATAR
 } from '../../api';
-
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { RNS3 } from 'react-native-aws3';
 
 
@@ -125,12 +127,10 @@ export default class SignupProfileForm extends Component {
   };
 
   render() {
-    return (
-      <KeyboardAvoidingView 
-      behavior='position'
-      style={styles.container}
-      keyboardVerticalOffset={-130}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
+    const mainView =  (
+      <ScrollView style={styles.container}> 
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View>
           <View style={styles.titleBar}> 
             <Icon name="clear" style={{paddingRight:10}} size={Constants.medium_icon_size} color={Constants.color2} onPress={()=> {this.props.screenProps.navigation.goBack()}}/>
@@ -207,9 +207,20 @@ export default class SignupProfileForm extends Component {
                               size="large"/>
                               </View>   
         </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+      </ScrollView>);
 
-    );
+    if (Platform.OS === 'ios'){
+      return (<KeyboardAwareScrollView style={styles.container}> 
+        {mainView}
+        </KeyboardAwareScrollView>);
+    }else{
+        return (
+           <KeyboardAvoidingView keyboardVerticalOffset={20} style={styles.container} behavior="padding">
+           {mainView}
+          </KeyboardAvoidingView>
+          
+        );
+    }
   }
 }
 

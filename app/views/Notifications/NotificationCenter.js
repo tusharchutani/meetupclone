@@ -7,30 +7,47 @@ import {
   FlatList,
   TouchableOpacity
 } from 'react-native';
-import {List} from 'react-native-elements';
+import {List, Icon} from 'react-native-elements';
 import {connect} from 'react-redux';
 import {RoundImage} from '../../MokUI/MokUI'
 import Constants from '../../MokUI/UIConstants';
+import IconBadge from 'react-native-icon-badge';
 import {getMyNotifications,navigateToEventInfo,getEventInfo,openUserProfile,setUserProfile} from '../../actions';
 export default class NotificationCenter extends Component {
   _val = 0;
   static navigationOptions = ({ navigation }) => {
+    
         return {
           title:"Notifications",
           headerLeft:null,
-          loading:false
+          tabBarOnPress:(tab, jumpToIndex) => {
+                tab.route.params.unreadMessagesCount = 0;
+                jumpToIndex(3);
+            },
+          tabBarIcon: ({tintColor}) =>  {
+            const {params = {}} = navigation.state;
+            return (<IconBadge
+                    MainElement={<Icon name='notifications' size={22} color={tintColor} />}
+                    BadgeElement={<Text style={{ color: 'white' }}>{params.unreadMessagesCount}</Text>}
+                    Hidden={params.unreadMessagesCount === 0}
+                  />)
+          }
         }
   };
 
     constructor(props) {
     super(props);
-    this.state = {loading:false}
+    this.state = {
+      loading:false,
+      notificationList:[],
+      unreadMessagesCount:2
+      }
     }
 
   renderNotifcation(notification){
     const {notificationtype,userfullname} = notification;
     let {userAvatar} = notification;
-      if(userAvatar == "new"){
+    if(userAvatar == "new"){
         userAvatar = Constants.defaultProfilePic;
       }
     if(notificationtype == "USER_FOLLOW"){
@@ -73,18 +90,55 @@ export default class NotificationCenter extends Component {
     }
   }
 
-  componentDidMount(){
-  	this.getNotifications();
-  }
-
   getNotifications(){
     this.setState({loading:true})
-    this.props.dispatch(getMyNotifications()).then((response)=>{
-      this.setState({loading:false})
+    this.props.dispatch(getMyNotifications()).then(()=>{
+      this.setState({loading:false})  
     });
+    
+    
   }
 
+  componentDidMount(){
+    this.props.navigation.setParams({unreadMessagesCount:0});
+  }
+
+  componentWillReceiveProps(nextProps){
+
+    let currentNotificationNumber = this.props.notificationList ? this.props.notificationList.length : 0;  
+    let nextNotificationNumber = nextProps.notificationList ? nextProps.notificationList.length : 0;
+    let currentUnreadNotificationNumber = 0;
+    try{
+      console.log("Trying");
+      currentUnreadNotificationNumber = this.props.navigation.state.params.unreadMessagesCount;
+    }catch(err){
+      currentUnreadNotificationNumber = 0;
+    }
+    let noOfNotifications = (nextNotificationNumber - currentNotificationNumber);
+    
+    if(noOfNotifications != 0){
+      noOfNotifications += currentUnreadNotificationNumber;;
+          this.props.navigation.setParams({unreadMessagesCount:noOfNotifications});
+          this.setState({notificationList:nextProps.notificationList});
+        }
+    
+  }
+
+  refreshNotification(){
+    console.log("Refresh notification");
+    setTimeout(()=>{
+      if(this._val == 0){
+          this._val = 1;
+          this.props.dispatch(getMyNotifications()).then(()=>{
+            this.refreshNotification(); 
+            this._val = 0;
+          });
+      }
+    }, 45000);
+  }
+  
   render() {
+    this.refreshNotification();
     return (
     <View style={styles.container}> 
         <FlatList
@@ -101,9 +155,9 @@ export default class NotificationCenter extends Component {
             return (
               <View style={{alignItems:'center',justifyContent:'space-around'}}>
                 <Text style={styles.noEventsText}>You have no notifications</Text>
-              </View>)}}          
+              </View>)}}     
         />
-	</View>
+  </View>
     );
   }
 }
@@ -146,10 +200,10 @@ const styles = StyleSheet.create({
 });
 
 var mapStateToProps = (state) =>{
-	return {
-		notificationList: state.notifications.notificationList.notification_array,
+  return {
+    notificationList: state.notifications.notificationList.notification_array,
     userId:state.auth.user_id
-	}
+  }
 }
 
 module.exports = connect(mapStateToProps)(NotificationCenter);

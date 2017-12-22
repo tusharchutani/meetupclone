@@ -91,11 +91,11 @@ export default class ForgotPassword extends Component{
         </View>
 
 
-          <ActivityIndicator
-            animating={this.state.isLoading}
-            style={[Constants.styles.inColumnComponents, {height: 80}]}
-            size="large"
-          />
+          {this.state.isLoading && <ActivityIndicator
+                      animating={true}
+                      style={[Constants.styles.inColumnComponents, {height: 80}]}
+                      size="large"
+                    />}
       </View>
     );
   }

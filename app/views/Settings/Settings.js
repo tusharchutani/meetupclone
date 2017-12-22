@@ -1,7 +1,15 @@
 import React, { Component } from 'react';
 import Constants  from '../../MokUI/UIConstants';
 import Prompt from 'react-native-prompt';
-import {TouchableOpacity, SectionList, Text, StyleSheet,View, Image,Alert,ActivityIndicator } from 'react-native';
+import {TouchableOpacity, 
+  Linking, 
+  SectionList, 
+  Text, 
+  StyleSheet,
+  View, 
+  Image,
+  Alert,
+  ActivityIndicator } from 'react-native';
 import {connect} from 'react-redux';
 import {unauthUser} from '../../actions';
 import _ from 'lodash';
@@ -9,23 +17,14 @@ import {Button} from 'react-native-elements';
 const sections = [
   {
     id: 0,
-    title: 'Additional Services',
-    data: [
-      {id: 6, text: 'Manage Preferences'}
-    ]
-  },
-  {
-    id: 2,
     title: 'More Information',
     data: [
-      {id: 11, text: 'Support'},
-      {id: 12, text: 'Privacy Policy'},
-      {id: 13, text: 'Terms of Service'},
-      {id: 14, text: 'Other Legal'},
+      {id: 0, text: 'Feed back/Report a problem', feedBack:true},
+      {id: 1, text: 'Terms of Service', termsAndCondition:true},
     ]
   },
   {
-    id: 0,
+    id: 1,
     title: 'Account Action',
     data: [
       {id: 1, text: 'Sign out',logOut:true}
@@ -70,7 +69,24 @@ class Settings extends Component {
           </Text>
       </TouchableOpacity>
       )
+    }else if(item.feedBack){
+      return (
+        <TouchableOpacity style={{flexDirection:'row'}} onPress={()=>{Linking.openURL("mailto:servicefeedback@spotapp.ca?subject=FEEDBACK").catch(err => console.log('An error occurred', err));}}>
+          <Text style={styles.row}>
+            {item.text}
+          </Text>
+      </TouchableOpacity>        
+        );
+    }else if(item.termsAndCondition){
+      return (
+        <TouchableOpacity style={{flexDirection:'row'}} onPress={()=>{Linking.openURL("http://spotapp.ca/terms").catch(err => console.log('An error occurred', err));}}>
+          <Text style={styles.row}>
+            {item.text}
+          </Text>
+      </TouchableOpacity>        
+        );
     }
+
     return (
       <TouchableOpacity style={{flexDirection:'row'}} onPress={()=>{this.setState({promptVisible:true})}}>
       <Text style={styles.row}>
@@ -98,8 +114,9 @@ class Settings extends Component {
   renderHeader(){
     return (
       <View style={styles.headerContainer}>
-        <Image source={require('../../../assets/images/logo.png')}/>
-        <Text style={{fontSize:18, fontWeight:'bold'}}>Event hero</Text>
+        <Image source={require('../../../assets/images/new_logo.png')}
+        style={{width: 145, height: 145}}/>
+        <Text style={{fontSize:18, fontWeight:'bold'}}>Spot</Text>
     </View>)
   }
 

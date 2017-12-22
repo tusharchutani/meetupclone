@@ -17,6 +17,13 @@ exports.openFindFriends = () =>{
 	}
 }
 
+exports.openEventLoaction = (lat, lon) =>{
+	return {
+		type:'OPEN_EVENT_LOCATION',
+		location:[lat,lon]
+	}
+}
+
 exports.navigateToForgetPassword = () =>{
 	return {
 		type: 'OPEN_FORGET_PASSWORD'

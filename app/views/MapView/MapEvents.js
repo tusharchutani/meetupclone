@@ -12,7 +12,7 @@ import {connect} from 'react-redux';
 import Constants from '../../MokUI/UIConstants';
 import Carousel from 'react-native-snap-carousel';
 import CarouselView from './CarouselView'
-import {getEventsNearMe, showErrorAlert} from '../../actions'
+import {getMapEvents, showErrorAlert} from '../../actions'
 import {Button} from 'react-native-elements';
 export default class MapEvents extends Component {
 
@@ -59,7 +59,7 @@ export default class MapEvents extends Component {
       });
     } else {
       this._getLocationAsync().then(()=>{
-        this.props.dispatch(getEventsNearMe(this.state.location.latitude,
+        this.props.dispatch(getMapEvents(this.state.location.latitude,
         this.state.location.longitude));
       });
     }

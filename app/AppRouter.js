@@ -12,8 +12,9 @@ import {ScrollView,
 	StyleSheet,
 	Alert 	} from 'react-native';
 import MapEvents from './views/MapView/MapEvents';
+import EventMap from './views/MapView/EventMap';
 import FeedNavigationController from './views/EventFeed/FeedNavigationController';
-	import FeedList from './views/EventFeed/FeedList';
+import FeedList from './views/EventFeed/FeedList';
 import EventInfo from './views/EventInfo/EventInfo';
 import PeopeInfo from './views/EventInfo/PeopeInfo';
 import MyProfile from './views/EventFeed/Profile/MyProfile';
@@ -70,8 +71,7 @@ const MainTabs = TabNavigator({
 		NotificationCenter:{
 			screen: NotificationCenter,
 			navigationOptions:{
-				tabBarLabel:"",
-				tabBarIcon: ({tintColor}) => <Icon name="notifications" size={28} color={tintColor}/>,
+				tabBarLabel:""
 			}			
 		},		
 		UserInfoFeed: { 
@@ -94,18 +94,21 @@ const MainTabs = TabNavigator({
 		tabBarOptions:{
 			activeTintColor:Constants.color2 ,
 			showIcon:true,
-			showLabel: false
+			showLabel: false,
+			inactiveTintColor: Constants.color3,
+			style: {
+			   backgroundColor: Constants.color1,
+			}
 		},
-/*		navigationOptions:{
-			headerMode:'screen'
-		}*/
+		tabBarPosition: 'bottom',
+		swipeEnabled:false
 });
 
 
 const MokAppRouter = new StackNavigator({
 	LoginSignup:{
 		screen: LoginSignup,
-		navigationOptions:{header:null}
+		// navigationOptions:{header:null}
 	}, LoginScreen:{
 		screen:LoginScreen,
 		navigationOptions:{title:'Log in'}
@@ -138,8 +141,11 @@ const MokAppRouter = new StackNavigator({
 		navigationOptions:{header:null}
 	},UserProfile:{
 		screen:OtherUserProfile
-		}
-	});
+	},
+	EventMap:{
+		screen:EventMap
+	}
+});
 
 
 module.exports = MokAppRouter;

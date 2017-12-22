@@ -37,5 +37,10 @@ export default Constants = {
 	}),
 	defaultProfilePic:"http://www.thedigitalkandy.com/wp-content/uploads/2016/01/facebook-no-profile.png",
 	defaultEventImage:"http://data.whicdn.com/images/108454974/large.jpg",
-	locale:"en-us" 
+	locale:"en-us",
+
+
+	//Month
+	day:["SUN","MON","TUE","WED","THURS","FRI","SAT","SUN"],
+	month:["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]
 }

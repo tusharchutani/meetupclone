@@ -25,7 +25,7 @@ exports.getEventsNearMe = (latitude,longitude) => {
 exports.getMapEvents = (latitude,longitude) => {
 		return function(dispatch){
 	 		return SecureStore.getItemAsync('user_id').then((userId)=>{
-				return axios.get(EVENT_FEED(longitude,latitude,userId)).then((response)=>{
+				return axios.get(EVENT_FEED(longitude,latitude,userId),{timeout:10000}).then((response)=>{
 				dispatch(setMapEvents(response.data));
 				}).catch((error)=>{
 					console.log("There is an error "+error);

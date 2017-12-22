@@ -1,4 +1,4 @@
-var API_URL = 'https://pure-island-32874.herokuapp.com/v1';//'http://localhost:3001/v1'; 
+var API_URL = 'https://pure-island-32874.herokuapp.com/v1';//'http://localhost:3001/v1';  https://pure-island-32874.herokuapp.com
 
 //TODO: add the tags fields, latitude and lognitude 
 exports.EVENT_FEED = (lon, lat, userId) =>`${API_URL}/geteventsbylocation/${lon}/${lat}/${userId}`;

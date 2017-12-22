@@ -18,7 +18,10 @@ import { NavigationActions } from 'react-navigation';
 
 export default class LoginSignup extends Component{
   _val = 0;
-  static navigationOptions = {headerMode:'screen'}
+  static navigationOptions = {
+    headerNode:'screen',
+    header:null
+  }
    constructor(props) {
       super(props);
       this.state = {
@@ -46,7 +49,7 @@ export default class LoginSignup extends Component{
 
 //
     return (
-      <Image source = {require('../../../assets/images/front.png')} style={styles.imageContainer} resizeMode="stretch"> 
+    <Image source = {require('../../../assets/images/front.png')} style={styles.imageContainer} resizeMode="stretch"> 
       <View style={styles.logoContainer}>
       
       </View>
