@@ -41,6 +41,7 @@ export default class CreateEvent extends Component {
         isDateTimePickerVisible: false,
         loading:false,
         isCreateButtonDisabled:true,
+        eventImageHeight:160,
         eventInfo:{
                 title:"",
                 address:"",
@@ -254,7 +255,8 @@ uploadAndCreate() {
     });
 
     if (!result.cancelled) {
-      this.setState({ eventImageURi:result.uri,eventImage:result });
+      this.setState({ eventImageURi:result.uri,eventImage:result,eventImageHeight:result.height });
+
     }
   };
 
@@ -270,7 +272,7 @@ uploadAndCreate() {
           </View>           
             <Image style={{
               // width: Constants.screenWidth, 
-              height: 160, 
+              height: this.state.eventImageHeight, 
               borderColor:Constants.color1,
               margin:15,
               borderWidth:2,
@@ -284,7 +286,7 @@ uploadAndCreate() {
                   <Text style={styles.imageButtonText}>Choose photo</Text>
                 </TouchableOpacity>}
               {this.state.eventImageURi.length != 0 && 
-                <TouchableOpacity onPress={()=>{this.setState({eventImageURi:""});}}>
+                <TouchableOpacity onPress={()=>{this.setState({eventImageURi:"",eventImageHeight:160});}}>
                   <Text style={styles.imageButtonText}>Remove picture</Text>
                 </TouchableOpacity>}
             <View>
