@@ -22,7 +22,12 @@
       "bundleIdentifier": "com.mok.spot"
     },
     "android": {
-      "package": "com.mok.spot"
-    }    
+      "package": "com.mok.spot",
+      "config":{
+        "googleMaps":{
+          "apiKey":"AIzaSyCkvm7CJ3ln8Oh2Oisw5cNB0A3dyw6CenY"
+        }
+      }
+    }
   }
 }

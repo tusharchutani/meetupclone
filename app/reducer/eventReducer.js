@@ -28,7 +28,7 @@ module.exports = (state=defaultState, action)=>{
 		case 'SET_MAP_EVENTS':
 		return {
 			...state,
-			mapEvents:actions.events
+			mapEvents:action.events
 		}
 		case 'OPEN_EVENT_LOCATION':
 		return {
@@ -37,6 +37,12 @@ module.exports = (state=defaultState, action)=>{
 				location:action.location
 			}
 		}
+		case 'SET_MORE_LOADED_EVENTS':
+			return {
+				...state,
+				eventList: [...state.eventList, ...action.events]
+
+			}
 		case 'CREATE_EVENT':
 			return {
 				...state,

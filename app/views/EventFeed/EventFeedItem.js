@@ -52,7 +52,35 @@ export default class EventFeedItem extends Component {
         setTimeout(()=>{this._val = 0; }, 1000);
     }
   }  
-  
+
+
+  componentWillReceiveProps(nextProps){
+    let goingCount = this.props.going ? this.props.going.length:0;
+    let interestedGoing = this.props.interested ? this.props.interested.length:0;
+    let DETAULT_IMAGE_URL="http://data.whicdn.com/images/108454974/large.jpg";
+    this.setState({
+      eventTitleImage: nextProps.backgroundimage ? nextProps.backgroundimage : DETAULT_IMAGE_URL, //TODO: set to default if not given find this default
+      eventName: nextProps.title, 
+      eventDate: nextProps.startDate ? new Date(nextProps.startDate) : null,
+      eventTags: nextProps.tags,
+      totalAttendance: goingCount+interestedGoing,
+      eventLocation: nextProps.city, //TODO: change this to address
+      attendence: nextProps.attendence,
+      isDisabled:false
+    });
+  }
+
+  formatAMPM(date) {
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
+  }
+
   render() {
     let tagView = () => {
 
@@ -77,7 +105,7 @@ export default class EventFeedItem extends Component {
         </Image>
         <View style={styles.eventInfoContainer}>
             <Text style={styles.eventName}>{this.state.eventName}</Text>
-            <Text style={styles.cornerInfo}>{this.state.eventDate ? this.state.eventDate.toLocaleString('en-US', { hour: 'numeric', hour12: true, minute: 'numeric'  }):""}</Text>
+            <Text style={styles.cornerInfo}>{this.state.eventDate ? this.formatAMPM(this.state.eventDate):""}</Text>
         </View>
 
        <View style={styles.eventInfoContainer}>
@@ -97,7 +125,7 @@ export default class EventFeedItem extends Component {
       {tagView()}
       </View>
 
-    <Icon name="event" size={25} color={Constants.color3} onPress={bookmarkEvent}/>
+    <Icon name="event" size={25} color={Constants.color3}/>
 
     </View>
   </View>
@@ -108,14 +136,7 @@ export default class EventFeedItem extends Component {
   }
 }
 
-let bookmarkEvent = ()=>{
-  // console.log("Book marking event");
-}
 
-
-let changeEventAttendance = () =>{
-  // console.log("change event atta");
-}
 const MARGIN = 10;
 const MARGIN_CORNER = 15;
 const styles = StyleSheet.create({
@@ -129,7 +150,7 @@ const styles = StyleSheet.create({
     alignItems:'flex-start',
     flexDirection:'row',
     justifyContent:'space-between',
-    // borderRadius:10
+    backgroundColor:Constants.color6
   },
   eventDateContainer:{
     backgroundColor:'rgba(0,0,0,0.5)',

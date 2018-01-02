@@ -9,6 +9,7 @@ import {
   TextInput,
   ImageBackground,
   KeyboardAvoidingView,
+  Keyboard,
   TouchableOpacity, 
   ActivityIndicator
 } from 'react-native';
@@ -41,7 +42,7 @@ export default class LoginScreen extends Component{
 
   _login(){
     
-    
+    Keyboard.dismiss();
     var {dispatch} = this.props;
     var {username,password} = this.state;
     if(username.length == 0 || password.length == 0){

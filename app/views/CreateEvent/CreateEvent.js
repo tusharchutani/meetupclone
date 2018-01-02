@@ -18,7 +18,7 @@ import {FormLabel, FormInput, Button, ListItem } from 'react-native-elements'
 import Constants  from '../../MokUI/UIConstants';
 import {MultiLineTextField} from '../../MokUI/MokUI';
 import DateTimePicker from 'react-native-modal-datetime-picker';
-import {createEvent, showErrorAlert} from '../../actions';
+import {createEvent, showErrorAlert, getMyprofile} from '../../actions';
 import {connect} from 'react-redux';
 import axios from 'axios';
 import {GOOGLE_MAP_API} from '../../api';
@@ -170,8 +170,10 @@ uploadAndCreate() {
                     this.setState({eventInfo:eventInfo});
 
                     this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
-                      this.props.navigation.goBack();
+                      this.props.dispatch(getMyprofile());
                       this.setState({loading:false});
+                      setTimeout(()=>{this.props.navigation.goBack(); }, 1000);
+                      
                       }).catch((error)=>{
                        this.props.dispatch(showErrorAlert(error));
                       });
@@ -197,7 +199,7 @@ uploadAndCreate() {
     }else{
       isInvalid.tags = false;
     }
-    eventInfo.tags = event.replace(/\s+/g, "").split(",");
+    eventInfo.tags = event.replace(/\s\s+/g, ' ').split(",");
     this.setState({eventInfo, isInvalid});
     this.validateForm();
   }
@@ -250,8 +252,8 @@ uploadAndCreate() {
 
   chooseEventImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
+      allowsEditing: false,
+      aspect: [4, 2],
     });
 
     if (!result.cancelled) {
@@ -269,17 +271,14 @@ uploadAndCreate() {
             <ActivityIndicator animating={this.state.loading}
                               style={{paddingRight: 30}}
                               size="small"/>           
-          </View>           
-            <Image style={{
-              // width: Constants.screenWidth, 
-              height: this.state.eventImageHeight, 
-              borderColor:Constants.color1,
-              margin:15,
-              borderWidth:2,
-              alignItems: 'center',
-              justifyContent:'center'}} 
-              source={{uri: this.state.eventImageURi.length != 0 ? this.state.eventImageURi : Constants.defaultEventImage}}
-              />
+          </View>
+          <Image  style={{flex:1,height: 200, width: Constants.screenWidth}}  //
+              source={{uri:Constants.defaultEventImage}}>  
+                <Image style={{flex:1,height: 200, width: Constants.screenWidth}}  //
+                  source={{uri: this.state.eventImageURi.length != 0 ? this.state.eventImageURi : Constants.defaultEventImage}}
+                  resizeMode="contain"
+                  />
+              </Image>
               {this.state.eventImageURi.length == 0 && 
                 <TouchableOpacity onPress={()=>{
                   this.chooseEventImage()}}>
@@ -359,7 +358,8 @@ uploadAndCreate() {
                 width={MULTILINE_TEXT_FIELD_HEIGHT}
                 style={styles.formInput} 
                 placeholder="Event Tags"
-                inputStyle={styles.formInput} 
+                inputStyle={styles.formInput}
+                blurOnSubmit={true}
                 onChangeText={(event)=>{this._eventTagChange(event);
                 }}            
                 />

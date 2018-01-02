@@ -7,12 +7,13 @@ import {
   FlatList,
   TouchableOpacity
 } from 'react-native';
+import moment from 'moment'
 import {List, Icon} from 'react-native-elements';
 import {connect} from 'react-redux';
 import {RoundImage} from '../../MokUI/MokUI'
 import Constants from '../../MokUI/UIConstants';
 import IconBadge from 'react-native-icon-badge';
-import {getMyNotifications,navigateToEventInfo,getEventInfo,openUserProfile,setUserProfile} from '../../actions';
+import {readNotification,getMyNotifications,navigateToEventInfo,getEventInfo,openUserProfile,setUserProfile} from '../../actions';
 export default class NotificationCenter extends Component {
   _val = 0;
   static navigationOptions = ({ navigation }) => {
@@ -45,56 +46,74 @@ export default class NotificationCenter extends Component {
     }
 
   renderNotifcation(notification){
-    const {notificationtype,userfullname} = notification;
+    const {notificationtype,userfullname,updatedAt} = notification;
     let {userAvatar} = notification;
+    let timeStamp = moment(updatedAt).fromNow();
     if(userAvatar == "new"){
         userAvatar = Constants.defaultProfilePic;
       }
+
     if(notificationtype == "USER_FOLLOW"){
       let navigateToUserProfile = () => {
          if(this._val == 0){
             this._val = 1;
-            this.props.dispatch(openUserProfile());
-            this.props.dispatch(setUserProfile(notification.userid));
-            
-            setTimeout(()=>{this._val = 0; }, 1000);
+            this.props.dispatch(readNotification(notification._id)).then(()=>{
+                this.props.dispatch(openUserProfile());
+                this.props.dispatch(setUserProfile(notification.userid));
+                
+                setTimeout(()=>{this._val = 0; }, 1000);              
+            });
+
         }        
       }
       return(
-      <TouchableOpacity onPress={navigateToUserProfile} style={styles.notificationItem}>
+        <TouchableOpacity onPress={navigateToUserProfile} style={styles.notificationItem}>
          <RoundImage size={40} source={userAvatar}/>
-        <Text style={{paddingLeft:20,paddingRight:50}}>
-          <Text style={styles.notificationUserName}>{userfullname}</Text>
-          <Text> started following you.</Text>
-        </Text>
-      </TouchableOpacity>);
+          <Text style={{paddingLeft:20,width:Constants.screenWidth-70}}>
+            <Text style={styles.notificationUserName}>{userfullname}</Text>
+            <Text> started following you.+ {"\n"}</Text>
+            <Text style={styles.notificationDate}>{timeStamp}</Text>
+          </Text>
+          <Icon containerStyle={{paddingTop:55}} name="fiber-manual-record" size={12} color={Constants.color4}/>
+            
+        </TouchableOpacity>
+      );
     }else if(notificationtype == "EVENT_INVITE"){
       let notificationText = notification.notification;
       let navigateToEvent = () => {
+
             if(this._val == 0){
               this._val = 1;
-              this.props.dispatch(navigateToEventInfo());
-              this.props.dispatch(getEventInfo(notification.eventid,this.props.userId)).then(()=>{
-                setTimeout(()=>{this._val = 0; }, 1000); 
-              }).catch((err)=>{this._val = 0});
+              this.props.dispatch(readNotification(notification._id)).then(()=>{
+                  this.props.dispatch(navigateToEventInfo());
+                  this.props.dispatch(getEventInfo(notification.eventid,this.props.userId)).then(()=>{
+                    setTimeout(()=>{this._val = 0; }, 1000); 
+                  }).catch((err)=>{this._val = 0});
+              });
             }
       }
+
+
       return(
       <TouchableOpacity onPress={navigateToEvent} style={styles.notificationItem}>
          <RoundImage size={40} source={userAvatar}/>
-        <Text style={{paddingLeft:20,paddingRight:50}}>
+        <Text style={{paddingLeft:20,width:Constants.screenWidth-70}}>
           <Text style={styles.notificationUserName}>{userfullname}</Text>
-          <Text>{" "+notificationText.substr(userfullname.length)}</Text>
+          <Text>{" "+notificationText.substr(userfullname.length)+"\n"}</Text>
+          <Text style={styles.notificationDate}>{timeStamp}</Text>
         </Text>
+        {!notification.read && <Icon containerStyle={{paddingTop:55}} name="fiber-manual-record" size={12} color={Constants.color4}/>}
       </TouchableOpacity>);
     }
   }
 
   getNotifications(){
-    this.setState({loading:true})
-    this.props.dispatch(getMyNotifications()).then(()=>{
-      this.setState({loading:false})  
-    });
+    if(this.props.userId != null){
+        this.setState({loading:true})
+        this.props.dispatch(getMyNotifications(this.props.userId)).then(()=>{
+          this.setState({loading:false})  
+        });
+      }
     
     
   }
@@ -109,7 +128,6 @@ export default class NotificationCenter extends Component {
     let nextNotificationNumber = nextProps.notificationList ? nextProps.notificationList.length : 0;
     let currentUnreadNotificationNumber = 0;
     try{
-      console.log("Trying");
       currentUnreadNotificationNumber = this.props.navigation.state.params.unreadMessagesCount;
     }catch(err){
       currentUnreadNotificationNumber = 0;
@@ -125,24 +143,25 @@ export default class NotificationCenter extends Component {
   }
 
   refreshNotification(){
-    console.log("Refresh notification");
-    setTimeout(()=>{
-      if(this._val == 0){
-          this._val = 1;
-          this.props.dispatch(getMyNotifications()).then(()=>{
-            this.refreshNotification(); 
-            this._val = 0;
-          });
+    if(this.props.userId != null){
+        setTimeout(()=>{
+          if(this._val == 0){
+              this._val = 1;
+              this.props.dispatch(getMyNotifications(this.props.userId)).then(()=>{
+                this.refreshNotification(this.props.userId); 
+                this._val = 0;
+              });
+          }
+        }, 45000);
       }
-    }, 45000);
   }
   
   render() {
     this.refreshNotification();
     return (
-    <View style={styles.container}> 
+    
         <FlatList
-          style={{paddingRight:25,flex:1}}
+          style={{flex:1}}
           keyExtractor={(item, index) => index}
           enableEmptySections={true}
           keyExtractor={(item, index) => index}
@@ -157,7 +176,6 @@ export default class NotificationCenter extends Component {
                 <Text style={styles.noEventsText}>You have no notifications</Text>
               </View>)}}     
         />
-  </View>
     );
   }
 }
@@ -174,9 +192,9 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     width:Constants.screenWidth,
-    padding:10,
+    paddingLeft:10,
     // marginLeft:10,
-    // marginTop:10,
+    // marginTop:10,,
     backgroundColor:Constants.color1
   },
   notificationUserName:{
@@ -195,13 +213,17 @@ const styles = StyleSheet.create({
     fontWeight:'bold',
     fontSize:15,
     color:Constants.color3
-  }  
+  },notificationDate:{
+    fontSize:9,
+    fontWeight:'bold',    
+    color:Constants.color3    
+  }
 
 });
 
 var mapStateToProps = (state) =>{
   return {
-    notificationList: state.notifications.notificationList.notification_array,
+    notificationList: state.notifications.notificationList ? state.notifications.notificationList.notification_array : [],
     userId:state.auth.user_id
   }
 }

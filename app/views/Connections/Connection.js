@@ -45,7 +45,7 @@ export default class Connection extends Component{
     this.setState({isLoadingSearch:true,searchBarValue:searchQuery});
     if(this.props.userList.isFindUser){
         if(searchQuery.length != 0){
-          this.props.dispatch(searchUsers(searchQuery)).then(()=>{
+          this.props.dispatch(searchUsers(searchQuery.toLowerCase())).then(()=>{
           this.setState({isLoadingSearch:false});});
         }else{
           this.props.dispatch(searchUsers(""))

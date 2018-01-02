@@ -48,7 +48,7 @@ const MainTabs = TabNavigator({
 			screen: FeedList,
 			navigationOptions:{
 				tabBarLabel:'Event Feed',
-				tabBarIcon: ({tintColor}) => <Icon name="list" size={28} color={tintColor}/>,
+				tabBarIcon: ({tintColor}) => <Icon name="list" size={26} color={tintColor}/>,
 			}
 		},
 		MapView:{ 
@@ -56,7 +56,7 @@ const MainTabs = TabNavigator({
 		screen: MapEvents,
 		navigationOptions:{
 			tabBarLabel:"Around me",
-			tabBarIcon: ({tintColor}) => <Icon name="adjust" size={28} color={tintColor}/>,
+			tabBarIcon: ({tintColor}) => <Icon name="adjust" size={26} color={tintColor}/>,
 			header:null
 			},
 		},
@@ -65,7 +65,7 @@ const MainTabs = TabNavigator({
 			navigationOptions:{
 				title:"Your events",
 				headerLeft:null,
-				 tabBarIcon: ({tintColor}) => <Icon name="done" size={28} color={tintColor}/>,
+				 tabBarIcon: ({tintColor}) => <Icon name="done" size={26} color={tintColor}/>,
 			}
 		},
 		NotificationCenter:{
@@ -78,7 +78,7 @@ const MainTabs = TabNavigator({
 			screen: MyProfile,
 			navigationOptions:{
 				tabBarLabel:"User profile",
-				tabBarIcon: ({tintColor}) => <Icon name="person-pin" size={28} color={tintColor}/>,
+				tabBarIcon: ({tintColor}) => <Icon name="person-pin" size={26} color={tintColor}/>,
 				header:null
 			}
 		},
@@ -86,7 +86,7 @@ const MainTabs = TabNavigator({
 			screen: Settings,
 			navigationOptions:{
 				// tabBarLabel:"Settings",
-				tabBarIcon: ({tintColor}) => <Icon name="settings" size={28} color={tintColor}/>,
+				tabBarIcon: ({tintColor}) => <Icon name="settings" size={26} color={tintColor}/>,
 				header:null
 			}
 		}		

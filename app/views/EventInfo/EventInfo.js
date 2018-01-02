@@ -62,12 +62,13 @@ export default class EventInfo extends Component {
 
 
   getComments(id){
-    console.log("Getting comments");
-     axios.get(GET_COMMENTS(id)).then((response)=>{
-      this.setState({comments:response.data.posts,gotComments:true});
-    }).catch((error)=>{
-      console.log("There was an error getting the data from the server. "+error);
-    });
+    if(id != null || id != undefined){
+         axios.get(GET_COMMENTS(id)).then((response)=>{
+          this.setState({comments:response.data.posts,gotComments:true});
+        }).catch((error)=>{
+          console.log("There was an error getting the data from the server. "+error);
+        });
+      }
     
   }
 
@@ -87,22 +88,25 @@ export default class EventInfo extends Component {
 
   renderDiscussionBoard(){
     return (
-      <View style={[{paddingLeft:0,paddingRight:0},styles.eventInfoContainer]}> 
+      <View style={[{paddingLeft:0,paddingRight:0,paddingBottom:10},styles.eventInfoContainer]}> 
       <Text style={styles.title}>Discussion board: </Text>
 
-      <View style={{flexDirection:'row'}}>
-          {this.state.isPostingComment && <ActivityIndicator
+      <View style={{flexDirection:'row',paddingBottom:10}}>
+           {this.state.isPostingComment && <ActivityIndicator
             animating={true}
           size="small"/>}
-         <FormInput inputStyle={{color:Constants.color2,flex:1, width:260}}
+         <FormInput inputStyle={{color:Constants.color2,width:218}}
           onChangeText={(event)=>{this.setState({comment:event});}}
           placeholderTextColor={Constants.color3}
           value={this.state.comment}
           placeholder="Add public event" />
-          <Icon
-            disabled={this.state.isPostingComment}
-            name="send" 
-            onPress={()=>{this.postComment()}}/>
+          <Button
+          small
+          disabled={this.state.isPostingComment}
+          title='Post'
+          backgroundColor={Constants.color2} 
+          color={Constants.color1}
+          onPress={()=>{this.postComment()}}/>
 
 
       </View>
@@ -255,8 +259,9 @@ export default class EventInfo extends Component {
   	return (
       <KeyboardAvoidingView 
       behavior="padding" 
-      style={[{backgroundColor:'transparent'},Constants.styles.fill]}
-       keyboardVerticalOffset={80}>
+      style={{flex:1}}
+      keyboardVerticalOffset={80}
+       >
         <ActivityIndicator
           style={styles.loadingContainer}
           animating={this.state.isLoading}
@@ -347,13 +352,15 @@ export default class EventInfo extends Component {
             </Text>
             
           </View>
+
+          <View style={{margin:25, marginRight:0}}>
+            <TouchableOpacity onPress={()=>{this.openPeopleInfo()}}>
+              <Text style={{fontWeight:'bold',marginBottom:10}}>{this.state.goingPeople.length} person(s) are going to the event</Text>
+            </TouchableOpacity>
+          </View>          
           {this.renderDiscussionBoard()}
 
-            <View style={{margin:25, marginRight:0}}>
-              <TouchableOpacity onPress={()=>{this.openPeopleInfo()}}>
-                <Text style={{fontWeight:'bold',marginBottom:10}}>{this.state.goingPeople.length} person(s) are going to the event</Text>
-              </TouchableOpacity>
-            </View>
+
 
 
           </ScrollView>
@@ -371,6 +378,7 @@ const styles = StyleSheet.create({
   eventInfoHeaderImage:{
   	// marginTop:40,
   	height:200,
+    backgroundColor:Constants.color6,
   	justifyContent:'flex-end',
   	marginBottom:SPACE_BETWEEN_COMPONENTS
   },eventInfoContainer:{

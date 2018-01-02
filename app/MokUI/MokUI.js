@@ -72,7 +72,7 @@ export class MultiLineTextField extends Component {
 const textPaddingRightLeft=10;
 const tagStyles = StyleSheet.create({
   container: {
-  	borderRadius:100,
+  	borderRadius:10,
   	marginRight:10,
   	backgroundColor:'#3FABE2',
   	paddingRight:textPaddingRightLeft,

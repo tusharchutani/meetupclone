@@ -7,11 +7,17 @@ import {EVENT_FEED, CREATE_EVENT,SEARCH_EVENT_BY_TAG,GET_EVENT_INFO} from '../ap
 
 
 
-exports.getEventsNearMe = (latitude,longitude) => {
+exports.getEventsNearMe = (latitude,longitude,page=1) => {
 		return function(dispatch){
 	 		return SecureStore.getItemAsync('user_id').then((userId)=>{
-				return axios.get(EVENT_FEED(longitude,latitude,userId),{timeout:10000}).then((response)=>{
-				dispatch(setEvents(response.data));
+				return axios.get(EVENT_FEED(longitude,latitude,userId,page),{timeout:10000}).then((response)=>{
+					if(page == 1){
+						dispatch(setEvents(response.data));
+					}else{
+						if(response.data.length != 0){
+							dispatch(setMoreEvents(response.data))
+						}
+					}
 				}).catch((error)=>{
 					console.log("There is an error "+error);
 					throw error.message
@@ -25,11 +31,11 @@ exports.getEventsNearMe = (latitude,longitude) => {
 exports.getMapEvents = (latitude,longitude) => {
 		return function(dispatch){
 	 		return SecureStore.getItemAsync('user_id').then((userId)=>{
-				return axios.get(EVENT_FEED(longitude,latitude,userId),{timeout:10000}).then((response)=>{
+				return axios.get(EVENT_FEED(longitude,latitude,userId),{timeout:100000}).then((response)=>{
 				dispatch(setMapEvents(response.data));
 				}).catch((error)=>{
 					console.log("There is an error "+error);
-					dispatch(showErrorAlert(error.response.data.error));
+					dispatch(showErrorAlert("Unable to get events for map"));
 				});	 			
 	 		});
 	}
@@ -38,7 +44,7 @@ exports.getMapEvents = (latitude,longitude) => {
 
 exports.createEvent = (newEvent) =>{
 	return function(dispatch){
-		return SecureStore.getItemAsync('token').then((token)=>{
+		return SecureStore.getValueWithKeyAsync('token').then((token)=>{
 	 		SecureStore.getValueWithKeyAsync('user_id').then((user_id)=>{
 				return axios.post(CREATE_EVENT(user_id),newEvent,{headers: {'Authorization': token}}).then((response)=>{
 
@@ -62,6 +68,13 @@ setMapEvents = (events) =>{
 setEvents = (events) => {
 	return {
 		type: 'SET_EVENTS',
+		events
+	}
+}
+
+setMoreEvents = (events) => {
+	return {
+		type:'SET_MORE_LOADED_EVENTS',
 		events
 	}
 }

@@ -80,10 +80,11 @@ const styles = StyleSheet.create({
     width:230,
     // borderRadius:5,
     backgroundColor:Constants.color1,
-    paddingBottom:MARGIN
+    paddingBottom:MARGIN,
+    height:115
   },
   eventImage:{
-    height:110,
+    height:125,
     alignItems:'flex-start',
     justifyContent:'space-between',
   },

@@ -18,7 +18,7 @@ import shallowCompare from 'shallow-compare'
 import {getEventsNearMe, getEventInfo, showErrorAlert, openCreateEvent, searchEventsByTag, openFindFriends} from '../../actions'
 
 export default class FeedList extends Component {
-
+  _val = 0;
 
   static navigationOptions = ({ navigation }) => {
         return {
@@ -43,7 +43,9 @@ export default class FeedList extends Component {
         latitude:null,
         longitude:null
       },
-      loading:false
+      loading:false,
+      footerLoading:false,
+      currentPage:1
     };
   }
 
@@ -74,21 +76,28 @@ export default class FeedList extends Component {
         }
   };
 
-  loadEventsNearMe(){
+  loadEventsNearMe(page=1){
+
       this.setState({loading:true});
         this._getCurrentLocation().then(()=>{
         this.setState({hasLoaded:false});
         this.props.dispatch(getEventsNearMe(this.state.location.latitude,
-          this.state.location.longitude)).then(()=>{
-            this.setState({loading:false});
+          this.state.location.longitude,page)).then(()=>{
+            this.setState({loading:false,footerLoading:false});
         }).catch((error)=>{
-            this.setState({loading:false});
+            this.setState({loading:false,footerLoading:false});
             this.props.dispatch(showErrorAlert(error));
         });
       }).catch((error)=>{
-        this.setState({loading:false});
-        this.props.dispatch(showErrorAlert("testing stuff "));
+        this.setState({loading:false,footerLoading:false});
+        this.props.dispatch(showErrorAlert("Location has been disabled."));
       });
+  }
+  
+  reloadEvents(){
+    this.setState({currentPage:1},()=>{
+      this.loadEventsNearMe();
+    })
   }
   
   componentWillMount(){
@@ -106,7 +115,7 @@ export default class FeedList extends Component {
       this.props.dispatch(getEventsNearMe(this.state.location.latitude, this.state.location.longitude));
     }else{
       this.setState({isLoadingSearch:true});
-      this.props.dispatch(searchEventsByTag(event)).then(()=>{
+      this.props.dispatch(searchEventsByTag(event.toLowerCase())).then(()=>{
         this.setState({isLoadingSearch:false});
       }).catch((error)=>{
         this.setState({isLoadingSearch:false});
@@ -116,6 +125,18 @@ export default class FeedList extends Component {
   }
 
 
+  handelLoadMore(){
+      if(this._val == 0){
+        this._val = 1;
+        if(this.props.eventList.length >= 8){ 
+          this.setState({footerLoading:true});
+          this.setState({currentPage:this.state.currentPage+1},()=>{
+            this.loadEventsNearMe(this.state.currentPage);
+            setTimeout(()=>{this._val = 0; }, 2000);
+            });
+          }
+      }
+  }
 
   render() {
     return (
@@ -128,8 +149,12 @@ export default class FeedList extends Component {
             data={this.props.eventList}
             renderItem={({ item }) => (<EventFeedItem {...item}/>)}
             ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
-            onRefresh={()=>{this.loadEventsNearMe()}}
+            onRefresh={()=>{this.reloadEvents()}}
             refreshing={this.state.loading}
+            ListFooterComponent={()=>{
+              return (this.state.footerLoading && 
+                <View style={{paddingTop:10}}><ActivityIndicator  animating={true} size="small" /></View>);
+            }}            
             ListEmptyComponent={()=>{
               return (
                 <View style={styles.loadingContainer}>
@@ -141,6 +166,8 @@ export default class FeedList extends Component {
                     <Text style={styles.noEvents}>Loading...</Text></View>}
                   {!this.state.loading && <Text style={styles.noEvents}>There are no events near you</Text>}
                 </View>)}}             
+            onEndReached={()=>{this.handelLoadMore()}}
+            onEndReachedThreshold={0}
           /> 
       </View>);
     }

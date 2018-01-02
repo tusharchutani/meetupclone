@@ -280,7 +280,8 @@ export default class EventEdit extends Component {
                 width={MULTILINE_TEXT_FIELD_HEIGHT}
                 style={styles.formInput} 
                 placeholder="Event Tags"
-                inputStyle={styles.formInput} 
+                inputStyle={styles.formInput}
+                blurOnSubmit={true}
                 onChangeText={(event)=>{this._eventTagChange(event);
                 }}            
                 />

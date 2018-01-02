@@ -30,7 +30,9 @@ export default class UserInfoFeed extends Component {
       idOfEventsHostedByUser:this.props.eventsHostedByUser,
       eventsHostedByUser:[],
       refreshing:false,
-      isLoading:false
+      isLoading:false,
+      currentPage:1,
+      footerLoading:false
 
     };
 
@@ -58,13 +60,16 @@ export default class UserInfoFeed extends Component {
       axios.post(FOLLOW_USER(this.props.userId,this.props._id)).then((response)=>{
         this.setState({isLoading:false,followButtonText:'following',followButtonColor:Constants.color4});
         this._isFollowing = true;
+        this.props.dispatch(setUserProfile(this.props._id))
       }).catch(()=>{
         this.setState({isLoading:false});
       })
+      
     }else{
       axios.post(UNFOLLOW_USER(this.props.userId,this.props._id)).then((response)=>{
         this.setState({isLoading:false,followButtonText:'follow',followButtonColor:Constants.color2});
         this._isFollowing = false;
+        this.props.dispatch(setUserProfile(this.props._id));
       }).catch(()=>{
         this.setState({isLoading:false});
       })      
@@ -91,10 +96,10 @@ export default class UserInfoFeed extends Component {
     
     return (
       <View>
-          <View style={{flexDirection:'row',alignItems: 'stretch', paddingBottom:10}}>
+          <View style={{flexDirection:'row',justifyContent:'space-between', alignItems: 'stretch', paddingBottom:10,paddingRight:10}}>
 
 
-            <View >
+            <View>
                 <View style={styles.profileInfo}>
                   <RoundImage size={100} source={userProfilePic}/>
                   <Text style={styles.name}>{firstName+" "+lastname}</Text>
@@ -157,13 +162,13 @@ export default class UserInfoFeed extends Component {
       </View>);
   }
 
-  setFollowing(){
+  setFollowing(nextProps){
 
-    if(!this.props.followers){
+    if(!nextProps.followers){
       this._isFollowing = false;
       this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
     }else{
-      if(this.props.followers.includes(this.props.userId)){
+      if(nextProps.followers.includes(this.props.userId)){
         this._isFollowing = true;
         this.setState({followButtonText:'following',followButtonColor:Constants.color4});
       }else{
@@ -181,7 +186,7 @@ export default class UserInfoFeed extends Component {
 
 
     if(nextProps.userId != nextProps._id){
-      this.setFollowing();
+      this.setFollowing(nextProps);
       if(this._isFollowing){
         this.setState({followButtonText:'following',followButtonColor:Constants.color4});
       }else{
@@ -189,30 +194,40 @@ export default class UserInfoFeed extends Component {
       }
     }
 
+    let lengthOfEventsHostedByUser = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.length : 0;
+    let lenghtOfEventsByUserNextProps = nextProps.eventsHostedByUser ? nextProps.eventsHostedByUser.length : 0;
+    if(lenghtOfEventsByUserNextProps != lengthOfEventsHostedByUser){
+        this.getUserEventsInfo();
+      }
   }
 
 
-  getUserEventsInfo(){
+  getUserEventsInfo(page=1){
     var lenghtOfEventsByUser = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.length:0;
     var lenghtofEventsId = this.state.eventsHostedByUser ? this.state.eventsHostedByUser.length : 0;
     
-    if((lenghtOfEventsByUser != lenghtofEventsId)&& !this._isDataCollected){
+    if(page > 1 ||this.state.refreshing||((lenghtOfEventsByUser != lenghtofEventsId)&& !this._isDataCollected)){
         this._isDataCollected=true;
         
-        let getEvents = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.map((eventId, index)=>{    
+        let getEvents = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.slice((page*8)-8,((page*8)-1)).map((eventId, index)=>{    
           return axios.get(GET_EVENT_INFO(eventId, this.props.userId),{timeout:10000});
         }): [];
         if(getEvents.length == 0){
           this.setState({refreshing:false});
         }
           axios.all(getEvents).then(responses => {
-          let temp = responses.map((response) =>{
+          let temp = [];
+          responses.forEach((response) =>{
             if(response.data != null){
-              return response.data;
+              temp.push(response.data);
             }
-            return {};
           })
-          this.setState({eventsHostedByUser:temp,isLoading:false});
+          if(page == 1){
+            this.setState({eventsHostedByUser:temp,isLoading:false});
+          }else{
+            this.setState({eventsHostedByUser:[...this.state.eventsHostedByUser, ...temp],isLoading:false})
+          }
+          this.setState({footerLoading:false});
         }).catch((error)=>{
         console.log("User info feed error "+error);
         this.setState({isLoading:false});
@@ -220,18 +235,32 @@ export default class UserInfoFeed extends Component {
     }
   }
 
+
+  handelLoadMore(){
+    
+    if(this._val == 0){
+        this._val = 1;
+        this.setState({currentPage:this.state.currentPage+1,footerLoading:true},()=>{
+          this.getUserEventsInfo(this.state.currentPage);
+          setTimeout(()=>{this._val = 0; }, 2000);
+    
+        });
+      }
+    
+  }
+
   reloadProfile(){
-    this.setState({refreshing:true});
+    this.setState({refreshing:true,currentPage:1});
     
     if(this.props.isMyProfile){
       this.props.dispatch(getMyprofile()).then(()=>{
-        this.setState({refreshing:false,isLoading:false});
         this._isDataCollected = false;
         this.getUserEventsInfo();
+        this.setState({refreshing:false,isLoading:false});
       }).catch(err => {console.log("There was an error updating my profile "+err);})
     }else{
       this.props.dispatch(setUserProfile(this.props._id)).then(()=>{
-        this.setState({refreshing:false,isLoading:false});
+        this.setState({refreshing:false,isLoading:false,footerLoading:false});
         this.getUserEventsInfo()
       }).catch(err => {console.log("There was an error updating other profile "+err);})
     }
@@ -253,8 +282,14 @@ export default class UserInfoFeed extends Component {
              renderItem={({item, index})=>(<EventFeedItem key={`entry-${index}`} {...item}/>)}
              ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
              ListHeaderComponent={this.renderHeader(this)}
+             ListFooterComponent={()=>{
+                return (this.state.footerLoading && 
+                  <View style={{paddingTop:10}}><ActivityIndicator  animating size="small" /></View>);
+              }}                
             onRefresh={()=>{this.reloadProfile()}}
             refreshing={this.state.refreshing}           
+            onEndReached={()=>{this.handelLoadMore()}}
+            onEndReachedThreshold={0}            
            />
         </View>);
   }

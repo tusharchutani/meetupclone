@@ -41,16 +41,20 @@ export default class MapEvents extends Component {
   }
 
   _centerMapOnMarker (markerIndex) {
-      const mapRef = this._mapView;
-      var location = this.props.mapEvents[markerIndex].location;
 
-      mapRef.animateToRegion({
-                  latitude: location[1],
-                  longitude: location[0],
-                  latitudeDelta: 0.0005,
-                  longitudeDelta: 0.006
-              });
-  }
+        const mapRef = this._mapView;
+        var location = this.props.mapEvents[markerIndex] ? this.props.mapEvents[markerIndex].location : null;
+    
+      if(location){
+        mapRef.animateToRegion({
+                    latitude: location[1],
+                    longitude: location[0],
+                    latitudeDelta: 0.0005,
+                    longitudeDelta: 0.006
+          });
+      }
+
+    }
 
   componentWillMount() {
     if (Platform.OS === 'android' && !Constants.isDevice) {
@@ -91,7 +95,7 @@ export default class MapEvents extends Component {
   onUpdateEvents(){
     if(this._region != null){
       this.setState({isDisabled:true});
-      this.props.dispatch(getEventsNearMe(this._region.latitude,
+      this.props.dispatch(getMapEvents(this._region.latitude,
             this._region.longitude)).then(()=>{
         this.setState({isDisabled:false})
       }).catch((error)=>{
