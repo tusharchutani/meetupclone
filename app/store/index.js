@@ -19,6 +19,6 @@ exports.configureStore = (initialState=defaultState) => {
   		 	));
   persistStore(store, {storage: AsyncStorage, blacklist:['events','form','nav']},()=>{
   	store.dispatch(autoRehydrationComplete());
-  });
+  }).purge();
   return store;
 }

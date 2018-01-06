@@ -124,40 +124,43 @@ export default class NotificationCenter extends Component {
 
   componentWillReceiveProps(nextProps){
 
-    let currentNotificationNumber = this.props.notificationList ? this.props.notificationList.length : 0;  
-    let nextNotificationNumber = nextProps.notificationList ? nextProps.notificationList.length : 0;
-    let currentUnreadNotificationNumber = 0;
-    try{
-      currentUnreadNotificationNumber = this.props.navigation.state.params.unreadMessagesCount;
-    }catch(err){
-      currentUnreadNotificationNumber = 0;
-    }
-    let noOfNotifications = (nextNotificationNumber - currentNotificationNumber);
+
+    if(this.props.userId == null && nextProps.userId != null){
+      this.refreshNotification(nextProps.userId);
+    }else{
     
-    if(noOfNotifications != 0){
-      noOfNotifications += currentUnreadNotificationNumber;;
-          this.props.navigation.setParams({unreadMessagesCount:noOfNotifications});
-          this.setState({notificationList:nextProps.notificationList});
+        let currentNotificationNumber = this.props.notificationList ? this.props.notificationList.length : nextProps.notificationList.length;  
+        let nextNotificationNumber = nextProps.notificationList ? nextProps.notificationList.length : 0;
+        let currentUnreadNotificationNumber = 0;
+        try{
+          currentUnreadNotificationNumber = this.props.navigation.state.params.unreadMessagesCount;
+        }catch(err){
+          currentUnreadNotificationNumber = 0;
         }
-    
+        let noOfNotifications = (nextNotificationNumber - currentNotificationNumber);
+        
+        if(noOfNotifications != 0){
+          noOfNotifications += currentUnreadNotificationNumber;;
+              this.props.navigation.setParams({unreadMessagesCount:noOfNotifications});
+              this.setState({notificationList:nextProps.notificationList});
+            }
+        }
   }
 
-  refreshNotification(){
-    if(this.props.userId != null){
-        setTimeout(()=>{
-          if(this._val == 0){
-              this._val = 1;
-              this.props.dispatch(getMyNotifications(this.props.userId)).then(()=>{
-                this.refreshNotification(this.props.userId); 
-                this._val = 0;
-              });
-          }
-        }, 45000);
-      }
+  refreshNotification(userId){
+    
+
+        this.props.dispatch(getMyNotifications(userId)).then(()=>{
+          setTimeout(()=>{
+            this.refreshNotification(userId); 
+          }, 45000);
+      });
+    
   }
   
+
+
   render() {
-    this.refreshNotification();
     return (
     
         <FlatList

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, AppRegistry, View } from 'react-native';
+import { StyleSheet, AppRegistry, View, StatusBar } from 'react-native';
 
 import {Provider} from 'react-redux';
 import {configureStore} from './app/store';

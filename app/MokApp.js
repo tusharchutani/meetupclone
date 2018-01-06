@@ -4,6 +4,8 @@ import {
   StyleSheet,
   View,
   Alert,
+  Platform,
+  StatusBar,
   ActivityIndicator
 } from 'react-native';
 import MokAppRouter from './AppRouter';
@@ -73,6 +75,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5FCFF',
+    ...Platform.select({
+        android: {
+            marginTop: StatusBar.currentHeight
+        } })
   },loadingContainer:{
     backgroundColor:'rgba(255,255,255,0.6)',
     position: 'absolute',

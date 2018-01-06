@@ -289,7 +289,7 @@ export default class UserInfoFeed extends Component {
             onRefresh={()=>{this.reloadProfile()}}
             refreshing={this.state.refreshing}           
             onEndReached={()=>{this.handelLoadMore()}}
-            onEndReachedThreshold={0}            
+            onEndReachedThreshold={1}            
            />
         </View>);
   }

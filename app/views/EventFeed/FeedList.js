@@ -60,7 +60,7 @@ export default class FeedList extends Component {
         });
       }
 
-      if (!ExpoConstants.isDevice) {
+      if (Platform.OS === 'android' && !ExpoConstants.isDevice) {
            let location = { 
             latitude: 49.2848183,//location.coords.latitude,
             longitude:-123.1111718 //location.coords.longitude,
@@ -139,6 +139,7 @@ export default class FeedList extends Component {
   }
 
   render() {
+    const isIOS = Platform.OS === 'ios';
     return (
       <View style={styles.container}> 
         <SearchBar lightTheme value={this.state.searchBarValue} onChangeText={this.searchList} placeholder='Type Here...' 
@@ -158,7 +159,7 @@ export default class FeedList extends Component {
             ListEmptyComponent={()=>{
               return (
                 <View style={styles.loadingContainer}>
-                  {this.state.loading && 
+                  {this.state.loading && isIOS && 
                     <View style={Constants.styles.inRowComponents}> 
                     <ActivityIndicator animating={true}
                                  style={{paddingRight: 10}}
@@ -167,7 +168,7 @@ export default class FeedList extends Component {
                   {!this.state.loading && <Text style={styles.noEvents}>There are no events near you</Text>}
                 </View>)}}             
             onEndReached={()=>{this.handelLoadMore()}}
-            onEndReachedThreshold={0}
+            onEndReachedThreshold={1}
           /> 
       </View>);
     }
