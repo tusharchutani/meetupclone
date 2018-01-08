@@ -23,7 +23,7 @@ exports.getMyNotifications = (userId) => {
 
 exports.readNotification = (notificationId) => {
 	return function(dispatch){
-		return axios.put(READ_NOTIFICATION(notificationId),{timeout:10000}).
+		return axios.put(READ_NOTIFICATION(notificationId),{timeout:60000}).
 			then((response)=>{
 				dispatch ({type: 'READ_NOTIFICATION',notificationId:notificationId});			
 			}).catch((error)=>{

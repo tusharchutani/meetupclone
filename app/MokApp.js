@@ -20,7 +20,7 @@ export default class MokApp extends Component {
   constructor(props) {
       super(props);
       this.state = {
-        rehyderated:this.props.rehyderated
+        uiEnabled:this.props.uiEnabled
       }
     }
    componentDidMount() {
@@ -31,8 +31,8 @@ export default class MokApp extends Component {
   }
 
     componentDidUpdate(){
-      if(this.props.rehyderated == true && !this.state.rehyderated){
-        this.setState({rehyderated:true});
+      if(this.props.uiEnabled == true && !this.state.uiEnabled){
+        this.setState({uiEnabled:true});
         if(this.props.userId != null){
           this.props.dispatch(openMainApp());
         }        
@@ -56,11 +56,12 @@ export default class MokApp extends Component {
       )
       }
     }
-//{this.state.rehyderated && <MokAppWithNavigation/>}    
+//{this.state.uiEnabled && <MokAppWithNavigation/>}    
     return (
       <View style={styles.container}>
+        <StatusBar barStyle='dark-content'/>
         <MokAppWithNavigation/>
-        {!this.state.rehyderated && <View style={styles.loadingContainer}>
+        {!this.state.uiEnabled && <View style={styles.loadingContainer}>
            <ActivityIndicator animating={true} color={Constants.color2}
                    style={styles.activityIndicator}
                       size="large"/>  
@@ -115,7 +116,7 @@ const MokAppWithNavigation = connect(mapStateToMokProps)(Mok)
 var mapStateToProps = (state) =>{
   return ({
     alerts: state.alerts, activity:state.activity,
-    rehyderated:state.rehyderation.rehyderated,
+    uiEnabled:state.uiEnabled.uiEnabled,
     userId:state.auth.user_id
   });
 }

@@ -34,6 +34,10 @@ export default class CarouselView extends Component {
     }
     
   }
+  /*
+  {this.state.eventDate ? Constants.month[this.state.eventDate.getMonth()] :""}
+  {this.state.eventDate ? Constants.day[this.state.eventDate.getDay()]:""}
+  */
   render() {
     let tagView = () => {
       return this.props.tags ? this.props.tags.map((tag, i)=>{
@@ -47,8 +51,8 @@ export default class CarouselView extends Component {
           <View style={styles.eventDateContainer}>
             <Text style={styles.eventDate}>{this.state.eventDate ? this.state.eventDate.getDate():""}</Text> 
             <View style={{flexDirection:'column',paddingLeft:5}}>
-              <Text style={styles.eventMonth}>{this.state.eventDate ? this.state.eventDate.toLocaleString(Constants.locale, { month: "short" }).toUpperCase() :""}</Text>
-              <Text style={styles.eventDay}>{this.state.eventDate ? this.state.eventDate.toLocaleString(Constants.locale, { weekday: "short"  }):""}</Text>
+              <Text style={styles.eventMonth}>{this.state.eventDate ? Constants.month[this.state.eventDate.getMonth()] :""}</Text>
+              <Text style={styles.eventDay}>{this.state.eventDate ? Constants.day[this.state.eventDate.getDay()]:""}</Text>
             </View>          
           </View>
           <View style={styles.eventInfoContainer}>

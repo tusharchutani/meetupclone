@@ -10,7 +10,7 @@ import {EVENT_FEED, CREATE_EVENT,SEARCH_EVENT_BY_TAG,GET_EVENT_INFO} from '../ap
 exports.getEventsNearMe = (latitude,longitude,page=1) => {
 		return function(dispatch){
 	 		return SecureStore.getItemAsync('user_id').then((userId)=>{
-				return axios.get(EVENT_FEED(longitude,latitude,userId,page),{timeout:10000}).then((response)=>{
+				return axios.get(EVENT_FEED(longitude,latitude,userId,page),{timeout:60000}).then((response)=>{
 					if(page == 1){
 						dispatch(setEvents(response.data));
 					}else{
@@ -31,7 +31,7 @@ exports.getEventsNearMe = (latitude,longitude,page=1) => {
 exports.getMapEvents = (latitude,longitude) => {
 		return function(dispatch){
 	 		return SecureStore.getItemAsync('user_id').then((userId)=>{
-				return axios.get(EVENT_FEED(longitude,latitude,userId),{timeout:100000}).then((response)=>{
+				return axios.get(EVENT_FEED(longitude,latitude,userId),{timeout:60000}).then((response)=>{
 				dispatch(setMapEvents(response.data));
 				}).catch((error)=>{
 					console.log("There is an error "+error);
@@ -44,8 +44,8 @@ exports.getMapEvents = (latitude,longitude) => {
 
 exports.createEvent = (newEvent) =>{
 	return function(dispatch){
-		return SecureStore.getValueWithKeyAsync('token').then((token)=>{
-	 		SecureStore.getValueWithKeyAsync('user_id').then((user_id)=>{
+		return SecureStore.getItemAsync('token').then((token)=>{
+	 		SecureStore.getItemAsync('user_id').then((user_id)=>{
 				return axios.post(CREATE_EVENT(user_id),newEvent,{headers: {'Authorization': token}}).then((response)=>{
 
 				}).catch((error)=>
@@ -91,7 +91,7 @@ export function getEventInfo(id,myUserId){
 
 
 	return function(dispatch){
-		return axios.get(GET_EVENT_INFO(id,myUserId),{timeout:10000}).then((response)=>{
+		return axios.get(GET_EVENT_INFO(id,myUserId),{timeout:60000}).then((response)=>{
 			dispatch({type:'SET_EVENT_INFO',eventInfo:response.data})
 		});
 	}
@@ -108,7 +108,7 @@ export function navigateToEventInfo(){
 export function updateEventInfo(args, myUserId){
 
 	return function(dispatch){
-		return axios.get(GET_EVENT_INFO(args, myUserId),{timeout:10000}).then((response)=>{
+		return axios.get(GET_EVENT_INFO(args, myUserId),{timeout:60000}).then((response)=>{
 			dispatch({type:'UPDATE_EVENT_INFO',eventInfo:response.data})
 		}).catch((error)=>{
 			dispatch(showErrorAlert(error.response.data.error))

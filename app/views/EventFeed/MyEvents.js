@@ -43,14 +43,20 @@ export default class MyEvents extends Component{
 
   makeRemoteRequest(){
     this.setState({loading:true});
-    if(this.state.userId == null){
+    if(this.state.userId == null || !this.state.userId){
+      this.setState({loading:false});
+      this.setState({footerLoading:false});      
       return;
     }
 
 
     axios.get(GET_ALL_GOING_EVENTS(this.state.userId)).then((response)=>{
       
-        this.setState({goingEvents:response.data.filter(event=>event != null)});
+        if(Object.keys(response.data).length === 0 && response.data.constructor === Object){
+          this.setState({goingEvents:[]});    
+        }else{
+          this.setState({goingEvents:response.data.filter(event=>event != null)});
+        }
 
       axios.get(GET_ALL_INTERESTED_EVENTS(this.state.userId),{timeout:10000}).then((response)=>{
         this.setState({loading:false});
@@ -74,8 +80,9 @@ export default class MyEvents extends Component{
   componentWillReceiveProps(nextProps){
     this.setState({loading:true});
     if(nextProps.userId){
-          this.setState({userId:nextProps.userId});
-          this.makeRemoteRequest();
+          this.setState({userId:nextProps.userId},()=>{
+            this.makeRemoteRequest();  
+          });
       }
   }
 
@@ -105,6 +112,9 @@ renderHeader(self){
     })
     
   }
+
+
+
   handelLoadMore(){
     if((this.state.eventList.length >= 8) && !this.state.footerLoading)
     {    
@@ -144,7 +154,7 @@ renderHeader(self){
           onRefresh={()=>{this.refresh()}}
           refreshing={this.state.loading}
           ListEmptyComponent={()=>{
-            return (<View style={{alignItems:'center',justifyContent:'space-around'}}><Text style={styles.noEventsText}>There are no events to show</Text></View>)}}
+            return (<View style={{alignItems:'center',justifyContent:'space-around'}}><Text style={styles.noEventsText}>There are no events to show. Pull to refresh</Text></View>)}}
           onMomentumScrollBegin={() => { this.onEndReachedCalledDuringMomentum = false; }}  
           onEndReached={()=>{this.handelLoadMore()}}
           onEndReachedThreshold={isIOS ? 0:1}          

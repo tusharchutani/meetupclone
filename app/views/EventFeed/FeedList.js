@@ -166,9 +166,9 @@ export default class FeedList extends Component {
                                     size="small"/> 
                     <Text style={styles.noEvents}>Loading...</Text></View>}
                   {!this.state.loading && <Text style={styles.noEvents}>There are no events near you</Text>}
-                </View>)}}             
+                </View>)}}          
             onEndReached={()=>{this.handelLoadMore()}}
-            onEndReachedThreshold={1}
+            onEndReachedThreshold={isIOS ? 0:1}
           /> 
       </View>);
     }

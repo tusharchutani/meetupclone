@@ -30,7 +30,8 @@ export default class NotificationCenter extends Component {
             return (<IconBadge
                     MainElement={<Icon name='notifications' size={22} color={tintColor} />}
                     BadgeElement={<Text style={{ color: 'white' }}>{params.unreadMessagesCount}</Text>}
-                    Hidden={params.unreadMessagesCount === 0}
+                    IconBadgeStyle={{left:1}}
+                    Hidden={params.unreadMessagesCount <= 0}
                   />)
           }
         }
@@ -129,15 +130,19 @@ export default class NotificationCenter extends Component {
       this.refreshNotification(nextProps.userId);
     }else{
     
-        let currentNotificationNumber = this.props.notificationList ? this.props.notificationList.length : nextProps.notificationList.length;  
         let nextNotificationNumber = nextProps.notificationList ? nextProps.notificationList.length : 0;
+        let currentNotificationNumber = this.props.notificationList ? this.props.notificationList.length : nextNotificationNumber;  
+        
         let currentUnreadNotificationNumber = 0;
         try{
           currentUnreadNotificationNumber = this.props.navigation.state.params.unreadMessagesCount;
         }catch(err){
           currentUnreadNotificationNumber = 0;
         }
-        let noOfNotifications = (nextNotificationNumber - currentNotificationNumber);
+        let noOfNotifications = 0;
+        if(currentNotificationNumber != 0){
+             noOfNotifications = nextNotificationNumber - currentNotificationNumber;
+           }
         
         if(noOfNotifications != 0){
           noOfNotifications += currentUnreadNotificationNumber;;
@@ -154,7 +159,7 @@ export default class NotificationCenter extends Component {
           setTimeout(()=>{
             this.refreshNotification(userId); 
           }, 45000);
-      });
+  });
     
   }
   

@@ -11,6 +11,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Image,
+  Keyboard,
   Platform
 } from 'react-native';
 import moment from 'moment'
@@ -171,24 +172,30 @@ uploadAndCreate() {
 
                     this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
                       this.props.dispatch(getMyprofile());
-                      this.setState({loading:false});
-                      setTimeout(()=>{this.props.navigation.goBack(); }, 1000);
+                      this.props.navigation.goBack();
+                      setTimeout(()=>{
+                        this.setState({isCreateButtonDisabled:false});
+                        this.setState({loading:false});      }, 1000);
                       
                       }).catch((error)=>{
                        this.props.dispatch(showErrorAlert(error));
                       });
-                    this.setState({isCreateButtonDisabled:false});        
+                    
                       });
       }else{
        
         this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
+          
           this.props.navigation.goBack();
-          // setTimeout(()=>{this.props.dispatch(getEventInfo(this.props._id,this.props.userId));}, 2000);
-          this.setState({loading:false});
+          setTimeout(()=>{ 
+            this.setState({loading:false}); 
+            this.setState({isCreateButtonDisabled:false}); 
+          }, 2000);
+
           }).catch((error)=>{
            this.props.dispatch(showErrorAlert(error));
           });
-        this.setState({isCreateButtonDisabled:false});        
+        
       }
   }
   _eventTagChange(event){
@@ -268,9 +275,7 @@ uploadAndCreate() {
           <View style={styles.titleBar}> 
             <Icon name="clear" style={{paddingRight:10}} size={Constants.medium_icon_size} color={Constants.color2} onPress={()=> {this.props.navigation.goBack()}}/>
             <Text style={styles.title}>Create event</Text>
-            <ActivityIndicator animating={this.state.loading}
-                              style={{paddingRight: 30}}
-                              size="small"/>           
+        
           </View>
           <Image  style={{flex:1,height: 200, width: Constants.screenWidth}}  //
               source={{uri:Constants.defaultEventImage}}>  
@@ -350,7 +355,6 @@ uploadAndCreate() {
 
                 <FormInput
                 multiline
-                defaultValue={this.state.eventInfo.tags}
                 maxLength={200}
                 numberOfLines={4}
                 fontSize={18}
@@ -365,7 +369,8 @@ uploadAndCreate() {
                 />
 
                 {this.state.isInvalid.tags && <FormLabel labelStyle={styles.formWarning}>Please enter event tags (should be at least 3 character long)</FormLabel>}
-
+                {this.state.loading && <ActivityIndicator animating={true}
+                               size="large"/>  }
                 <Button
                 medium
                 title='Create'
@@ -373,16 +378,17 @@ uploadAndCreate() {
                 containerViewStyle={styles.createButton}
                 disabled={this.state.isCreateButtonDisabled}
                 onPress={()=>{this._createEvent()}}/>
+
             </View>
             </ScrollView>);
     
     if (Platform.OS === 'ios'){
-      return (<KeyboardAwareScrollView style={styles.container}> 
+      return (<KeyboardAwareScrollView keyboardDismissMode="on-drag" style={styles.container}> 
         {mainView}
         </KeyboardAwareScrollView>);
     }else{
         return (
-           <KeyboardAvoidingView keyboardVerticalOffset={80} style={styles.container} behavior="padding">
+           <KeyboardAvoidingView keyboardDismissMode="on-drag" keyboardVerticalOffset={80} style={styles.container} behavior="padding">
            {mainView}
           </KeyboardAvoidingView>
         );

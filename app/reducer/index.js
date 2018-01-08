@@ -6,7 +6,7 @@ import profilesReducer from './profilesReducer';
 import nav from './nav.js';
 import alerts from './alerts.js';
 import userSearch from './userSearch';
-import rehyderation from './rehyderation';
+import uiEnabled from './uiEnabled';
 import notifications from './notifications';
 // import activityReducer from './activityReducer.js';
 export default combineReducers({
@@ -18,6 +18,6 @@ export default combineReducers({
 	alerts,
 	notifications,
 	userSearch:userSearch,
-	rehyderation,
+	uiEnabled,
 	// activity:activityIndicator
 });

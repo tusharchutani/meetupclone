@@ -6,6 +6,7 @@ import {
   Image,
   FlatList,
   Linking,
+  Platform,
   TouchableOpacity,
   ActivityIndicator
 } from 'react-native';
@@ -27,8 +28,7 @@ export default class UserInfoFeed extends Component {
     super(props);
     this.renderHeader = this.renderHeader.bind(this);
     this.state = {
-      idOfEventsHostedByUser:this.props.eventsHostedByUser,
-      eventsHostedByUser:[],
+      usergoing:[],
       refreshing:false,
       isLoading:false,
       currentPage:1,
@@ -86,7 +86,7 @@ export default class UserInfoFeed extends Component {
     let lastname = props.lastname ? props.lastname: "Lastname";
     let followingNumber =props.following ? props.following.length : 0;
     let followersNumber = props.followers ? props.followers.length : 0;
-    let numberOfEvents = props.eventsHostedByUser ? props.eventsHostedByUser.length : 0;
+    let numberOfEvents = props.usergoing ? props.usergoing.length : 0;
     let userProfilePic = (props.avatarurl != undefined && props.avatarurl != "new") ? props.avatarurl:"http://www.thedigitalkandy.com/wp-content/uploads/2016/01/facebook-no-profile.png";
     let email = props.email ? props.email : "undfinedemail@gmail.com";
     //check to see if FB image
@@ -178,10 +178,16 @@ export default class UserInfoFeed extends Component {
     }
   }   
   componentWillReceiveProps(nextProps){
-    if(nextProps.eventsHostedByUser&&(nextProps.eventsHostedByUser.length == 0)){
+    if(nextProps.usergoing&&(nextProps.usergoing.length == 0)){
         this.setState({isLoading:false});
     }else{
         this.setState({isLoading:true});
+        if(nextProps.usergoing != null){
+            this.getUserEventsInfo(1,nextProps.usergoing);
+        }else{
+        	this.setState({isLoading:false});
+        }
+
     }
 
 
@@ -193,60 +199,44 @@ export default class UserInfoFeed extends Component {
         this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
       }
     }
-
-    let lengthOfEventsHostedByUser = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.length : 0;
-    let lenghtOfEventsByUserNextProps = nextProps.eventsHostedByUser ? nextProps.eventsHostedByUser.length : 0;
-    if(lenghtOfEventsByUserNextProps != lengthOfEventsHostedByUser){
-        this.getUserEventsInfo();
-      }
   }
 
 
-  getUserEventsInfo(page=1){
-    var lenghtOfEventsByUser = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.length:0;
-    var lenghtofEventsId = this.state.eventsHostedByUser ? this.state.eventsHostedByUser.length : 0;
+  getUserEventsInfo(page=1,usergoing){
     
-    if(page > 1 ||this.state.refreshing||((lenghtOfEventsByUser != lenghtofEventsId)&& !this._isDataCollected)){
-        this._isDataCollected=true;
-        
-        let getEvents = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.slice((page*8)-8,((page*8)-1)).map((eventId, index)=>{    
-          return axios.get(GET_EVENT_INFO(eventId, this.props.userId),{timeout:10000});
-        }): [];
-        if(getEvents.length == 0){
-          this.setState({refreshing:false});
-        }
-          axios.all(getEvents).then(responses => {
-          let temp = [];
-          responses.forEach((response) =>{
-            if(response.data != null){
-              temp.push(response.data);
-            }
-          })
-          if(page == 1){
-            this.setState({eventsHostedByUser:temp,isLoading:false});
-          }else{
-            this.setState({eventsHostedByUser:[...this.state.eventsHostedByUser, ...temp],isLoading:false})
-          }
-          this.setState({footerLoading:false});
-        }).catch((error)=>{
-        console.log("User info feed error "+error);
-        this.setState({isLoading:false});
-        });
+    let getEvents = usergoing.slice((page*8)-8,((page*8)-1)).map((eventId, index)=>{    
+      return axios.get(GET_EVENT_INFO(eventId, this.props.userId),{timeout:30000});
+    })
+    if(getEvents.length == 0){
+      this.setState({refreshing:false});
     }
+      axios.all(getEvents).then(responses => {
+      let temp = [];
+      responses.forEach((response) =>{
+        if(response.data != null){
+          temp.push(response.data);
+        }
+      })
+      if(page == 1){
+        this.setState({usergoing:temp,isLoading:false});
+      }else{
+        this.setState({usergoing:[...this.state.usergoing, ...temp],isLoading:false})
+      }
+      this.setState({footerLoading:false});
+    }).catch((error)=>{
+    console.log("User info feed error "+error);
+    this.setState({isLoading:false});
+    });
   }
 
 
   handelLoadMore(){
     
-    if(this._val == 0){
-        this._val = 1;
+    if(this.props.usergoing && this.props.usergoing.length > 7){
         this.setState({currentPage:this.state.currentPage+1,footerLoading:true},()=>{
-          this.getUserEventsInfo(this.state.currentPage);
-          setTimeout(()=>{this._val = 0; }, 2000);
-    
-        });
-      }
-    
+          this.getUserEventsInfo(this.state.currentPage,this.props.usergoing);
+        });    	
+    }
   }
 
   reloadProfile(){
@@ -267,16 +257,12 @@ export default class UserInfoFeed extends Component {
   }
 
   render() {
-  var lenghtOfEventsByUser = this.props.eventsHostedByUser ? this.props.eventsHostedByUser.length:0;
-  
-  if(lenghtOfEventsByUser != 0){
-    this.getUserEventsInfo();
-  } 
+	const isIOS = Platform.OS === 'ios';
 
    return(
         <View style={styles.container}>
             <FlatList
-             data={this.state.eventsHostedByUser}
+             data={this.state.usergoing}
              // extraData={this.state} 
              keyExtractor={(item, index) => index}
              renderItem={({item, index})=>(<EventFeedItem key={`entry-${index}`} {...item}/>)}
@@ -289,7 +275,7 @@ export default class UserInfoFeed extends Component {
             onRefresh={()=>{this.reloadProfile()}}
             refreshing={this.state.refreshing}           
             onEndReached={()=>{this.handelLoadMore()}}
-            onEndReachedThreshold={1}            
+            onEndReachedThreshold={isIOS ? 0:1}
            />
         </View>);
   }

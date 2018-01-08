@@ -69,7 +69,7 @@ export default class Connection extends Component{
       showLoadingIcon={self.state.isLoadingSearch}/>)
  }
   render() {
-   _userList = this.props.userList.list.filter(function(n){ return n != undefined });
+   _userList = this.props.userList.list ? this.props.userList.list.filter(function(n){ return n != undefined }):[]
   return (
     <View style={styles.container}>
       <FlatList
@@ -91,6 +91,11 @@ export default class Connection extends Component{
         }}
          ItemSeparatorComponent={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
          ListHeaderComponent={this.props.userList.isFindUser && this.searchBar(this)}
+          ListEmptyComponent={()=>{
+            return (
+              <View style={styles.loadingContainer}>
+                <Text style={styles.noEvents}>No users</Text>
+              </View>)}}         
       />
     </View>
   );
@@ -116,6 +121,15 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth,
     backgroundColor:Constants.tableDividerColor,
   },
+  noEvents:{
+      fontWeight:'bold',
+      fontSize:15,
+      color:Constants.color3
+    },loadingContainer:{
+      alignItems:'center',
+      justifyContent:'space-around',
+    paddingTop:Constants.screenHeight*0.25, 
+    },
   nameText:{
     fontWeight:'bold',
     color:Constants.color2

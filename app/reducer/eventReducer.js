@@ -8,7 +8,7 @@ module.exports = (state=defaultState, action)=>{
 			return {
 				...state,
 				eventList: action.events,
-				mapEvents:action.events
+				// mapEvents:action.events
 				}
 		case 'NAVIGATE_TO_EVENT_INFO':
 			return {

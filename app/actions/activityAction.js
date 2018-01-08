@@ -10,8 +10,8 @@ exports.hideActivityIndicator = () => {
 	}
 }
 
-exports.autoRehydrationComplete = () => {
+exports.enableUI = () => {
 	return {
-		type: 'REHYDERATION_COMPLETE'
+		type: 'ENABLE_UI'
 	}
 }

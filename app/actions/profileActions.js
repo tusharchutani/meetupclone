@@ -39,7 +39,11 @@ exports.setUserConnections = (followerOrFollowing,userId, isFindUser=false) => {
 	}
 	return function(dispatch){
 		return axios.get(url).then((response)=>{
+			if(Object.keys(response.data).length === 0 && response.data.constructor === Object){
+				dispatch({type:'SET_FOLLOWERS_FOLLOWING',list:[], isFindUser, title});
+			}else{
 			  dispatch({type:'SET_FOLLOWERS_FOLLOWING',list:response.data, isFindUser, title});
+			}
 		}).catch((error)=>{
 			dispatch(showErrorAlert(error.message));
 		});

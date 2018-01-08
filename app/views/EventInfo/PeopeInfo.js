@@ -80,7 +80,7 @@ export default class PeopleInfo extends Component{
           return (
           <TouchableOpacity style={styles.itemContainer} onPress={()=>{this.getUserProfile(item._id)}}> 
             <RoundImage size={50} style={{justifyContent:'center'}} source={imageUrl}/>
-            <View>
+            <View style={{paddingTop:10}}>
               <Text style={styles.nameText}>{name}</Text>
               <Text style={styles.emailText}>{email}</Text>
             </View>
@@ -113,6 +113,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection:'row',
     height:75,
+    paddingLeft:20,
     justifyContent:'flex-start',
     alignItems:'center'
   },
@@ -123,7 +124,8 @@ const styles = StyleSheet.create({
   },
   nameText:{
     fontWeight:'bold',
-    color:Constants.color2
+    color:Constants.color2,
+    paddingLeft:10
   },noEventsText:{
     paddingTop:Constants.screenHeight*0.25, 
     fontWeight:'bold',

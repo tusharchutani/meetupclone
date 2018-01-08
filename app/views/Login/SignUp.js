@@ -191,6 +191,7 @@ export default class SignUp extends Component {
             this.setState({firstname:event});}}
           placeholderTextColor={Constants.color3} 
           inputStyle={styles.formInput}
+          autoCapitalize="words"
           placeholder="First name" />
 
       
@@ -198,6 +199,7 @@ export default class SignUp extends Component {
           <FormInput defaultValue={this.state.lastname}  
           inputStyle={styles.formInput} 
           placeholderTextColor={Constants.color3} 
+          autoCapitalize="words"
           onChangeText={(event)=>{
             this.setState({lastname:event});}}            
           placeholder="Last name" />
@@ -252,12 +254,12 @@ export default class SignUp extends Component {
     </ScrollView>)
 
     if (Platform.OS === 'ios'){
-      return (<KeyboardAwareScrollView style={styles.container}> 
+      return (<KeyboardAwareScrollView keyboardDismissMode="on-drag" style={styles.container}> 
         {mainView}
         </KeyboardAwareScrollView>);
     }else{
         return (
-           <KeyboardAvoidingView keyboardVerticalOffset={20} style={styles.container} behavior="padding">
+           <KeyboardAvoidingView keyboardDismissMode="on-drag" keyboardVerticalOffset={20} style={styles.container} behavior="padding">
            {mainView}
           </KeyboardAvoidingView>
           

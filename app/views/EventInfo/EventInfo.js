@@ -10,9 +10,11 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   TouchableOpacity,
-  RefreshControl
+  RefreshControl,
+  Keyboard
 } from 'react-native';
 import axios from 'axios';
+import moment from 'moment';
 import {connect} from 'react-redux';
 import { Icon,Button, FormInput } from 'react-native-elements';
 import Constants from '../../MokUI/UIConstants';
@@ -74,6 +76,7 @@ export default class EventInfo extends Component {
 
   postComment(){
     this.setState({isPostingComment:true});
+    Keyboard.dismiss();
     axios.post(POSTCOMMENT(this.props.userId,this.state.id),{comment:this.state.comment}).then(()=>{
       this.getComments(this.state.id);
       // let comments = this.state.comments;
@@ -118,6 +121,7 @@ export default class EventInfo extends Component {
               return (<View style={{paddingBottom:10}}>
               <Text style={{fontWeight:'bold', fontSize:16,marginBottom:5}}>{item.firstname + " "+ item.lastname}</Text>
               <Text>{item.usercomment}</Text>
+              <Text style={styles.commentDate}>{moment(item.createdAt).fromNow()}</Text>
               </View>);
             }}
           />    
@@ -436,6 +440,10 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems:'center',
       marginTop:Constants.screenHeight*0.4
+  },commentDate:{
+    fontSize:9,
+    fontWeight:'bold',    
+    color:Constants.color3    
   }
   
 });

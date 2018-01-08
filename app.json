@@ -5,13 +5,16 @@
     "slug": "mok-app",
     "privacy": "public",
     "sdkVersion": "21.0.0",
-    "version": "1.0.1",
+    "version": "1.0.23",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
-    "icon": "./assets/icons/new_logo.png",
+    "icon": "./assets/images/new_logo.png",
     "loading": {
-      "icon": "./assets/icons/loading-icon.png",
-      "hideExponentText": false
+      "icon": "./assets/images/new_logo.png",
+      "hideExponentText": true
+    },
+    "splash": {
+      "image": "./assets/images/front.png"
     },
     "facebookScheme":"fb300866317096349",
     "packagerOpts": {
@@ -19,10 +22,10 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.mok.spot"
+      "bundleIdentifier": "com.spot.mok"
     },
     "android": {
-      "package": "com.mok.spot",
+      "package": "com.spot.mok",
       "config":{
         "googleMaps":{
           "apiKey":"AIzaSyCkvm7CJ3ln8Oh2Oisw5cNB0A3dyw6CenY"
