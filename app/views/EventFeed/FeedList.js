@@ -82,11 +82,14 @@ export default class FeedList extends Component {
     this.setState({ location });
   };
 
-  loadEventsNearMe(page=1){
+  loadEventsNearMe(page=1, latitude=this.props.location.latitude, longitude=this.props.location.longitude){
 
+    if(latitude == null || longitude == null){
+      return
+    }
       this.setState({loading:true});
-        this.props.dispatch(getEventsNearMe(this.props.location.latitude,
-          this.props.location.longitude,page)).then(()=>{
+        this.props.dispatch(getEventsNearMe(latitude,
+          longitude,page)).then(()=>{
             this.setState({loading:false,footerLoading:false});
         }).catch((error)=>{
             this.setState({loading:false,footerLoading:false});
@@ -97,16 +100,17 @@ export default class FeedList extends Component {
   
   reloadEvents(){
     this.setState({currentPage:1},()=>{
-      this.loadEventsNearMe();
+      this.loadEventsNearMe(this.props.location.latitude, this.props.location.longitude);
     })
   }
-  
-  componentWillMount(){
-    this._getCurrentLocation().then(()=>{
-      this.loadEventsNearMe();  
-    })
-    
+
+  componentWillReceiveProps(nextProps){
+    if(nextProps.location.latitude && nextProps.location.longitude){
+      this.loadEventsNearMe(1, nextProps.location.latitude, nextProps.location.longitude);
+    }
   }
+
+
 
   moreInfo(data) {
     this.props.dispatch(getEventInfo(data, this.props.userId));
@@ -116,7 +120,7 @@ export default class FeedList extends Component {
   searchList = (event) =>{
     this.setState({searchBarValue:event});
     if(event.length == 0){
-      this.props.dispatch(getEventsNearMe(this.state.location.latitude, this.state.location.longitude));
+      this.props.dispatch(getEventsNearMe(this.props.location.latitude, this.props.location.longitude));
     }else{
       this.setState({isLoadingSearch:true});
       this.props.dispatch(searchEventsByTag(event.toLowerCase())).then(()=>{

@@ -58,58 +58,22 @@ export default class MapEvents extends Component {
 
     }
 
-  componentWillMount() {
-    if (Platform.OS === 'android' && !ExpoConstants.isDevice) {
 
-      this.setState({
-        errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-      });
-    } else {
-      this._getLocationAsync().then(()=>{
-        this.props.dispatch(getMapEvents(this.state.location.latitude,
-        this.state.location.longitude));
-      }).catch((error)=>{
-        this.props.dispatch(showErrorAlert(error));
-      });
+  componentWillReceiveProps(nextProps){
+    if(nextProps.location.latitude && nextProps.location.longitude){
+      let location =  { 
+        latitude: nextProps.location.latitude,
+        longitude: nextProps.location.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421      
+      };
+            
+      this._mapView.animateToRegion(location);
+      this.setState({ location });
+      this.props.dispatch(getMapEvents(nextProps.location.latitude, nextProps.location.longitude));
     }
   }
 
-  _getLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status !== 'granted') {
-      this.props.dispatch(showAlert("Error","Location access not granted"));
-      console.log("Location access not granted");
-      this.setState({
-        errorMessage: 'Permission to access location was denied',
-      });
-        Alert.alert(
-        "Permission not granted",
-        "It was not granted",
-        [
-          {text: 'Yes', 
-          onPress: () =>{
-            this.setState({isSigningOut:true});
-            setTimeout(()=>{dispatch(unauthUser);}, 600);
-            
-          }
-        },        
-          {text: 'No', style: 'cancel'}
-        ],
-        { cancelable: true }
-      )      
-    }
-
-    let location = await Location.getCurrentPositionAsync({});
-    location = { 
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421      
-    };
-          
-    this._mapView.animateToRegion(location);
-    this.setState({ location });
-  };
 
   
 
@@ -204,7 +168,8 @@ const styles = StyleSheet.create({
 
 var mapStateToProps = (state) =>{
   return {
-    mapEvents:state.events.mapEvents
+    mapEvents:state.events.mapEvents,
+    location: state.location
   }
 }
 
