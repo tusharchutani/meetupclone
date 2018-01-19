@@ -12,7 +12,7 @@ import MokAppRouter from './AppRouter';
 import Constants from './MokUI/UIConstants';
 import {connect} from 'react-redux';
 import {addNavigationHelpers} from 'react-navigation';
-import {hideAlert, openMainApp} from './actions';
+import {hideAlert, openMainApp, getCurrentLocation} from './actions';
 import {Font} from 'expo';
 export default class MokApp extends Component {
 
@@ -40,6 +40,15 @@ export default class MokApp extends Component {
 
     }
 
+  componentWillMount() {
+    if (Platform.OS === 'android' && !Constants.isDevice) {
+      this.setState({
+        errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+      });
+    } else {
+      this.props.dispatch(getCurrentLocation());
+    }
+  }
   render() {
     let showAlerts = () => {
       if(this.props.alerts.showAlert){

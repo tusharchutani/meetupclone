@@ -3,7 +3,7 @@
 import {SecureStore} from 'expo';
 import axios from 'axios';
 import {showErrorAlert} from './alertActions.js';
-import {EVENT_FEED, CREATE_EVENT,SEARCH_EVENT_BY_TAG,GET_EVENT_INFO} from '../api';
+import {EVENT_FEED, CREATE_EVENT,SEARCH_EVENT_BY_TAG,GET_EVENT_INFO,FLAG_EVENT,FLAG_USER} from '../api';
 
 
 
@@ -27,6 +27,31 @@ exports.getEventsNearMe = (latitude,longitude,page=1) => {
 }
 
 
+exports.flagUser = (id, report) => {
+	return function(dispatch){
+		return SecureStore.getItemAsync('user_id').then((userId)=>{
+			return axios.post(FLAG_USER(id,userId),report).then(()=>{
+				dispatch({type:'BLOCK_USER',userId})
+				dispatch({type:'OBJECT_FLAGGED',eventId:id})
+			}).catch((error)=>{
+				throw error
+			})		
+		})
+	}
+}
+
+exports.flagEvent = (id, report) => {
+	return function(dispatch){
+		return SecureStore.getItemAsync('user_id').then((userId)=>{
+			return axios.post(FLAG_EVENT(id,userId),report).then(()=>{
+				dispatch({type:'OBJECT_FLAGGED',eventId:id})
+			}).catch((error)=>{
+				throw error
+			})
+		})
+	}	
+}
+
 
 exports.getMapEvents = (latitude,longitude) => {
 		return function(dispatch){
@@ -35,7 +60,7 @@ exports.getMapEvents = (latitude,longitude) => {
 				dispatch(setMapEvents(response.data));
 				}).catch((error)=>{
 					console.log("There is an error "+error);
-					dispatch(showErrorAlert("Unable to get events for map"));
+					throw error
 				});	 			
 	 		});
 	}
@@ -47,7 +72,7 @@ exports.createEvent = (newEvent) =>{
 		return SecureStore.getItemAsync('token').then((token)=>{
 	 		SecureStore.getItemAsync('user_id').then((user_id)=>{
 				return axios.post(CREATE_EVENT(user_id),newEvent,{headers: {'Authorization': token}}).then((response)=>{
-
+					dispatch({type:'EVENT_CREATED'})
 				}).catch((error)=>
 				{	
 					console.log("error "+error);

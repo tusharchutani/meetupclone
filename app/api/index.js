@@ -1,5 +1,5 @@
 const PRODUCTION = "https://spotrestapi.herokuapp.com/v1";
-const localHost = "http://localhost:3001/v1";
+const localHost = "http://192.168.1.72:3001/v1";
 const sandBox = "https://pure-island-32874.herokuapp.com/v1";
 
 
@@ -11,7 +11,7 @@ exports.CREATE_EVENT = (user_id) => `${API_URL}/addevent/${user_id}/new`;
 exports.SIGNIN_URL = `${API_URL}/signin`;
 exports.SIGNUP_URL = `${API_URL}/signup`;
 exports.GOOGLE_MAP_API = (address) => `https://maps.googleapis.com/maps/api/geocode/json?&address=${address}`;
-exports.GET_USER_PROFILE = (user_id) => `${API_URL}/getprofile/${user_id}`;;
+exports.GET_USER_PROFILE = (user_id,my_id) => `${API_URL}/getprofile/${user_id}/${my_id}`;;
 exports.GOING_TO_EVENT = (user_id,event_id) => `${API_URL}/goingInEvent/${user_id}/${event_id}`;;
 exports.INTRESTED_IN_EVENT = (user_id,event_id) => `${API_URL}/interestedInEvent/${user_id}/${event_id}`;
 exports.NOT_GOING_TO_EVENT = (user_id,event_id) => `${API_URL}/notattending/${user_id}/${event_id}`;
@@ -39,4 +39,8 @@ exports.GET_USER_NOTIFICATION = (userId) => `${API_URL}/getnotifications/${userI
 exports.READ_NOTIFICATION = (notificationId) => `${API_URL}/readNotification/${notificationId}`;
 exports.GET_EVENT_USER_GOING = (eventId) => `${API_URL}/geteventusers/${eventId}`
 exports.FORGOT_PASSWORD = `${API_URL}/forgotpassword`;
+exports.BLOCK_USER = (userRequestingBlock, userToBeBlocked) => `${API_URL}/block/${userRequestingBlock}/${userToBeBlocked}`;
+exports.UNBLOCK_USER = (userRequestingBlock, userToBeBlocked) => `${API_URL}/unblock/${userRequestingBlock}/${userToBeBlocked}`;
+exports.FLAG_EVENT = (eventId, userId) => `${API_URL}/flagevent/${eventId}/${userId}`;
+exports.FLAG_USER = (userToBeFlagged,userRequestingFlag) => `${API_URL}/flaguser/${userToBeFlagged}/${userRequestingFlag}`;
 // GET_USER_PROFILE

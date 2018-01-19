@@ -172,11 +172,8 @@ uploadAndCreate() {
 
                     this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
                       this.props.dispatch(getMyprofile());
-                      this.props.navigation.goBack();
-                      setTimeout(()=>{
-                        this.setState({isCreateButtonDisabled:false});
-                        this.setState({loading:false});      }, 1000);
-                      
+                      this.setState({isCreateButtonDisabled:false, loading:false});
+                        
                       }).catch((error)=>{
                        this.props.dispatch(showErrorAlert(error));
                       });
@@ -185,14 +182,8 @@ uploadAndCreate() {
       }else{
        
         this.props.dispatch(createEvent(this.state.eventInfo)).then((response)=>{
-          
-          this.props.navigation.goBack();
-          setTimeout(()=>{ 
-            this.setState({loading:false}); 
-            this.setState({isCreateButtonDisabled:false}); 
-          }, 2000);
-
-          }).catch((error)=>{
+            this.setState({loading:false,isCreateButtonDisabled:false}); 
+       }).catch((error)=>{
            this.props.dispatch(showErrorAlert(error));
           });
         
@@ -241,10 +232,16 @@ uploadAndCreate() {
      }
  }
   selectLocation(item){
-    cityName = item.address_components.filter(function(component){
+    let cityName = '';
+    try{
+       cityName = item.address_components.filter(function(component){
       return (component.types.includes("political") &&
         component.types.includes("locality"));
-    })[0].long_name;
+        })[0].long_name;
+    }catch(e){
+      cityName = '';
+    }
+    
     this.setState({location:item.formatted_address,locationSuggestion:[]});
     let {lat, lng} = item.geometry.location;
 

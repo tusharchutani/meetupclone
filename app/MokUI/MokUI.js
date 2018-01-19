@@ -28,6 +28,7 @@ export class RoundImage extends Component {
         <Image style={{
           width: this.props.size, 
           height: this.props.size, 
+          backgroundColor:Constants.color3,
           borderRadius:this.props.size/2, 
           borderColor:Constants.color1, 
           borderWidth:2,

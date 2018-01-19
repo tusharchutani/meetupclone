@@ -20,7 +20,7 @@ import { Icon,Button, FormInput } from 'react-native-elements';
 import Constants from '../../MokUI/UIConstants';
 import {SecureStore} from 'expo';
 import {GOING_TO_EVENT,NOT_GOING_TO_EVENT,GET_USER_PROFILE,INTRESTED_IN_EVENT} from '../../api';
-import {openEditEvent, openEventLoaction, showErrorAlert,OPEN_PEOPLE_INFO,getEventInfo} from '../../actions';
+import {openflagObject,openEditEvent, openEventLoaction, showErrorAlert,OPEN_PEOPLE_INFO,getEventInfo} from '../../actions';
 import {POSTCOMMENT,GET_COMMENTS} from '../../api'
 export default class EventInfo extends Component {
   
@@ -57,7 +57,11 @@ export default class EventInfo extends Component {
 
   _val = 0;
   static navigationOptions = ({navigation}) => {
-   return {title: this.state ? this.state.eventName : "Event info"}  
+   return {
+    title: this.state ? this.state.eventName : "Event info",
+    headerRight: <Icon name="flag" size={20} containerStyle={{paddingRight:10}} size={Constants.medium_icon_size} color={Constants.color2} onPress={() => {navigation.dispatch(openflagObject())}}/>
+
+    }  
   }
 
 
@@ -88,6 +92,12 @@ export default class EventInfo extends Component {
       this.setState({isPostingComment:false});
     });
   }
+
+    componentDidMount(){
+      this.props.navigation.setParams({
+
+      });
+    }
 
   renderDiscussionBoard(){
     return (
@@ -130,21 +140,25 @@ export default class EventInfo extends Component {
 
 
   onGoing(){
-  this.setState({RSVPButtonDisabled:true,isLoading:true});
+   this.setState({RSVPButtonDisabled:true,isLoading:true});
     if(!this.state.userGoing){
       axios.get(GOING_TO_EVENT(this.props.userId,this.state.id)).then((response)=>{
+        let goingPeople = this.state.goingPeople.concat(this.props.userId);
           this.setState({RSVPButtonTitle:'Going',
             RSVPButtonDisabled:false,
             InterestedButtonColor:Constants.color2,
+            goingPeople,
             userGoing:true,isLoading:false,RSVPButtonColor:Constants.color4});
+          
       }).catch((error)=>{
       this.setState({RSVPButtonDisabled:false,isLoading:false});
       })
     }else{
+        let goingPeople = this.state.goingPeople.filter(id => id != this.props.userId);
         axios.get(NOT_GOING_TO_EVENT(this.props.userId,this.state.id)).then((response)=>{
             this.setState({RSVPButtonTitle:'RSVP',
               attendanceIcon:'star',userGoing:false,
-              RSVPButtonDisabled:false, isLoading:false,
+              RSVPButtonDisabled:false, isLoading:false,goingPeople,
               RSVPButtonColor:Constants.color2})
           }).catch((error)=>{
           dispatch(showErrorAlert(error));
@@ -152,9 +166,8 @@ export default class EventInfo extends Component {
         })
       
   }
-}
 
-  
+} 
 
   onIntrested(){
     this.setState({RSVPButtonDisabled:true,isLoading:true});
@@ -246,7 +259,7 @@ export default class EventInfo extends Component {
   render() {
 
     if(!this.state.gotHostName && this.state.host != null){
-      axios.get(GET_USER_PROFILE(this.state.host),{timeout:1000}).then((response)=>{
+      axios.get(GET_USER_PROFILE(this.state.host, this.props.userId),{timeout:1000}).then((response)=>{
         var hostname = response.data.firstname + " " + response.data.lastname;
         this.setState({hostname, gotHostName:true});
       }).catch(()=>{
@@ -308,7 +321,7 @@ export default class EventInfo extends Component {
                 </TouchableOpacity>
                   }
 
-            {isMyevent 
+              {isMyevent 
               && 
                <TouchableOpacity style={{padding:10,paddingBottom:5}} 
                onPress={()=>{
@@ -328,7 +341,7 @@ export default class EventInfo extends Component {
                    />
                    <Text style={{fontSize:12, color:this.state.InterestedButtonColor}}>Edit</Text>
                 </TouchableOpacity>
-            }
+              }
 
             </View>
           <View style={styles.separator} />        
@@ -369,7 +382,6 @@ export default class EventInfo extends Component {
 
           </ScrollView>
         </KeyboardAvoidingView>
-
     );
   }
 }

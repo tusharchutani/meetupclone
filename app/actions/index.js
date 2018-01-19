@@ -5,3 +5,4 @@ export * from './navActions';
 export * from './activityAction';
 export * from './notificationAction';
 export * from './alertActions';
+export * from './locationActions'

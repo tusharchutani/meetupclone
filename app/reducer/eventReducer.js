@@ -20,6 +20,12 @@ module.exports = (state=defaultState, action)=>{
 			...state,
 			eventInfo:action.eventInfo
 		}
+		case 'OBJECT_FLAGGED':
+		return {
+			...state,
+			eventList: state.eventList.filter(event => event._id != action.eventId),
+			mapEvents: state.mapEvents.filter(event => event._id != action.eventId)
+		}
 		case 'UPDATE_EVENT_INFO':
 			return {
 				...state,

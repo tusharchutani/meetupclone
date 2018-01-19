@@ -5,7 +5,7 @@
     "slug": "mok-app",
     "privacy": "public",
     "sdkVersion": "21.0.0",
-    "version": "1.0.23",
+    "version": "1.0.29",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
     "icon": "./assets/images/new_logo.png",
@@ -22,7 +22,10 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.spot.mok"
+      "bundleIdentifier": "com.spot.mok",
+      "infoPlist":{
+        "NSLocationWhenInUseUsageDescription":"Spot uses your location to find events near you"
+      }
     },
     "android": {
       "package": "com.spot.mok",

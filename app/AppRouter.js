@@ -16,6 +16,7 @@ import EventMap from './views/MapView/EventMap';
 import FeedNavigationController from './views/EventFeed/FeedNavigationController';
 import FeedList from './views/EventFeed/FeedList';
 import EventInfo from './views/EventInfo/EventInfo';
+import ReportObject from './views/EventInfo/ReportObject';
 import PeopeInfo from './views/EventInfo/PeopeInfo';
 import MyProfile from './views/EventFeed/Profile/MyProfile';
 import OtherUserProfile from './views/EventFeed/Profile/OtherUserProfile';
@@ -144,6 +145,9 @@ const MokAppRouter = new StackNavigator({
 	},
 	EventMap:{
 		screen:EventMap
+	},
+	ReportObject:{
+		screen:ReportObject
 	}
 });
 

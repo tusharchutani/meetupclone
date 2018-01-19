@@ -36,6 +36,12 @@ exports.openMainApp = () =>{
 	}
 }
 
+exports.openflagObject = (isEvent = true) =>{
+	return {
+		type:'OPEN_FLAG_OBJECT',
+		isEvent
+	}
+}
 
 exports.OPEN_PEOPLE_INFO = () => {
 	return {

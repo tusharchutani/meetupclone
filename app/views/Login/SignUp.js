@@ -149,12 +149,12 @@ export default class SignUp extends Component {
 
   async logInFB() {
     const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync('300866317096349', {
-        permissions: ['public_profile','email'],
+        permissions: ['public_profile','email',],
       });
     if (type === 'success') {
       // Get the user's name using Facebook's Graph API
       const response = await fetch(
-        `https://graph.facebook.com/me?fields=email,first_name,last_name,picture&access_token=${token}`);
+        `https://graph.facebook.com/me?fields=email,first_name,last_name,picture.height(250)&access_token=${token}`);
       let resp = (await response.json());
       this.setState({
         email:resp.email,
@@ -249,7 +249,13 @@ export default class SignUp extends Component {
             {this.state.isLoading && <ActivityIndicator animating={true}
                               style={{paddingTop: 30}}
                               size="large"/>}
-                              </View>   
+                <Text style={{padding:20}}>
+                    By using Spot you are agreening to our
+                  <Text style={styles.linkText} onPress={() => Linking.openURL('https://spotapp.ca/terms')}> terms and conditions</Text>
+                  <Text> and our </Text>
+                  <Text style={styles.linkText} onPress={() => Linking.openURL('https://spotapp.ca/privacy')}> privacy policy</Text>
+                </Text>                              
+            </View>   
         </TouchableWithoutFeedback>
     </ScrollView>)
 
@@ -288,6 +294,9 @@ const styles = StyleSheet.create({
     color:Constants.color2,
     fontSize:22,
     paddingRight:220
+  },
+  linkText:{
+    color:Constants.color4
   }
 });
 

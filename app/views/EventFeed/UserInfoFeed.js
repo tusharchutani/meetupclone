@@ -38,6 +38,35 @@ export default class UserInfoFeed extends Component {
 
   }
 
+  openBlockingOptions(){
+    const {props} = this;
+
+    if(props.profileData.blockedByRequestingUser){
+        ActionSheetIOS.showActionSheetWithOptions({
+          options: ['Block', 'Cancel'],
+          destructiveButtonIndex: 0,
+          cancelButtonIndex: 1,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) { 
+              props.dispatch(blockUser(props.profileData._id));
+          }
+        });
+    }else{
+          ActionSheetIOS.showActionSheetWithOptions({
+          options: ['Unblock', 'Cancel'],
+          destructiveButtonIndex: 0,
+          cancelButtonIndex: 1,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) { 
+            props.dispatch(unBlockUser(this.props.profileData._id));
+          }
+        });   
+    }
+  }
+
+
   navigateToConnections(self, followerOrFollowing){
     
       const {props} = self;
@@ -46,7 +75,7 @@ export default class UserInfoFeed extends Component {
         self._val++;
         props.dispatch(setUserConnections(followerOrFollowing,props._id)).then(()=>{
           props.dispatch(getUserConnections());  
-          this.setState({isLoading:false});
+          this.removeAllLoading();
           setTimeout(()=>{self._val = 0; }, 1000);
         });
       }
@@ -77,9 +106,8 @@ export default class UserInfoFeed extends Component {
 
   }
 
-
-
   renderHeader(self) {
+
 
     const {props} = self;
     let firstName = props.firstname ? props.firstname : "First" ;
@@ -144,6 +172,7 @@ export default class UserInfoFeed extends Component {
               icon={{name: 'message'}}
               onPress={()=>{Linking.openURL("mailto:"+email).catch(err => console.log('An error occurred', err));}}
               backgroundColor={Constants.color2}
+              disabled={this.props.isBlocked}
               buttonStyle={styles.messageButton}
               title='Message' />}
               {!this.props.isMyProfile &&
@@ -151,9 +180,12 @@ export default class UserInfoFeed extends Component {
               small
               backgroundColor={this.state.followButtonColor}
               buttonStyle={styles.followButton}
-              disabled={this.state.isLoading}
+              disabled={this.state.isLoading || this.props.isBlocked}
               title={this.state.followButtonText}
               onPress={()=>{this.follow()} } />}
+
+              {this.state.isLoading && <ActivityIndicator animating={true}
+                                   size="small"/>  }
 
           </View>
           
@@ -164,28 +196,32 @@ export default class UserInfoFeed extends Component {
 
   setFollowing(nextProps){
 
-    if(!nextProps.followers){
-      this._isFollowing = false;
-      this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
+    if(!nextProps.isBlocked){
+        if(!nextProps.followers){
+          this._isFollowing = false;
+          this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
+        }else{
+          if(nextProps.followers.includes(this.props.userId)){
+            this._isFollowing = true;
+            this.setState({followButtonText:'following',followButtonColor:Constants.color4});
+          }else{
+            this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
+          }
+        }
     }else{
-      if(nextProps.followers.includes(this.props.userId)){
-        this._isFollowing = true;
-        this.setState({followButtonText:'following',followButtonColor:Constants.color4});
-      }else{
-        this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
-      }
-      
+      this.setState({followButtonText:'blocked'});
     }
-  }   
+  } 
+
   componentWillReceiveProps(nextProps){
     if(nextProps.usergoing&&(nextProps.usergoing.length == 0)){
         this.setState({isLoading:false});
     }else{
         this.setState({isLoading:true});
-        if(nextProps.usergoing != null){
+        if(nextProps.usergoing != null && !nextProps.isBlocked){
             this.getUserEventsInfo(1,nextProps.usergoing);
         }else{
-        	this.setState({isLoading:false});
+        	this.setState({isLoading:false,refreshing:false,usergoing:[]});
         }
 
     }
@@ -193,20 +229,17 @@ export default class UserInfoFeed extends Component {
 
     if(nextProps.userId != nextProps._id){
       this.setFollowing(nextProps);
-      if(this._isFollowing){
-        this.setState({followButtonText:'following',followButtonColor:Constants.color4});
-      }else{
-        this.setState({followButtonText:'follow',followButtonColor:Constants.color2});
-      }
     }
   }
 
 
   getUserEventsInfo(page=1,usergoing){
-    
-    let getEvents = usergoing.slice((page*8)-8,((page*8)-1)).map((eventId, index)=>{    
+    let startIndex = (page*8)-8;
+    let endIndex = (page*8) < usergoing.length ? (page*8) : usergoing.length;
+
+    let getEvents = usergoing.slice(startIndex,endIndex).map((eventId, index)=>{    
       return axios.get(GET_EVENT_INFO(eventId, this.props.userId),{timeout:30000});
-    })
+    });
     if(getEvents.length == 0){
       this.setState({refreshing:false});
     }
@@ -216,23 +249,37 @@ export default class UserInfoFeed extends Component {
         if(response.data != null){
           temp.push(response.data);
         }
-      })
+      });
       if(page == 1){
-        this.setState({usergoing:temp,isLoading:false});
+        //TEMP FIX 
+        temp.sort(this.startDateCompare);
+        console.log("Temp lenght is "+temp.length);
+        this.setState({usergoing:temp,isLoading:false,refreshing:false});
       }else{
-        this.setState({usergoing:[...this.state.usergoing, ...temp],isLoading:false})
+        //TEMP FIX 
+        let userGoingArr = [...this.state.usergoing, ...temp]; 
+        console.log("User going lenght is "+userGoingArr.length);
+        userGoingArr.sort(this.startDateCompare);
+        this.setState({usergoing:userGoingArr,isLoading:false})
       }
       this.setState({footerLoading:false});
     }).catch((error)=>{
     console.log("User info feed error "+error);
-    this.setState({isLoading:false});
+    this.removeAllLoading();
     });
   }
 
+  startDateCompare(a, b){
+  if (a.startDate < b.startDate)
+    return -1;
+  if (a.startDate > b.startDate)
+    return 1;
+  return 0;    
+  }
 
   handelLoadMore(){
     
-    if(this.props.usergoing && this.props.usergoing.length > 7){
+    if(this.state.usergoing.length && !this.state.footerLoading){
         this.setState({currentPage:this.state.currentPage+1,footerLoading:true},()=>{
           this.getUserEventsInfo(this.state.currentPage,this.props.usergoing);
         });    	
@@ -244,24 +291,30 @@ export default class UserInfoFeed extends Component {
     
     if(this.props.isMyProfile){
       this.props.dispatch(getMyprofile()).then(()=>{
-        this._isDataCollected = false;
-        this.getUserEventsInfo();
-        this.setState({refreshing:false,isLoading:false});
-      }).catch(err => {console.log("There was an error updating my profile "+err);})
+        this.removeAllLoading();
+      }).catch(err => {
+        this.removeAllLoading();
+      })
     }else{
-      this.props.dispatch(setUserProfile(this.props._id)).then(()=>{
-        this.setState({refreshing:false,isLoading:false,footerLoading:false});
-        this.getUserEventsInfo()
-      }).catch(err => {console.log("There was an error updating other profile "+err);})
+      this.props.dispatch(setUserProfile(this.props._id, this.props.userId)).then(()=>{
+        this.removeAllLoading();
+      }).catch(err => {
+          console.log("There was an error updating other profile "+err);
+          this.removeAllLoading();
+        })
     }
   }
 
+  removeAllLoading(){
+    this.setState({reloadProfile:false,isLoading:false, refreshing:false,footerLoading:false});
+  }
+
   render() {
-	const isIOS = Platform.OS === 'ios';
+	 const isIOS = Platform.OS === 'ios';
 
    return(
-        <View style={styles.container}>
             <FlatList
+            style={styles.container}
              data={this.state.usergoing}
              // extraData={this.state} 
              keyExtractor={(item, index) => index}
@@ -276,8 +329,7 @@ export default class UserInfoFeed extends Component {
             refreshing={this.state.refreshing}           
             onEndReached={()=>{this.handelLoadMore()}}
             onEndReachedThreshold={isIOS ? 0:1}
-           />
-        </View>);
+           />);
   }
 
 }

@@ -18,6 +18,21 @@ module.exports = (state = initialState, action) => {
 				NavigationActions.navigate({ routeName: 'EventInfo' }),
 				state);
 			break;
+		case 'OPEN_FLAG_OBJECT':
+				nextState = MokAppRouter.router.getStateForAction(
+				NavigationActions.navigate({ routeName: 'ReportObject' }),
+				state);
+			break;
+		case 'OBJECT_FLAGGED':
+				nextState = MokAppRouter.router.getStateForAction(
+				NavigationActions.back(),
+				state);
+			break;		
+		case 'EVENT_CREATED':
+				nextState = MokAppRouter.router.getStateForAction(
+				NavigationActions.back(),
+				state);
+			break;
 		case 'OPEN_CREATE_EVENT':
 			nextState = MokAppRouter.router.getStateForAction(
 				NavigationActions.navigate({ routeName: 'CreateEvent' }),

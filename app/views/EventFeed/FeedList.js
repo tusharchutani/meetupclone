@@ -15,7 +15,7 @@ import {connect} from 'react-redux';
 import {Permissions, Location, Expo} from 'expo';
 import {Constants as ExpoConstants} from 'expo';
 import shallowCompare from 'shallow-compare'
-import {getEventsNearMe, getEventInfo, showErrorAlert, openCreateEvent, searchEventsByTag, openFindFriends} from '../../actions'
+import {getEventsNearMe, showAlert, getEventInfo, showErrorAlert, openCreateEvent, searchEventsByTag, openFindFriends} from '../../actions'
 
 export default class FeedList extends Component {
   _val = 0;
@@ -50,48 +50,49 @@ export default class FeedList extends Component {
   }
 
   _getCurrentLocation = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== 'granted') {
+      console.log("Location access not granted");
+      this.setState({
+        errorMessage: 'Permission to access location was denied',
+      });
+        Alert.alert(
+        "Permission not granted",
+        "It was not granted",
+        [
+          {text: 'Yes', 
+          onPress: () =>{
+            this.setState({isSigningOut:true});
+            setTimeout(()=>{dispatch(unauthUser);}, 600);
+            
+          }
+        },        
+          {text: 'No', style: 'cancel'}
+        ],
+        { cancelable: true }
+      )      
+    }
 
-    
-      let { status } = await Permissions.askAsync(Permissions.LOCATION);
-      if (status !== 'granted') {
-        console.log("Location access not granted");
-        this.setState({
-          errorMessage: 'Permission to access location was denied',
-        });
-      }
+    let location = await Location.getCurrentPositionAsync({});
+    location = { 
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude
+    };
 
-      if (Platform.OS === 'android' && !ExpoConstants.isDevice) {
-           let location = { 
-            latitude: 49.2848183,//location.coords.latitude,
-            longitude:-123.1111718 //location.coords.longitude,
-          };  
-          this.setState({location});
-        }else{
-             let location = await Location.getCurrentPositionAsync({});
-             location = { 
-                latitude: location.coords.latitude,
-                longitude:location.coords.longitude,
-              };  
-              this.setState({location});
-        }
+    this.setState({ location });
   };
 
   loadEventsNearMe(page=1){
 
       this.setState({loading:true});
-        this._getCurrentLocation().then(()=>{
-        this.setState({hasLoaded:false});
-        this.props.dispatch(getEventsNearMe(this.state.location.latitude,
-          this.state.location.longitude,page)).then(()=>{
+        this.props.dispatch(getEventsNearMe(this.props.location.latitude,
+          this.props.location.longitude,page)).then(()=>{
             this.setState({loading:false,footerLoading:false});
         }).catch((error)=>{
             this.setState({loading:false,footerLoading:false});
             this.props.dispatch(showErrorAlert(error));
         });
-      }).catch((error)=>{
-        this.setState({loading:false,footerLoading:false});
-        this.props.dispatch(showErrorAlert("Location has been disabled."));
-      });
+      
   }
   
   reloadEvents(){
@@ -101,7 +102,10 @@ export default class FeedList extends Component {
   }
   
   componentWillMount(){
-    this.loadEventsNearMe();
+    this._getCurrentLocation().then(()=>{
+      this.loadEventsNearMe();  
+    })
+    
   }
 
   moreInfo(data) {
@@ -126,17 +130,12 @@ export default class FeedList extends Component {
 
 
   handelLoadMore(){
-      if(this._val == 0){
-        this._val = 1;
-        if(this.props.eventList.length >= 8){ 
-          this.setState({footerLoading:true});
-          this.setState({currentPage:this.state.currentPage+1},()=>{
-            this.loadEventsNearMe(this.state.currentPage);
-            setTimeout(()=>{this._val = 0; }, 2000);
-            });
-          }
-      }
+    if(this.props.eventList.length >= 8 && !this.state.footerLoading){ 
+        this.setState({footerLoading:true, currentPage:this.state.currentPage+1},()=>{
+          this.loadEventsNearMe(this.state.currentPage);
+    })
   }
+}
 
   render() {
     const isIOS = Platform.OS === 'ios';
@@ -194,10 +193,11 @@ export default class FeedList extends Component {
   });
 
   var mapStateToProps = (state) =>{
-
+    
     return {
       eventList: state.events.eventList ? state.events.eventList:[],
-      userId: state.auth.user_id
+      userId: state.auth.user_id,
+      location: state.location
     }
   }
 

@@ -53,34 +53,6 @@ export default class NotificationCenter extends Component {
     if(userAvatar == "new"){
         userAvatar = Constants.defaultProfilePic;
       }
-
-    if(notificationtype == "USER_FOLLOW"){
-      let navigateToUserProfile = () => {
-         if(this._val == 0){
-            this._val = 1;
-            this.props.dispatch(readNotification(notification._id)).then(()=>{
-                this.props.dispatch(openUserProfile());
-                this.props.dispatch(setUserProfile(notification.userid));
-                
-                setTimeout(()=>{this._val = 0; }, 1000);              
-            });
-
-        }        
-      }
-      return(
-        <TouchableOpacity onPress={navigateToUserProfile} style={styles.notificationItem}>
-         <RoundImage size={40} source={userAvatar}/>
-          <Text style={{paddingLeft:20,width:Constants.screenWidth-70}}>
-            <Text style={styles.notificationUserName}>{userfullname}</Text>
-            <Text> started following you.+ {"\n"}</Text>
-            <Text style={styles.notificationDate}>{timeStamp}</Text>
-          </Text>
-          <Icon containerStyle={{paddingTop:55}} name="fiber-manual-record" size={12} color={Constants.color4}/>
-            
-        </TouchableOpacity>
-      );
-    }else if(notificationtype == "EVENT_INVITE"){
-      let notificationText = notification.notification;
       let navigateToEvent = () => {
 
             if(this._val == 0){
@@ -92,19 +64,60 @@ export default class NotificationCenter extends Component {
                   }).catch((err)=>{this._val = 0});
               });
             }
+      }     
+
+    if(notificationtype == "USER_FOLLOW"){
+      let navigateToUserProfile = () => {
+         if(this._val == 0){
+            this._val = 1;
+            this.props.dispatch(readNotification(notification._id)).then(()=>{
+                this.props.dispatch(openUserProfile());
+                this.props.dispatch(setUserProfile(notification.userid,this.props.userId));
+                
+                setTimeout(()=>{this._val = 0; }, 1000);              
+            });
+
+        }        
       }
-
-
       return(
-      <TouchableOpacity onPress={navigateToEvent} style={styles.notificationItem}>
+        <TouchableOpacity onPress={navigateToUserProfile} style={styles.notificationItem}>
          <RoundImage size={40} source={userAvatar}/>
-        <Text style={{paddingLeft:20,width:Constants.screenWidth-70}}>
-          <Text style={styles.notificationUserName}>{userfullname}</Text>
-          <Text>{" "+notificationText.substr(userfullname.length)+"\n"}</Text>
-          <Text style={styles.notificationDate}>{timeStamp}</Text>
-        </Text>
-        {!notification.read && <Icon containerStyle={{paddingTop:55}} name="fiber-manual-record" size={12} color={Constants.color4}/>}
-      </TouchableOpacity>);
+          <Text style={styles.notificationText}>
+            <Text style={styles.notificationUserName}>{userfullname}</Text>
+            <Text> started following you.+ {"\n"}</Text>
+            <Text style={styles.notificationDate}>{timeStamp}</Text>
+          </Text>
+          <Icon containerStyle={{paddingTop:55}} name="fiber-manual-record" size={12} color={Constants.color4}/>
+            
+        </TouchableOpacity>
+      );
+    }else if(notificationtype == "EVENT_INVITE"){
+      let notificationText = notification.notification;
+          return(
+          <TouchableOpacity onPress={navigateToEvent} style={styles.notificationItem}>
+             <RoundImage size={40} source={userAvatar}/>
+            <Text style={{paddingLeft:20,width:Constants.screenWidth-70}}>
+              <Text style={styles.notificationUserName}>{userfullname}</Text>
+              <Text>{" "+notificationText.substr(userfullname.length)+"\n"}</Text>
+              <Text style={styles.notificationDate}>{timeStamp}</Text>
+            </Text>
+            {!notification.read && <Icon containerStyle={{paddingTop:55}} name="fiber-manual-record" size={12} color={Constants.color4}/>}
+          </TouchableOpacity>);           
+      }else if(notificationtype == "FLAG_NOTIFICATION"){       
+          let notificationText = notification.notification;
+          return(
+          <TouchableOpacity onPress={navigateToEvent} style={styles.notificationItem}>
+              <Icon name="flag" size={20} 
+                  containerStyle={{paddingRight:10}} 
+                 size={Constants.medium_icon_size} 
+                 color={Constants.color3} />
+               <Text style={styles.notificationText}>
+                <Text style={styles.notificationUserName}>{notification.eventName}</Text>
+                <Text> has been flagged please review your conent</Text>
+                <Text style={styles.notificationDate}>{timeStamp}</Text>
+            </Text>
+            {!notification.read && <Icon containerStyle={{paddingTop:55}} name="fiber-manual-record" size={12} color={Constants.color4}/>}
+          </TouchableOpacity>);
     }
   }
 
@@ -225,6 +238,9 @@ const styles = StyleSheet.create({
     fontSize:9,
     fontWeight:'bold',    
     color:Constants.color3    
+  },notificationText:{
+    paddingLeft:20,
+    width:Constants.screenWidth-70
   }
 
 });

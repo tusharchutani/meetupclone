@@ -58,7 +58,7 @@ export default class PeopleInfo extends Component{
      if(this._val == 0){
         this._val = 1;
         this.props.dispatch(openUserProfile());
-        this.props.dispatch(setUserProfile(_id));
+        this.props.dispatch(setUserProfile(_id,this.props.userId));
         
         setTimeout(()=>{this._val = 0; }, 1000);
     }
@@ -142,7 +142,8 @@ const styles = StyleSheet.create({
 var mapStateToProps = (state) =>{
 
   return {
-    eventId:state.events.eventInfo._id
+    eventId:state.events.eventInfo._id,
+    userId: state.auth.user_id
     // userList: state.events.eventList ? ds.cloneWithRows(state.events.eventList):ds.cloneWithRows([])
   }
 }

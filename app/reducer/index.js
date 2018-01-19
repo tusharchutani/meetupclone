@@ -7,7 +7,9 @@ import nav from './nav.js';
 import alerts from './alerts.js';
 import userSearch from './userSearch';
 import uiEnabled from './uiEnabled';
+import flagObjectReducer from './flagObjectReducer';
 import notifications from './notifications';
+import locationReducer from './locationReducer'
 // import activityReducer from './activityReducer.js';
 export default combineReducers({
 	form:formReducer,
@@ -19,5 +21,7 @@ export default combineReducers({
 	notifications,
 	userSearch:userSearch,
 	uiEnabled,
+	flagObject:flagObjectReducer,
+	location:locationReducer
 	// activity:activityIndicator
 });

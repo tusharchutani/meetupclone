@@ -5,14 +5,16 @@ import {
   StyleSheet,
   Text,
   View,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { MapView,Permissions,Location } from 'expo';
 import {connect} from 'react-redux';
 import Constants from '../../MokUI/UIConstants';
+import {Constants as ExpoConstants} from 'expo';
 import Carousel from 'react-native-snap-carousel';
 import CarouselView from './CarouselView'
-import {getMapEvents, showErrorAlert} from '../../actions'
+import {getMapEvents, showErrorAlert, showAlert} from '../../actions'
 import {Button} from 'react-native-elements';
 export default class MapEvents extends Component {
 
@@ -57,7 +59,8 @@ export default class MapEvents extends Component {
     }
 
   componentWillMount() {
-    if (Platform.OS === 'android' && !Constants.isDevice) {
+    if (Platform.OS === 'android' && !ExpoConstants.isDevice) {
+
       this.setState({
         errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
       });
@@ -65,6 +68,8 @@ export default class MapEvents extends Component {
       this._getLocationAsync().then(()=>{
         this.props.dispatch(getMapEvents(this.state.location.latitude,
         this.state.location.longitude));
+      }).catch((error)=>{
+        this.props.dispatch(showErrorAlert(error));
       });
     }
   }
@@ -72,10 +77,26 @@ export default class MapEvents extends Component {
   _getLocationAsync = async () => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== 'granted') {
+      this.props.dispatch(showAlert("Error","Location access not granted"));
       console.log("Location access not granted");
       this.setState({
         errorMessage: 'Permission to access location was denied',
       });
+        Alert.alert(
+        "Permission not granted",
+        "It was not granted",
+        [
+          {text: 'Yes', 
+          onPress: () =>{
+            this.setState({isSigningOut:true});
+            setTimeout(()=>{dispatch(unauthUser);}, 600);
+            
+          }
+        },        
+          {text: 'No', style: 'cancel'}
+        ],
+        { cancelable: true }
+      )      
     }
 
     let location = await Location.getCurrentPositionAsync({});
@@ -85,7 +106,8 @@ export default class MapEvents extends Component {
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421      
     };
-
+          
+    this._mapView.animateToRegion(location);
     this.setState({ location });
   };
 

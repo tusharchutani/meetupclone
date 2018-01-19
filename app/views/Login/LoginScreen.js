@@ -11,13 +11,14 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableOpacity, 
-  ActivityIndicator
+  ActivityIndicator,
+  Linking
 } from 'react-native';
 import {reduxForm} from 'redux-form';
 import { Button, FormLabel, FormInput, SocialIcon, FormValidationMessage } from 'react-native-elements';
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import Constants from '../../MokUI/UIConstants';
-import {loginUser,openMainApp,showErrorAlert,navigateToForgetPassword} from '../../actions';
+import {loginUser,openMainApp,showErrorAlert,navigateToForgetPassword,showAlert} from '../../actions';
 import {NavigationActions} from 'react-navigation';
 import {connect} from 'react-redux';
 
@@ -51,6 +52,9 @@ export default class LoginScreen extends Component{
     }
     this.setState({isLoading: true});
     dispatch(loginUser(username,password)).then((response)=>{
+      if(username == 'admin@testing.com'){
+        dispatch(showAlert("Note to admin testers","Since you are using the testing account the events showcased here are from in and around Vancouver. In a normal user accoung your current location will be used."));
+      }
       dispatch(openMainApp());
       setTimeout(()=>{ 
         this.setState({isLoading: false}); }, 1000);
@@ -119,6 +123,13 @@ export default class LoginScreen extends Component{
             style={{opacity: this.state.isLoading ? 1.0 : 0.0}}
             size="large"
           />
+          
+          <Text style={{marginRight:20, marginLeft:20}}>
+            By using Spot you are agreening to our
+          <Text style={styles.linkText} onPress={() => Linking.openURL('https://spotapp.ca/terms')}> terms and conditions</Text>
+          <Text> and our </Text>
+          <Text style={styles.linkText} onPress={() => Linking.openURL('https://spotapp.ca/privacy')}> privacy policy</Text>
+          </Text>
 
 
       </View>
@@ -151,6 +162,14 @@ const styles = StyleSheet.create({
     padding:20
   },formInput:{
     color:Constants.color2
+  },
+  linkText:{
+    color:Constants.color4
+  },termsAndConditionContainer:{
+    marginRight:20,
+    backgroundColor:'red',
+    marginLeft:20,
+    flexDirection:'row'
   },
   forgotPasswordText: {
     color: 'grey',

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Constants  from '../../MokUI/UIConstants';
-import Prompt from 'react-native-prompt';
 import {TouchableOpacity, 
   Linking, 
   SectionList, 
@@ -88,7 +87,7 @@ class Settings extends Component {
     }
 
     return (
-      <TouchableOpacity style={{flexDirection:'row'}} onPress={()=>{this.setState({promptVisible:true})}}>
+      <TouchableOpacity style={{flexDirection:'row'}}>
       <Text style={styles.row}>
         {item.text}
       </Text>

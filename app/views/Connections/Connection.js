@@ -1,3 +1,9 @@
+
+/*
+Connection is used for follower, following and searching users
+*/
+
+
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -58,7 +64,7 @@ export default class Connection extends Component{
      if(this._val == 0){
         this._val = 1;
         this.props.dispatch(openUserProfile());
-        this.props.dispatch(setUserProfile(_id));
+        this.props.dispatch(setUserProfile(_id,this.props.userId));
         
         setTimeout(()=>{this._val = 0; }, 1000);
     }
@@ -79,13 +85,11 @@ export default class Connection extends Component{
           
           var imageUrl = (item.avatarurl != undefined && item.avatarurl != "new") ? item.avatarurl:"http://www.thedigitalkandy.com/wp-content/uploads/2016/01/facebook-no-profile.png";
           var name = item.firstname + " " + item.lastname;
-          var email = item.email;
           return (
           <TouchableOpacity style={styles.itemContainer} onPress={()=>{this.getUserProfile(item._id)}}> 
             <RoundImage size={50} style={{justifyContent:'center'}} source={imageUrl}/>
             <View>
               <Text style={styles.nameText}>{name}</Text>
-              <Text style={styles.emailText}>{email}</Text>
             </View>
           </TouchableOpacity>);
         }}
@@ -144,7 +148,8 @@ const styles = StyleSheet.create({
 var mapStateToProps = (state) =>{
 
   return {
-    userList:state.userSearch
+    userList:state.userSearch,
+    userId:state.auth.user_id
     // userList: state.events.eventList ? ds.cloneWithRows(state.events.eventList):ds.cloneWithRows([])
   }
 }
