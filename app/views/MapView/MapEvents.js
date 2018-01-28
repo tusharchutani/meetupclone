@@ -59,18 +59,32 @@ export default class MapEvents extends Component {
     }
 
 
-  componentWillReceiveProps(nextProps){
-    if(nextProps.location.latitude && nextProps.location.longitude){
+  componentDidMount() {
+    if(this.props.location.coords.latitude && this.props.location.coords.longitude){
       let location =  { 
-        latitude: nextProps.location.latitude,
-        longitude: nextProps.location.longitude,
+        latitude: this.props.location.coords.latitude,
+        longitude: this.props.location.coords.longitude,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421      
       };
             
       this._mapView.animateToRegion(location);
       this.setState({ location });
-      this.props.dispatch(getMapEvents(nextProps.location.latitude, nextProps.location.longitude));
+      this.props.dispatch(getMapEvents(this.props.location.coords.latitude, this.props.location.coords.longitude));
+    }
+  }
+  componentWillReceiveProps(nextProps){
+    if(nextProps.location.coords.latitude && nextProps.location.coords.longitude){
+      let location =  { 
+        latitude: nextProps.location.coords.latitude,
+        longitude: nextProps.location.coords.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421      
+      };
+            
+      this._mapView.animateToRegion(location);
+      this.setState({ location });
+      this.props.dispatch(getMapEvents(nextProps.location.coords.latitude, nextProps.location.coords.longitude));
     }
   }
 

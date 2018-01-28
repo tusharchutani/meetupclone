@@ -14,7 +14,7 @@ var defaultState = {};
 
 exports.configureStore = (initialState=defaultState) => {
   var store = createStore(reducer, initialState,
-  		 compose(applyMiddleware(thunk/*, logger*/),
+  		 compose(applyMiddleware(thunk, logger),
   		 	autoRehydrate()
   		 	));
   persistStore(store, {storage: AsyncStorage, blacklist:['events','form','nav']},()=>{

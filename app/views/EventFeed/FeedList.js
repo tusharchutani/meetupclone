@@ -44,6 +44,7 @@ export default class FeedList extends Component {
         longitude:null
       },
       loading:false,
+      loaded:false,
       footerLoading:false,
       currentPage:1
     };
@@ -82,7 +83,7 @@ export default class FeedList extends Component {
     this.setState({ location });
   };
 
-  loadEventsNearMe(page=1, latitude=this.props.location.latitude, longitude=this.props.location.longitude){
+  loadEventsNearMe(page=1, latitude=this.props.location.coords.latitude, longitude=this.props.location.coords.longitude){
 
     if(latitude == null || longitude == null){
       return
@@ -100,13 +101,16 @@ export default class FeedList extends Component {
   
   reloadEvents(){
     this.setState({currentPage:1},()=>{
-      this.loadEventsNearMe(this.props.location.latitude, this.props.location.longitude);
+      this.loadEventsNearMe(1, this.props.location.coords.latitude, this.props.location.coords.longitude);
     })
   }
 
   componentWillReceiveProps(nextProps){
-    if(nextProps.location.latitude && nextProps.location.longitude){
-      this.loadEventsNearMe(1, nextProps.location.latitude, nextProps.location.longitude);
+    let {latitude,longitude} = nextProps.location.coords; 
+    
+    if(latitude && longitude && !this.state.loaded){
+      this.loadEventsNearMe(1, latitude, longitude);
+      this.setState({loaded:true});
     }
   }
 
