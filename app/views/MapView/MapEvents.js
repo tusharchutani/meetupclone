@@ -74,7 +74,8 @@ export default class MapEvents extends Component {
     }
   }
   componentWillReceiveProps(nextProps){
-    if(nextProps.location.coords.latitude && nextProps.location.coords.longitude){
+    if(nextProps.location.coords.latitude != this.props.location.coords.latitude && nextProps.location.coords.longitude !=  this.props.location.coords.longitude ){
+   // if(nextProps.location.coords.latitude && nextProps.location.coords.longitude){
       let location =  { 
         latitude: nextProps.location.coords.latitude,
         longitude: nextProps.location.coords.longitude,
@@ -87,9 +88,6 @@ export default class MapEvents extends Component {
       this.props.dispatch(getMapEvents(nextProps.location.coords.latitude, nextProps.location.coords.longitude));
     }
   }
-
-
-  
 
 
   onUpdateEvents(){

@@ -3,7 +3,7 @@ const localHost = "http://192.168.1.72:3001/v1";
 const sandBox = "https://pure-island-32874.herokuapp.com/v1";
 
 
-var API_URL = PRODUCTION;//'http://localhost:3001/v1';  https://pure-island-32874.herokuapp.com
+var API_URL = 'http://localhost:3001/v1'; // PRODUCTION;//  https://pure-island-32874.herokuapp.com
 
 //TODO: add the tags fields, latitude and lognitude 
 exports.EVENT_FEED = (lon, lat, userId, page=1) =>`${API_URL}/geteventsbylocation/${lon}/${lat}/${userId}/${page}`;

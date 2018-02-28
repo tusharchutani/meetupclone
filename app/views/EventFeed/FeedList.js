@@ -201,7 +201,6 @@ export default class FeedList extends Component {
   });
 
   var mapStateToProps = (state) =>{
-    
     return {
       eventList: state.events.eventList ? state.events.eventList:[],
       userId: state.auth.user_id,
