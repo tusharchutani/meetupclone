@@ -106,8 +106,9 @@ export default class FeedList extends Component {
   }
 
   componentWillReceiveProps(nextProps){
-    let {latitude,longitude} = nextProps.location.coords; 
-    
+    let {latitude,longitude} = nextProps.location.coords;
+    console.log("=============================")
+    console.log(latitude) 
     if(latitude && longitude && !this.state.loaded){
       this.loadEventsNearMe(1, latitude, longitude);
       this.setState({loaded:true});

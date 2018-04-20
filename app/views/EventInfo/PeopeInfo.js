@@ -70,7 +70,6 @@ export default class PeopleInfo extends Component{
 
       <FlatList
         keyExtractor={(item, index) => index}
-        onRefresh={this.loadUsers}
         refreshing={this.state.isLoading}        
         data={this.state.users}
         renderItem={({ item }) => {
