@@ -26,7 +26,8 @@ export default class MapEvents extends Component {
     this.state = {
       navigation:{
        screenName:'NA'
-      }
+      },
+      loaded:false
     }
     //TODO: get stuff from rest API
     this.state = {
@@ -60,6 +61,9 @@ export default class MapEvents extends Component {
 
 
   componentDidMount() {
+    if(!this.props.location || !this.props.location.coords){
+      return;
+    }    
     if(this.props.location.coords.latitude && this.props.location.coords.longitude){
       let location =  { 
         latitude: this.props.location.coords.latitude,
@@ -68,26 +72,31 @@ export default class MapEvents extends Component {
         longitudeDelta: 0.0421      
       };
             
-      this._mapView.animateToRegion(location);
       this.setState({ location });
       this.props.dispatch(getMapEvents(this.props.location.coords.latitude, this.props.location.coords.longitude));
+      this.setState({loaded:true});
     }
   }
   componentWillReceiveProps(nextProps){
-    if(nextProps.location.coords.latitude != this.props.location.coords.latitude && nextProps.location.coords.longitude !=  this.props.location.coords.longitude ){
-   // if(nextProps.location.coords.latitude && nextProps.location.coords.longitude){
+    if(!nextProps.location || !nextProps.location.coords){
+      return;
+    }
+    if(nextProps.location.coords.latitude && nextProps.location.coords.longitude && !this.state.loaded){
       let location =  { 
         latitude: nextProps.location.coords.latitude,
         longitude: nextProps.location.coords.longitude,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421      
       };
-            
-      this._mapView.animateToRegion(location);
+
       this.setState({ location });
       this.props.dispatch(getMapEvents(nextProps.location.coords.latitude, nextProps.location.coords.longitude));
+      this.setState({loaded:true})
     }
   }
+
+
+  
 
 
   onUpdateEvents(){

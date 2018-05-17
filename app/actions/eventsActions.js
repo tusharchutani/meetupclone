@@ -71,7 +71,7 @@ exports.createEvent = (newEvent) =>{
 	return function(dispatch){
 		return SecureStore.getItemAsync('token').then((token)=>{
 	 		SecureStore.getItemAsync('user_id').then((user_id)=>{
-				return axios.post(CREATE_EVENT(user_id),newEvent).then((response)=>{
+				return axios.post(CREATE_EVENT(user_id),newEvent,{headers: {'Authorization': token}}).then((response)=>{
 					dispatch({type:'EVENT_CREATED'})
 				}).catch((error)=>
 				{	

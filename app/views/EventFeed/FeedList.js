@@ -106,15 +106,30 @@ export default class FeedList extends Component {
   }
 
   componentWillReceiveProps(nextProps){
-    let {latitude,longitude} = nextProps.location.coords;
-    console.log("=============================")
-    console.log(latitude) 
+    if(!nextProps.location || !nextProps.location.coords){
+      return;
+    }
+
+    let {latitude,longitude} = nextProps.location.coords; 
+    
     if(latitude && longitude && !this.state.loaded){
       this.loadEventsNearMe(1, latitude, longitude);
       this.setState({loaded:true});
     }
   }
 
+  componentDidMount() {
+    if(!this.props.location || !this.props.location.coords){
+      return;
+    }
+
+    let {latitude,longitude} = this.props.location.coords; 
+    
+    if(latitude && longitude && !this.state.loaded){
+      this.loadEventsNearMe(1, latitude, longitude);
+      this.setState({loaded:true});
+    }
+  }
 
 
   moreInfo(data) {
@@ -202,6 +217,7 @@ export default class FeedList extends Component {
   });
 
   var mapStateToProps = (state) =>{
+    
     return {
       eventList: state.events.eventList ? state.events.eventList:[],
       userId: state.auth.user_id,
