@@ -9,10 +9,9 @@ The uses Node.js as the server (althought that is a different project)
 
 
 ## Front end
-### React-native
-### Redux (as the state managment) 
-### Expo.io deployment frameworks 
-- This was used to distirbute the app to testers
+- **React-native
+- **Redux (as the state managment) 
+- **Expo.io deployment frameworks:** This was used to distirbute the app to testers
 
 # How to run?
 This app is no longer properly functional. However some parts of it are still working - it can be found on the [app store](https://itunes.apple.com/US/app/id1332449364?mt=8). 
