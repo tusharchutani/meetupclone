@@ -10,7 +10,7 @@ The uses Node.js as the server (althought that is a different project)
 
 ## Front end
 - **React-native**
-- **Redux***: State managment
+- **Redux**: State managment
 - **Expo.io deployment frameworks:** This was used to distirbute the app to testers
 
 # How to run?
